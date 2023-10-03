@@ -46,13 +46,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)\Bin\$(Configuration)_$(Platform)\</OutDir>
     <IntDir>Temp\$(Configuration)_$(Platform)\</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Source;$(SolutionDir)\Libraries\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)\Bin\$(Configuration)_$(Platform)\</OutDir>
     <IntDir>Temp\$(Configuration)_$(Platform)\</IntDir>
-    <IncludePath>$(SolutionDir)\Libraries\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Source;$(SolutionDir)\Libraries\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -95,9 +95,11 @@
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Core.h" />
+    <ClInclude Include="Source\Arg\Core.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Core\Window.h" />
+    <ClInclude Include="Source\Arg\Math.h" />
+    <ClInclude Include="Source\Math\MathTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

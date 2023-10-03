@@ -11,7 +11,6 @@ namespace Arg
 	void StartUpCore()
 	{
 		glfwInit();
-
 	}
 
 	void ShutDownCore()
@@ -38,6 +37,7 @@ namespace Arg
 		if (!gladLoaderState)
 		{
 			std::cout << "Error: Failed to initialize GLAD!" << std::endl;
+			return nullptr;
 		}
 
 		return new Application(window);
@@ -55,12 +55,11 @@ namespace Arg
 
 	void Application::Run() const
 	{
-		m_pWindow->StartUp();
 		while (!m_pWindow->ShouldClose())
 		{
 			m_pWindow->Update();
 		}
 
-		m_pWindow->ShutDown();
+		m_pWindow->Destroy();
 	}
 }

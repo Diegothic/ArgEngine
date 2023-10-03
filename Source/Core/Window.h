@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <Arg/Math.h>
+
+class GLFWwindow;
 
 namespace Arg
 {
@@ -19,17 +20,32 @@ namespace Arg
 		Window(const WindowSpec& spec);
 		virtual ~Window() = default;
 
-		bool Create();
+		uint32_t GetWidth() const { return m_Size.x; }
+		uint32_t GetHeight() const { return m_Size.y; }
 
-		void StartUp();
-		void Update() const;
-		void ShutDown();
+		bool Create();
+		void Update();
+		void Destroy();
 
 		bool ShouldClose() const;
+
+	protected:
+		virtual void VOnCreate() {}
+		virtual void VOnUpdate() {}
+		virtual void VOnDestroy() {}
+
+		virtual void VOnResized() {}
+
+	private:
+		void OnResized(int newWidth, int newHeight);
+
+	private:
+		static Window* s_CurrentWindow;
+		static void WindowResizeCallback(GLFWwindow* windowHandle, int newWidth, int newHeight);
 
 	private:
 		GLFWwindow* m_pWindowHandle;
 		std::string m_Title;
-		glm::uvec2 m_Size;
+		Vec2u m_Size;
 	};
 }
