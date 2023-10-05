@@ -6,8 +6,7 @@
 std::map<GLFWwindow*, Arg::Window*> Arg::Window::s_WindowRegistry;
 
 Arg::Window::Window(const WindowSpec& spec)
-	: m_pWindowHandle(nullptr),
-	m_KeyboardState()
+	: m_pWindowHandle(nullptr)
 {
 	m_Title = spec.title;
 	m_Size = glm::uvec2(spec.width, spec.height);
@@ -45,11 +44,25 @@ bool Arg::Window::Create()
 		static_cast<int>(GetHeight())
 	);
 
-	glfwSetFramebufferSizeCallback(m_pWindowHandle,
+	glfwSetFramebufferSizeCallback(
+		m_pWindowHandle,
 		Window::WindowResizeCallback
 	);
-	glfwSetKeyCallback(m_pWindowHandle,
+	glfwSetKeyCallback(
+		m_pWindowHandle,
 		Window::InputKeyCallback
+	);
+	glfwSetCursorPosCallback(
+		m_pWindowHandle,
+		Window::InputMousePositionCallback
+	);
+	glfwSetMouseButtonCallback(
+		m_pWindowHandle,
+		Window::InputMouseButtonCallback
+	);
+	glfwSetScrollCallback(
+		m_pWindowHandle,
+		Window::InputMouseScrollCallback
 	);
 
 	VOnCreate();
@@ -59,9 +72,11 @@ bool Arg::Window::Create()
 
 void Arg::Window::Update()
 {
+	m_KeyboardState.Update();
+	m_MouseState.Update();
 	glfwPollEvents();
 
-	// TODO: Remove keyboard test
+	// TODO: Remove input test
 	if (m_KeyboardState.IsKeyPressed(KeyCode::A))
 	{
 		std::cout << "A Pressed" << std::endl;
@@ -92,6 +107,31 @@ void Arg::Window::Update()
 		std::cout << "S Pressed with Ctrl" << std::endl;
 	}
 
+	if (m_MouseState.IsButtonPressed(MouseButton::Right))
+	{
+		std::cout << "Right button Pressed" << std::endl;
+	}
+
+	if (m_MouseState.IsButtonDown(MouseButton::Right))
+	{
+		std::cout << "Right button Down" << std::endl;
+	}
+
+	if (m_MouseState.IsButtonReleased(MouseButton::Right))
+	{
+		std::cout << "Right button Released" << std::endl;
+	}
+
+	if (m_MouseState.GetVelocity() != Vec2(0.0))
+	{
+		const Vec2 mousePosition = m_MouseState.GetPosition();
+		std::cout << "Mouse moved: "
+			<< mousePosition.x
+			<< " "
+			<< mousePosition.y
+			<< std::endl;
+	}
+
 	// TODO: Move to renderer
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT
@@ -102,8 +142,6 @@ void Arg::Window::Update()
 	VOnUpdate();
 
 	glfwSwapBuffers(m_pWindowHandle);
-
-	m_KeyboardState.Update();
 }
 
 void Arg::Window::Destroy()
@@ -139,7 +177,7 @@ void Arg::Window::OnResized(int newWidth, int newHeight)
 void Arg::Window::OnKeyPressed(int key, int mods)
 {
 	m_KeyboardState.OnKeyPressed(key);
-	m_KeyboardState.SetMods(mods);
+	m_KeyboardState.OnModsChanged(mods);
 }
 
 void Arg::Window::OnKeyReleased(int key)
@@ -147,7 +185,29 @@ void Arg::Window::OnKeyReleased(int key)
 	m_KeyboardState.OnKeyReleased(key);
 }
 
-void Arg::Window::WindowResizeCallback(GLFWwindow* windowHandle,
+void Arg::Window::OnMouseButtonPressed(int button, int mods)
+{
+	m_MouseState.OnButtonPressed(button);
+	m_MouseState.OnModsChanged(mods);
+}
+
+void Arg::Window::OnMouseButtonReleased(int button)
+{
+	m_MouseState.OnButtonReleased(button);
+}
+
+void Arg::Window::OnMousePositionChanged(Vec2 position)
+{
+	m_MouseState.OnPositionChanged(position);
+}
+
+void Arg::Window::OnMouseScrollChanged(double scroll)
+{
+	m_MouseState.OnScrollChanged(scroll);
+}
+
+void Arg::Window::WindowResizeCallback(
+	GLFWwindow* windowHandle,
 	int newWidth,
 	int newHeight
 )
@@ -161,7 +221,8 @@ void Arg::Window::WindowResizeCallback(GLFWwindow* windowHandle,
 	window->OnResized(newWidth, newHeight);
 }
 
-void Arg::Window::InputKeyCallback(GLFWwindow* windowHandle,
+void Arg::Window::InputKeyCallback(
+	GLFWwindow* windowHandle,
 	int key,
 	int scanCode,
 	int action,
@@ -185,4 +246,61 @@ void Arg::Window::InputKeyCallback(GLFWwindow* windowHandle,
 	default:
 		break;
 	}
+}
+
+void Arg::Window::InputMouseButtonCallback(
+	GLFWwindow* windowHandle,
+	int button,
+	int action,
+	int mods
+)
+{
+	if (!s_WindowRegistry.contains(windowHandle))
+	{
+		return;
+	}
+
+	Window* window = s_WindowRegistry[windowHandle];
+	switch (action)
+	{
+	case GLFW_PRESS:
+		window->OnMouseButtonPressed(button, mods);
+		break;
+	case GLFW_RELEASE:
+		window->OnMouseButtonReleased(button);
+		break;
+	default:
+		break;
+	}
+}
+
+void Arg::Window::InputMousePositionCallback(
+	GLFWwindow* windowHandle,
+	double posX,
+	double posY
+)
+{
+	if (!s_WindowRegistry.contains(windowHandle))
+	{
+		return;
+	}
+
+	Window* window = s_WindowRegistry[windowHandle];
+	window->OnMousePositionChanged(Vec2(posX, posY));
+}
+
+
+void Arg::Window::InputMouseScrollCallback(
+	GLFWwindow* windowHandle,
+	double horizontal,
+	double vertical
+)
+{
+	if (!s_WindowRegistry.contains(windowHandle))
+	{
+		return;
+	}
+
+	Window* window = s_WindowRegistry[windowHandle];
+	window->OnMouseScrollChanged(vertical);
 }

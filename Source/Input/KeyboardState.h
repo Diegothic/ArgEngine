@@ -9,7 +9,7 @@ namespace Arg
 	class KeyboardState
 	{
 	public:
-		KeyboardState() = default;
+		KeyboardState();
 		~KeyboardState() = default;
 
 		bool IsKeyPressed(KeyCode keyCode, int mods = 0) const;
@@ -19,7 +19,7 @@ namespace Arg
 
 		void OnKeyPressed(int key);
 		void OnKeyReleased(int key);
-		void SetMods(int mods);
+		void OnModsChanged(int mods);
 		void Update();
 
 	private:

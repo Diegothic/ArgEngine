@@ -1,5 +1,10 @@
 #include "KeyboardState.h"
 
+Arg::KeyboardState::KeyboardState()
+	: m_Mods()
+{
+}
+
 bool Arg::KeyboardState::IsKeyPressed(KeyCode keyCode, int mods) const
 {
 	if (mods == 0 && m_Mods > 0)
@@ -40,7 +45,7 @@ void Arg::KeyboardState::OnKeyReleased(int key)
 	m_KeyDownState[key] = false;
 }
 
-void Arg::KeyboardState::SetMods(int mods)
+void Arg::KeyboardState::OnModsChanged(int mods)
 {
 	m_Mods = mods;
 }
