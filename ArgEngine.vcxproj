@@ -92,11 +92,15 @@
     <ClCompile Include="Libraries\Include\stb\stb_image.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
+    <ClCompile Include="Source\Input\KeyboardState.cpp" />
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Arg\Core.h" />
+    <ClInclude Include="Source\Arg\Input.h" />
     <ClInclude Include="Source\Core\Application.h" />
+    <ClInclude Include="Source\Input\KeyboardState.h" />
+    <ClInclude Include="Source\Input\KeyCodes.h" />
     <ClInclude Include="Source\Core\Window.h" />
     <ClInclude Include="Source\Arg\Math.h" />
     <ClInclude Include="Source\Math\MathTypes.h" />

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <map>
 #include <Arg/Math.h>
+#include <Arg/Input.h>
 
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace Arg
 {
@@ -38,14 +40,19 @@ namespace Arg
 
 	private:
 		void OnResized(int newWidth, int newHeight);
+		void OnKeyPressed(int key, int mods);
+		void OnKeyReleased(int key);
 
 	private:
-		static Window* s_CurrentWindow;
+		static std::map<GLFWwindow*, Window*> s_WindowRegistry;
 		static void WindowResizeCallback(GLFWwindow* windowHandle, int newWidth, int newHeight);
+		static void InputKeyCallback(GLFWwindow* windowHandle, int key, int scanCode, int action, int mods);
 
 	private:
 		GLFWwindow* m_pWindowHandle;
 		std::string m_Title;
 		Vec2u m_Size;
+
+		KeyboardState m_KeyboardState;
 	};
 }
