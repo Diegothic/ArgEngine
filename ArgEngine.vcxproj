@@ -92,6 +92,7 @@
     <ClCompile Include="Libraries\Include\stb\stb_image.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
+    <ClCompile Include="Source\Input\GamepadState.cpp" />
     <ClCompile Include="Source\Input\KeyboardState.cpp" />
     <ClCompile Include="Source\Input\MouseState.cpp" />
     <ClCompile Include="Source\main.cpp" />
@@ -101,6 +102,10 @@
     <ClInclude Include="Source\Arg\Input.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Input\CursorModes.h" />
+    <ClInclude Include="Source\Input\GamepadAxes.h" />
+    <ClInclude Include="Source\Input\GamepadButtons.h" />
+    <ClInclude Include="Source\Input\GamepadConstants.h" />
+    <ClInclude Include="Source\Input\GamepadState.h" />
     <ClInclude Include="Source\Input\KeyboardState.h" />
     <ClInclude Include="Source\Input\KeyCodes.h" />
     <ClInclude Include="Source\Core\Window.h" />

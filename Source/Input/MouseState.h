@@ -25,8 +25,8 @@ namespace Arg
 		bool IsButtonReleased(int button) const;
 
 		Vec2 GetPosition() const;
-		Vec2 GetVelocity() const;
-		double GetScroll() const;
+		Vec2 GetPositionDelta() const;
+		double GetScrollDelta() const;
 		const CursorMode& GetCursorMode() const;
 
 		void OnButtonPressed(int button);

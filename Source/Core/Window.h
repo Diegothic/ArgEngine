@@ -46,6 +46,12 @@ namespace Arg
 		void OnMouseButtonReleased(int button);
 		void OnMousePositionChanged(Vec2 position);
 		void OnMouseScrollChanged(double scroll);
+		void OnGamepadConnected(int id);
+		void OnGamepadDisconnected(int id);
+
+		GamepadState* GetGamepadState(int id);
+		void AddGamepadState(int id);
+		void RemoveGamepadState(int id);
 
 	private:
 		static std::map<GLFWwindow*, Window*> s_WindowRegistry;
@@ -77,6 +83,10 @@ namespace Arg
 			double horizontal,
 			double vertical
 		);
+		static void InputGamepadCallback(
+			int id,
+			int event
+		);
 
 	private:
 		GLFWwindow* m_pWindowHandle;
@@ -85,5 +95,6 @@ namespace Arg
 
 		KeyboardState m_KeyboardState;
 		MouseState m_MouseState;
+		std::map<int, GamepadState*> m_GamepadState;
 	};
 }

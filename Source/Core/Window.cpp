@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <iostream>
+#include <ranges>
 #include <GLFW/glfw3.h>
 
 std::map<GLFWwindow*, Arg::Window*> Arg::Window::s_WindowRegistry;
@@ -44,6 +45,17 @@ bool Arg::Window::Create()
 		static_cast<int>(GetHeight())
 	);
 
+	std::cout << "\033[1;32m" << "Connected gamepads:" << "\033[0m" << std::endl;
+	for (int i = 0; i < GAMEPAD_MAX; i++)
+	{
+		if (glfwJoystickPresent(i)
+			&& glfwJoystickIsGamepad(i))
+		{
+			std::cout << "(" << i << ") " << glfwGetGamepadName(i) << std::endl;
+			AddGamepadState(i);
+		}
+	}
+
 	glfwSetFramebufferSizeCallback(
 		m_pWindowHandle,
 		Window::WindowResizeCallback
@@ -64,6 +76,9 @@ bool Arg::Window::Create()
 		m_pWindowHandle,
 		Window::InputMouseScrollCallback
 	);
+	glfwSetJoystickCallback(
+		Window::InputGamepadCallback
+	);
 
 	VOnCreate();
 
@@ -74,7 +89,45 @@ void Arg::Window::Update()
 {
 	m_KeyboardState.Update();
 	m_MouseState.Update();
+	for (auto& gamepad : m_GamepadState | std::views::values)
+	{
+		gamepad->Update();
+	}
+
 	glfwPollEvents();
+	GLFWgamepadstate glfwGamepadState;
+
+	for (int i = 0; i < GAMEPAD_MAX; i++)
+	{
+		GamepadState* gamepadState = GetGamepadState(i);
+		if (gamepadState == nullptr)
+		{
+			continue;
+		}
+
+		if (glfwGetGamepadState(i, &glfwGamepadState))
+		{
+			for (int button = 0; button < 15; button++)
+			{
+				switch (glfwGamepadState.buttons[button])
+				{
+				case GLFW_PRESS:
+					gamepadState->OnButtonPressed(button);
+					break;
+				case GLFW_RELEASE:
+					gamepadState->OnButtonReleased(button);
+					break;
+				default:
+					break;
+				}
+			}
+
+			for (int axis = 0; axis < 6; axis++)
+			{
+				gamepadState->OnAxisChanged(axis, glfwGamepadState.axes[axis]);
+			}
+		}
+	}
 
 	// TODO: Remove input test
 	if (m_KeyboardState.IsKeyPressed(KeyCode::A))
@@ -122,14 +175,43 @@ void Arg::Window::Update()
 		std::cout << "Right button Released" << std::endl;
 	}
 
-	if (m_MouseState.GetVelocity() != Vec2(0.0))
+	//if (m_MouseState.GetPositionDelta() != Vec2(0.0))
+	//{
+	//	const Vec2 mousePosition = m_MouseState.GetPosition();
+	//	std::cout << "Mouse moved: "
+	//		<< mousePosition.x
+	//		<< " "
+	//		<< mousePosition.y
+	//		<< std::endl;
+	//}
+
+	GamepadState* gamepadState = GetGamepadState(0);
+	if (gamepadState != nullptr)
 	{
-		const Vec2 mousePosition = m_MouseState.GetPosition();
-		std::cout << "Mouse moved: "
-			<< mousePosition.x
-			<< " "
-			<< mousePosition.y
-			<< std::endl;
+		if (gamepadState->GetAxis2D(GamepadAxis2D::Left) != Vec2(0.0))
+		{
+			const Vec2 gamepadAxisLeft = gamepadState->GetAxis2DDelta(GamepadAxis2D::Left);
+			std::cout << "Gamepad axis left: "
+				<< gamepadAxisLeft.x
+				<< " "
+				<< gamepadAxisLeft.y
+				<< std::endl;
+		}
+
+		if (gamepadState->IsButtonPressed(GamepadButton::South))
+		{
+			std::cout << "Gamepad A button Pressed" << std::endl;
+		}
+
+		if (gamepadState->IsButtonDown(GamepadButton::South))
+		{
+			std::cout << "Gamepad A button Down" << std::endl;
+		}
+
+		if (gamepadState->IsButtonReleased(GamepadButton::South))
+		{
+			std::cout << "Gamepad A button Released" << std::endl;
+		}
 	}
 
 	// TODO: Move to renderer
@@ -148,9 +230,14 @@ void Arg::Window::Destroy()
 {
 	VOnDestroy();
 
-	glfwDestroyWindow(m_pWindowHandle);
+	for (int i = 0; i < GAMEPAD_MAX; i++)
+	{
+		RemoveGamepadState(i);
+	}
 
 	s_WindowRegistry.erase(m_pWindowHandle);
+
+	glfwDestroyWindow(m_pWindowHandle);
 }
 
 bool Arg::Window::ShouldClose() const
@@ -204,6 +291,54 @@ void Arg::Window::OnMousePositionChanged(Vec2 position)
 void Arg::Window::OnMouseScrollChanged(double scroll)
 {
 	m_MouseState.OnScrollChanged(scroll);
+}
+
+void Arg::Window::OnGamepadConnected(int id)
+{
+	std::cout << "Gamepad connected: (" << id << ") " << glfwGetGamepadName(id) << std::endl;
+	AddGamepadState(id);
+}
+
+void Arg::Window::OnGamepadDisconnected(int id)
+{
+	if (!m_GamepadState.contains(id))
+	{
+		return;
+	}
+
+	std::cout << "Gamepad disconnected: (" << id << ") " << std::endl;
+	RemoveGamepadState(id);
+}
+
+Arg::GamepadState* Arg::Window::GetGamepadState(int id)
+{
+	if (!m_GamepadState.contains(id))
+	{
+		return nullptr;
+	}
+
+	return m_GamepadState.at(id);
+}
+
+void Arg::Window::AddGamepadState(int id)
+{
+	if (m_GamepadState.contains(id))
+	{
+		delete m_GamepadState.at(id);
+	}
+
+	m_GamepadState[id] = new GamepadState(id);
+}
+
+void Arg::Window::RemoveGamepadState(int id)
+{
+	if (!m_GamepadState.contains(id))
+	{
+		return;
+	}
+
+	delete m_GamepadState.at(id);
+	m_GamepadState.erase(id);
 }
 
 void Arg::Window::WindowResizeCallback(
@@ -303,4 +438,26 @@ void Arg::Window::InputMouseScrollCallback(
 
 	Window* window = s_WindowRegistry[windowHandle];
 	window->OnMouseScrollChanged(vertical);
+}
+
+
+void Arg::Window::InputGamepadCallback(
+	int id,
+	int event
+)
+{
+	for (const auto window : s_WindowRegistry | std::views::values)
+	{
+		switch (event)
+		{
+		case GLFW_CONNECTED:
+			window->OnGamepadConnected(id);
+			break;
+		case GLFW_DISCONNECTED:
+			window->OnGamepadDisconnected(id);
+			break;
+		default:
+			break;
+		}
+	}
 }

@@ -32,7 +32,7 @@ bool Arg::MouseState::IsButtonReleased(MouseButton button) const
 
 bool Arg::MouseState::IsButtonPressed(int button, int mods) const
 {
-	if (button < 0 || button > 7)
+	if (button < MOUSE_BUTTON_MIN || button > MOUSE_BUTTON_MAX)
 	{
 		return false;
 	}
@@ -52,7 +52,7 @@ bool Arg::MouseState::IsButtonPressed(int button, int mods) const
 
 bool Arg::MouseState::IsButtonDown(int button) const
 {
-	if (button < 0 || button > 7)
+	if (button < MOUSE_BUTTON_MIN || button > MOUSE_BUTTON_MAX)
 	{
 		return false;
 	}
@@ -62,7 +62,7 @@ bool Arg::MouseState::IsButtonDown(int button) const
 
 bool Arg::MouseState::IsButtonUp(int button) const
 {
-	if (button < 0 || button > 7)
+	if (button < MOUSE_BUTTON_MIN || button > MOUSE_BUTTON_MAX)
 	{
 		return false;
 	}
@@ -72,7 +72,7 @@ bool Arg::MouseState::IsButtonUp(int button) const
 
 bool Arg::MouseState::IsButtonReleased(int button) const
 {
-	if (button < 0 || button > 7)
+	if (button < MOUSE_BUTTON_MIN || button > MOUSE_BUTTON_MAX)
 	{
 		return false;
 	}
@@ -85,12 +85,12 @@ Arg::Vec2 Arg::MouseState::GetPosition() const
 	return m_Position;
 }
 
-Arg::Vec2 Arg::MouseState::GetVelocity() const
+Arg::Vec2 Arg::MouseState::GetPositionDelta() const
 {
 	return m_Position - m_LastPosition;
 }
 
-double Arg::MouseState::GetScroll() const
+double Arg::MouseState::GetScrollDelta() const
 {
 	return m_Scroll - m_LastScroll;
 }
