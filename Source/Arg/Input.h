@@ -9,3 +9,4 @@
 #include "Input/GamepadButtons.h"
 #include "Input/GamepadAxes.h"
 #include "Input/GamepadState.h"
+#include "Input/WindowInput.h"

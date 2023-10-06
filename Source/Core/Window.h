@@ -40,61 +40,12 @@ namespace Arg
 
 	private:
 		void OnResized(int newWidth, int newHeight);
-		void OnKeyPressed(int key, int mods);
-		void OnKeyReleased(int key);
-		void OnMouseButtonPressed(int button, int mods);
-		void OnMouseButtonReleased(int button);
-		void OnMousePositionChanged(Vec2 position);
-		void OnMouseScrollChanged(double scroll);
-		void OnGamepadConnected(int id);
-		void OnGamepadDisconnected(int id);
-
-		GamepadState* GetGamepadState(int id);
-		void AddGamepadState(int id);
-		void RemoveGamepadState(int id);
-
-	private:
-		static std::map<GLFWwindow*, Window*> s_WindowRegistry;
-		static void WindowResizeCallback(
-			GLFWwindow* windowHandle, 
-			int newWidth, 
-			int newHeight
-		);
-		static void InputKeyCallback(
-			GLFWwindow* windowHandle, 
-			int key,
-			int scanCode, 
-			int action, 
-			int mods
-		);
-		static void InputMouseButtonCallback(
-			GLFWwindow* windowHandle,
-			int button,
-			int action,
-			int mods
-		);
-		static void InputMousePositionCallback(
-			GLFWwindow* windowHandle,
-			double posX,
-			double posY
-		);
-		static void InputMouseScrollCallback(
-			GLFWwindow* windowHandle,
-			double horizontal,
-			double vertical
-		);
-		static void InputGamepadCallback(
-			int id,
-			int event
-		);
 
 	private:
 		GLFWwindow* m_pWindowHandle;
 		std::string m_Title;
 		Vec2u m_Size;
 
-		KeyboardState m_KeyboardState;
-		MouseState m_MouseState;
-		std::map<int, GamepadState*> m_GamepadState;
+		WindowInput* m_pWindowInput;
 	};
 }
