@@ -4,6 +4,8 @@
 #include <ranges>
 #include <GLFW/glfw3.h>
 
+#include "Arg/Debug.h"
+
 Arg::Window::Window(const WindowSpec& spec)
 	: m_pWindowHandle(nullptr),
 	m_pWindowInput(nullptr)
@@ -14,6 +16,7 @@ Arg::Window::Window(const WindowSpec& spec)
 
 bool Arg::Window::Create()
 {
+	AE_CORE_LOG_INFO("Creating a window");
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -28,6 +31,7 @@ bool Arg::Window::Create()
 	);
 	if (m_pWindowHandle == nullptr)
 	{
+		AE_CORE_LOG_ERR("Failed to create a window!");
 		return false;
 	}
 
@@ -148,6 +152,8 @@ void Arg::Window::Update()
 
 void Arg::Window::Destroy()
 {
+	AE_CORE_LOG_INFO("Destroying a window");
+
 	VOnDestroy();
 
 	if (m_pWindowInput != nullptr)

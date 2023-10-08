@@ -4,6 +4,8 @@
 #include <ranges>
 #include <GLFW/glfw3.h>
 
+#include "Arg/Debug.h"
+
 std::map<GLFWwindow*, Arg::WindowInput*> Arg::WindowInput::s_WindowInputRegistry;
 
 Arg::WindowInput::WindowInput()
@@ -38,18 +40,21 @@ Arg::WindowInput::~WindowInput()
 
 void Arg::WindowInput::Initialize(GLFWwindow* windowHandle)
 {
+	AE_CORE_LOG_INFO("Initializing Input");
 	m_pWindowHandle = windowHandle;
 	s_WindowInputRegistry[m_pWindowHandle] = this;
 
 	CreateKeyboardState();
 	CreateMouseState();
-	std::cout << "\033[1;32m" << "Found connected gamepads:" << "\033[0m" << std::endl;
 	for (int i = 0; i < GAMEPAD_MAX; i++)
 	{
 		if (glfwJoystickPresent(i)
 			&& glfwJoystickIsGamepad(i))
 		{
-			std::cout << "(" << i << ") " << glfwGetGamepadName(i) << std::endl;
+			AE_CORE_LOG_INFO("Found connected Gamepad:\n\t(%d) %s",
+				i,
+				glfwGetGamepadName(i)
+			);
 			CreateGamepadStateForID(i);
 		}
 	}
@@ -241,7 +246,10 @@ void Arg::WindowInput::OnMouseScrollChanged(double scroll) const
 
 void Arg::WindowInput::OnGamepadConnected(int id)
 {
-	std::cout << "Gamepad connected: (" << id << ") " << glfwGetGamepadName(id) << std::endl;
+	AE_CORE_LOG_INFO("Gamepad connected:\n\t(%d) %s",
+		id,
+		glfwGetGamepadName(id)
+	);
 	CreateGamepadStateForID(id);
 }
 
@@ -252,7 +260,10 @@ void Arg::WindowInput::OnGamepadDisconnected(int id)
 		return;
 	}
 
-	std::cout << "Gamepad disconnected: (" << id << ") " << std::endl;
+	AE_CORE_LOG_INFO("Gamepad disconnected:\n\t(%d) %s",
+		id,
+		glfwGetGamepadName(id)
+	);
 	RemoveGamepadStateForID(id);
 }
 

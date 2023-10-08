@@ -92,5 +92,11 @@
     <ClInclude Include="Source\Input\WindowInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Debug\CoreLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Arg\Debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
