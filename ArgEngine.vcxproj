@@ -89,6 +89,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Libraries\Include\glad\glad.c" />
+    <ClCompile Include="Libraries\Include\imgui\imgui.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Libraries\Include\stb\stb_image.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
@@ -97,12 +104,25 @@
     <ClCompile Include="Source\Input\MouseState.cpp" />
     <ClCompile Include="Source\Input\WindowInput.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Renderer\GraphicsContext.cpp" />
+    <ClCompile Include="Source\Renderer\RenderAPI.cpp" />
+    <ClCompile Include="Source\Renderer\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Libraries\Include\imgui\imconfig.h" />
+    <ClInclude Include="Libraries\Include\imgui\imgui.h" />
+    <ClInclude Include="Libraries\Include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="Libraries\Include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Libraries\Include\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Libraries\Include\imgui\imgui_internal.h" />
+    <ClInclude Include="Libraries\Include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Libraries\Include\imgui\imstb_textedit.h" />
+    <ClInclude Include="Libraries\Include\imgui\imstb_truetype.h" />
     <ClInclude Include="Source\Arg\Core.h" />
     <ClInclude Include="Source\Arg\Debug.h" />
     <ClInclude Include="Source\Arg\Input.h" />
     <ClInclude Include="Source\Arg\Memory.h" />
+    <ClInclude Include="Source\Arg\Renderer.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Debug\CoreLogger.h" />
     <ClInclude Include="Source\Input\CursorModes.h" />
@@ -118,7 +138,10 @@
     <ClInclude Include="Source\Input\MouseState.h" />
     <ClInclude Include="Source\Input\WindowInput.h" />
     <ClInclude Include="Source\Math\MathTypes.h" />
-    <ClInclude Include="Source\Memory\Memory.h" />
+    <ClInclude Include="Source\Memory\SmartPtr.h" />
+    <ClInclude Include="Source\Renderer\GraphicsContext.h" />
+    <ClInclude Include="Source\Renderer\RenderAPI.h" />
+    <ClInclude Include="Source\Renderer\Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

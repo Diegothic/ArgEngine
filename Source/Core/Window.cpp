@@ -2,16 +2,21 @@
 
 #include <iostream>
 #include <ranges>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
 #include "Arg/Debug.h"
 
 Arg::Window::Window(const WindowSpec& spec)
 	: m_pWindowHandle(nullptr),
-	m_pWindowInput(nullptr)
+	m_Input(nullptr),
+	m_DeltaTime(0.0)
 {
 	m_Title = spec.Title;
 	m_Size = glm::uvec2(spec.Width, spec.Height);
+	m_IsVSync = spec.VSync;
 }
 
 bool Arg::Window::Create()
@@ -35,35 +40,58 @@ bool Arg::Window::Create()
 		return false;
 	}
 
-	glfwMakeContextCurrent(m_pWindowHandle);
-	glfwSwapInterval(1);
+	const RendererSpec rendererSpec{
+		.WindowHandle = m_pWindowHandle,
+	};
+	m_Renderer = NewBox<Renderer>(rendererSpec);
+	const bool rendererInitialized = m_Renderer->Initialize();
+	if (!rendererInitialized)
+	{
+		AE_CORE_LOG_ERR("Failed to initialize the renderer!");
+		return false;
+	}
 
-	// TODO: Move to renderer
-	glViewport(
-		0,
-		0,
-		static_cast<int>(GetWidth()),
-		static_cast<int>(GetHeight())
-	);
+	m_Input = NewBox<WindowInput>();
+	m_Input->Initialize(m_pWindowHandle);
 
-	m_pWindowInput = NewBox<WindowInput>();
-	m_pWindowInput->Initialize(m_pWindowHandle);
+	SetVSync(m_IsVSync);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.IniFilename = "Temp/imgui.ini";
+
+	ImGui::StyleColorsLight();
+
+	ImGui_ImplGlfw_InitForOpenGL(m_pWindowHandle, true);
+	ImGui_ImplOpenGL3_Init("#version 150");
 
 	VOnCreate();
 
 	return true;
 }
 
+void Arg::Window::Start()
+{
+	m_DeltaTime = 1.0f / 30.0f;
+
+	VOnStart();
+}
+
 void Arg::Window::Update()
 {
-	m_pWindowInput->PrePullEvents();
+	const double updateBeginTime = glfwGetTime();
+
+	m_Input->PrePullEvents();
 	glfwPollEvents();
-	m_pWindowInput->PostPullEvents();
+	m_Input->PostPullEvents();
 
 	// TODO: Remove input test
-	const Rc<KeyboardState>& keyboardState = m_pWindowInput->GetKeyboardState();
-	const Rc<MouseState>& mouseState = m_pWindowInput->GetMouseState();
-	const Rc<GamepadState>& gamepadState = m_pWindowInput->GetGamepadState(0);
+	const Rc<KeyboardState>& keyboardState = m_Input->GetKeyboardState();
+	const Rc<MouseState>& mouseState = m_Input->GetMouseState();
+	const Rc<GamepadState>& gamepadState = m_Input->GetGamepadState(0);
 
 	if (keyboardState->IsKeyPressed(KeyCode::A))
 	{
@@ -138,16 +166,38 @@ void Arg::Window::Update()
 		}
 	}
 
-	// TODO: Move to renderer
-	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT
-		| GL_DEPTH_BUFFER_BIT
-		| GL_STENCIL_BUFFER_BIT
-	);
+	VOnUpdate(m_DeltaTime);
 
-	VOnUpdate();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-	glfwSwapBuffers(m_pWindowHandle);
+	ImGui::Begin("Stats");
+	ImGui::Text("FrameTime: %f", m_DeltaTime);
+	ImGui::Text("FPS: %f", 1.0 / m_DeltaTime);
+	ImGui::End();
+
+	VOnGUI();
+
+	ImGui::Render();
+
+	const FrameParams frameParams{
+		.Size = Vec2i(GetWidth(), GetHeight()),
+	};
+	m_Renderer->BeginFrame(frameParams);
+
+	VOnRender();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	m_Renderer->EndFrame();
+
+	const double updateEndTime = glfwGetTime();
+	m_DeltaTime = updateEndTime - updateBeginTime;
+	if (m_DeltaTime > 1.0f / 30.0f)
+	{
+		m_DeltaTime = 1.0f / 30.0f;
+	}
 }
 
 void Arg::Window::Destroy()
@@ -155,6 +205,10 @@ void Arg::Window::Destroy()
 	AE_CORE_LOG_INFO("Destroying a window");
 
 	VOnDestroy();
+
+	ImGui_ImplGlfw_Shutdown();
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui::DestroyContext();
 
 	glfwDestroyWindow(m_pWindowHandle);
 }
@@ -164,18 +218,16 @@ bool Arg::Window::ShouldClose() const
 	return glfwWindowShouldClose(m_pWindowHandle);
 }
 
+void Arg::Window::SetVSync(bool enabled)
+{
+	m_IsVSync = enabled;
+	glfwSwapInterval(m_IsVSync ? 1 : 0);
+}
+
 void Arg::Window::OnResized(int newWidth, int newHeight)
 {
 	m_Size.x = newWidth;
 	m_Size.y = newHeight;
-
-	// TODO: Move to renderer
-	glViewport(
-		0,
-		0,
-		static_cast<int>(GetWidth()),
-		static_cast<int>(GetHeight())
-	);
 
 	VOnResized();
 }

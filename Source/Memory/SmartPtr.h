@@ -14,6 +14,9 @@ namespace Arg
 	}
 
 	template<typename T>
+	Box<T> NullBox = Box<T>(nullptr);
+
+	template<typename T>
 	using Rc = std::shared_ptr<T>;
 
 	template<typename T, typename ... Args>
@@ -21,4 +24,7 @@ namespace Arg
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
+
+	template<typename T>
+	Rc<T> NullRc = Rc<T>(nullptr);
 }

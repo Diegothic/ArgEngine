@@ -126,7 +126,7 @@ const Arg::Rc<Arg::GamepadState>& Arg::WindowInput::GetGamepadState(int id) cons
 {
 	if (!m_pGamepadStateForID.contains(id))
 	{
-		return Rc<GamepadState>(nullptr);
+		return NullRc<Arg::GamepadState>;
 	}
 
 	return m_pGamepadStateForID.at(id);
