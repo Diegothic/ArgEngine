@@ -98,5 +98,11 @@
     <ClInclude Include="Source\Arg\Debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Memory\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Arg\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,8 +10,8 @@ Arg::Window::Window(const WindowSpec& spec)
 	: m_pWindowHandle(nullptr),
 	m_pWindowInput(nullptr)
 {
-	m_Title = spec.title;
-	m_Size = glm::uvec2(spec.width, spec.height);
+	m_Title = spec.Title;
+	m_Size = glm::uvec2(spec.Width, spec.Height);
 }
 
 bool Arg::Window::Create()
@@ -46,7 +46,7 @@ bool Arg::Window::Create()
 		static_cast<int>(GetHeight())
 	);
 
-	m_pWindowInput = new WindowInput();
+	m_pWindowInput = NewBox<WindowInput>();
 	m_pWindowInput->Initialize(m_pWindowHandle);
 
 	VOnCreate();
@@ -61,9 +61,9 @@ void Arg::Window::Update()
 	m_pWindowInput->PostPullEvents();
 
 	// TODO: Remove input test
-	const KeyboardState* keyboardState = m_pWindowInput->GetKeyboardState();
-	const MouseState* mouseState = m_pWindowInput->GetMouseState();
-	const GamepadState* gamepadState = m_pWindowInput->GetGamepadState(0);
+	const Rc<KeyboardState>& keyboardState = m_pWindowInput->GetKeyboardState();
+	const Rc<MouseState>& mouseState = m_pWindowInput->GetMouseState();
+	const Rc<GamepadState>& gamepadState = m_pWindowInput->GetGamepadState(0);
 
 	if (keyboardState->IsKeyPressed(KeyCode::A))
 	{
@@ -155,12 +155,6 @@ void Arg::Window::Destroy()
 	AE_CORE_LOG_INFO("Destroying a window");
 
 	VOnDestroy();
-
-	if (m_pWindowInput != nullptr)
-	{
-		delete m_pWindowInput;
-		m_pWindowInput = nullptr;
-	}
 
 	glfwDestroyWindow(m_pWindowHandle);
 }

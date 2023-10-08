@@ -1,9 +1,10 @@
 #pragma once
 
 #include <string>
-#include <map>
-#include <Arg/Math.h>
-#include <Arg/Input.h>
+
+#include "Arg/Memory.h"
+#include "Arg/Math.h"
+#include "Arg/Input.h"
 
 struct GLFWwindow;
 
@@ -11,9 +12,9 @@ namespace Arg
 {
 	struct WindowSpec
 	{
-		std::string title;
-		uint32_t width;
-		uint32_t height;
+		std::string Title;
+		uint32_t Width;
+		uint32_t Height;
 	};
 
 	class Window
@@ -46,6 +47,6 @@ namespace Arg
 		std::string m_Title;
 		Vec2u m_Size;
 
-		WindowInput* m_pWindowInput;
+		Box<WindowInput> m_pWindowInput;
 	};
 }

@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Arg/Debug.h"
+#include "Arg/Memory.h"
 #include "Window.h"
 
 void Arg::StartUpCore()
@@ -39,17 +40,16 @@ void Arg::ShutDownCore()
 	glfwTerminate();
 }
 
-Arg::Application* Arg::CreateApplication()
+Arg::Box<Arg::Application> Arg::CreateApplication()
 {
 	const Arg::WindowSpec windowSpec{
-		.title = "ArgEngine",
-		.width = 1920,
-		.height = 1080,
+		.Title = "ArgEngine",
+		.Width = 1920,
+		.Height = 1080,
 	};
-	Arg::Window* window = new Arg::Window(windowSpec);
+	const Arg::Rc<Arg::Window> window = Arg::NewRc<Arg::Window>(windowSpec);
 	const bool windowCreated = window->Create();
 	if (!windowCreated) {
-		delete window;
 		AE_CORE_LOG_ERR("Failed to create a window!");
 		return nullptr;
 	}
@@ -75,17 +75,12 @@ Arg::Application* Arg::CreateApplication()
 		graphicsRendererName
 	);
 
-	return new Arg::Application(window);
+	return NewBox<Arg::Application>(window);
 }
 
-Arg::Application::Application(Window* window)
+Arg::Application::Application(const Rc<Window>& window)
 {
 	m_pWindow = window;
-}
-
-Arg::Application::~Application()
-{
-	delete m_pWindow;
 }
 
 void Arg::Application::Run() const

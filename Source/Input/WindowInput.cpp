@@ -17,24 +17,6 @@ Arg::WindowInput::WindowInput()
 
 Arg::WindowInput::~WindowInput()
 {
-	if (m_pKeyboardState != nullptr)
-	{
-		delete m_pKeyboardState;
-		m_pKeyboardState = nullptr;
-	}
-
-	if (m_pMouseState != nullptr)
-	{
-		delete m_pMouseState;
-		m_pMouseState = nullptr;
-	}
-
-	for (GamepadState* gamepadState : m_pGamepadStateForID | std::views::values)
-	{
-		delete gamepadState;
-		gamepadState = nullptr;
-	}
-
 	s_WindowInputRegistry.erase(m_pWindowHandle);
 }
 
@@ -99,7 +81,7 @@ void Arg::WindowInput::PostPullEvents() const
 		{
 			continue;
 		}
-		GamepadState* gamepadState = m_pGamepadStateForID.at(i);
+		const Rc<GamepadState>& gamepadState = m_pGamepadStateForID.at(i);
 		if (gamepadState == nullptr)
 		{
 			continue;
@@ -130,21 +112,21 @@ void Arg::WindowInput::PostPullEvents() const
 	}
 }
 
-const Arg::KeyboardState* Arg::WindowInput::GetKeyboardState() const
+const Arg::Rc<Arg::KeyboardState>& Arg::WindowInput::GetKeyboardState() const
 {
 	return m_pKeyboardState;
 }
 
-const Arg::MouseState* Arg::WindowInput::GetMouseState() const
+const Arg::Rc<Arg::MouseState>& Arg::WindowInput::GetMouseState() const
 {
 	return m_pMouseState;
 }
 
-const Arg::GamepadState* Arg::WindowInput::GetGamepadState(int id) const
+const Arg::Rc<Arg::GamepadState>& Arg::WindowInput::GetGamepadState(int id) const
 {
 	if (!m_pGamepadStateForID.contains(id))
 	{
-		return nullptr;
+		return Rc<GamepadState>(nullptr);
 	}
 
 	return m_pGamepadStateForID.at(id);
@@ -152,22 +134,22 @@ const Arg::GamepadState* Arg::WindowInput::GetGamepadState(int id) const
 
 void Arg::WindowInput::CreateKeyboardState()
 {
-	m_pKeyboardState = new KeyboardState();
+	m_pKeyboardState = NewRc<KeyboardState>();
 }
 
 void Arg::WindowInput::CreateMouseState()
 {
-	m_pMouseState = new MouseState();
+	m_pMouseState = NewRc<MouseState>();
 }
 
 void Arg::WindowInput::CreateGamepadStateForID(int id)
 {
 	if (m_pGamepadStateForID.contains(id))
 	{
-		delete m_pGamepadStateForID.at(id);
+		m_pGamepadStateForID.erase(id);
 	}
 
-	m_pGamepadStateForID[id] = new GamepadState(id);
+	m_pGamepadStateForID[id] = NewRc<GamepadState>(id);
 }
 
 void Arg::WindowInput::RemoveGamepadStateForID(int id)
@@ -177,8 +159,6 @@ void Arg::WindowInput::RemoveGamepadStateForID(int id)
 		return;
 	}
 
-	delete m_pGamepadStateForID.at(id);
-	m_pGamepadStateForID[id] = nullptr;
 	m_pGamepadStateForID.erase(id);
 }
 
@@ -260,9 +240,8 @@ void Arg::WindowInput::OnGamepadDisconnected(int id)
 		return;
 	}
 
-	AE_CORE_LOG_INFO("Gamepad disconnected:\n\t(%d) %s",
-		id,
-		glfwGetGamepadName(id)
+	AE_CORE_LOG_INFO("Gamepad disconnected:\n\t(%d)",
+		id
 	);
 	RemoveGamepadStateForID(id);
 }

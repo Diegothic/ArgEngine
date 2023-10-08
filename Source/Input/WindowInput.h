@@ -5,6 +5,8 @@
 #include "Input/MouseState.h"
 #include "Input/GamepadState.h"
 
+#include "Arg/Memory.h"
+
 struct GLFWwindow;
 
 namespace Arg
@@ -19,9 +21,9 @@ namespace Arg
 		void PrePullEvents() const;
 		void PostPullEvents() const;
 
-		const KeyboardState* GetKeyboardState() const;
-		const MouseState* GetMouseState() const;
-		const GamepadState* GetGamepadState(int id) const;
+		const Rc<KeyboardState>& GetKeyboardState() const;
+		const Rc<MouseState>& GetMouseState() const;
+		const Rc<GamepadState>& GetGamepadState(int id) const;
 
 	private:
 		void CreateKeyboardState();
@@ -71,8 +73,8 @@ namespace Arg
 
 	private:
 		GLFWwindow* m_pWindowHandle;
-		KeyboardState* m_pKeyboardState;
-		MouseState* m_pMouseState;
-		std::map<int, GamepadState*> m_pGamepadStateForID;
+		Rc<KeyboardState> m_pKeyboardState;
+		Rc<MouseState> m_pMouseState;
+		std::map<int, Rc<GamepadState>> m_pGamepadStateForID;
 	};
 }

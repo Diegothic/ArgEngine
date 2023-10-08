@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Arg/Memory.h"
+
 namespace Arg
 {
 	class Window;
@@ -10,14 +12,14 @@ namespace Arg
 	class Application
 	{
 	public:
-		Application(Window* window);
-		virtual ~Application();
+		Application(const Rc<Window>& window);
+		virtual ~Application() = default;
 
 		void Run() const;
 
 	private:
-		Window* m_pWindow;
+		Rc<Window> m_pWindow;
 	};
 
-	Application* CreateApplication();
+	Box<Application> CreateApplication();
 }

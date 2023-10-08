@@ -2,21 +2,22 @@
 #include <windows.h>
 
 #include "Arg/Core.h"
+#include "Arg/Debug.h"
+#include "Arg/Memory.h"
 
 namespace Arg
 {
 	int Main(int argc, char** argv)
 	{
 		Arg::StartUpCore();
-		const Arg::Application* app = Arg::CreateApplication();
+		const Arg::Box<Arg::Application> app = Arg::CreateApplication();
 		if (app == nullptr)
 		{
-			std::cout << "Error: Failed to create the application!" << std::endl;
+			AE_CORE_LOG_ERR("Failed to create the application!");
 			return EXIT_FAILURE;
 		}
 
 		app->Run();
-		delete app;
 		Arg::ShutDownCore();
 
 		return EXIT_SUCCESS;
