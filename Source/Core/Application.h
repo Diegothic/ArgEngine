@@ -5,6 +5,7 @@
 namespace Arg
 {
 	class Window;
+	Rc<Window> Client_CreateWindow();
 
 	void StartUpCore();
 	void ShutDownCore();

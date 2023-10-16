@@ -59,7 +59,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;AE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLFW_INCLUDE_NONE;AE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -75,7 +75,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;AE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLFW_INCLUDE_NONE;AE_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -97,8 +97,10 @@
     <ClCompile Include="Libraries\Include\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Libraries\Include\stb\stb_image.cpp" />
+    <ClCompile Include="Source\Client\Client.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
+    <ClCompile Include="Source\Editor\EditorWindow.cpp" />
     <ClCompile Include="Source\Input\GamepadState.cpp" />
     <ClCompile Include="Source\Input\KeyboardState.cpp" />
     <ClCompile Include="Source\Input\MouseState.cpp" />
@@ -125,6 +127,7 @@
     <ClInclude Include="Source\Arg\Renderer.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Debug\CoreLogger.h" />
+    <ClInclude Include="Source\Editor\EditorWindow.h" />
     <ClInclude Include="Source\Input\CursorModes.h" />
     <ClInclude Include="Source\Input\GamepadAxes.h" />
     <ClInclude Include="Source\Input\GamepadButtons.h" />

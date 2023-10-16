@@ -27,6 +27,10 @@ namespace Arg
 
 		uint32_t GetWidth() const { return m_Size.x; }
 		uint32_t GetHeight() const { return m_Size.y; }
+		float GetFrameTime() const { return static_cast<float>(m_DeltaTime); }
+		float GetFrameTimeAvg() const { return static_cast<float>(m_DeltaTimeAvg); }
+		float GetFPS() const { return 1.0f / GetFrameTime(); }
+		float GetFPSAvg() const { return 1.0f / GetFrameTimeAvg(); }
 
 		bool Create();
 		void Start();
@@ -40,8 +44,8 @@ namespace Arg
 	protected:
 		virtual void VOnCreate() {}
 		virtual void VOnStart() {}
-		virtual void VOnUpdate(double deltaTime) {}
-		virtual void VOnRender() {}
+		virtual void VOnUpdate(Box<WindowInput>& input, double deltaTime) {}
+		virtual void VOnRender(Box<Renderer>& renderer) {}
 		virtual void VOnGUI() {}
 		virtual void VOnDestroy() {}
 
@@ -49,6 +53,14 @@ namespace Arg
 
 	private:
 		void OnResized(int newWidth, int newHeight);
+
+	private:
+		static std::map<GLFWwindow*, Window*> s_WindowRegistry;
+		static void WindowResizeCallback(
+			GLFWwindow* windowHandle,
+			int newWidth,
+			int newHeight
+		);
 
 	private:
 		GLFWwindow* m_pWindowHandle;
@@ -60,5 +72,8 @@ namespace Arg
 		Box<WindowInput> m_Input;
 
 		double m_DeltaTime;
+		int m_DeltaTimeSampleCount;
+		double m_DeltaTimeSum;
+		double m_DeltaTimeAvg;
 	};
 }

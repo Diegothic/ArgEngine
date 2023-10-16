@@ -9,10 +9,15 @@
 
 #include "Arg/Debug.h"
 
+std::map<GLFWwindow*, Arg::Window*> Arg::Window::s_WindowRegistry;
+
 Arg::Window::Window(const WindowSpec& spec)
 	: m_pWindowHandle(nullptr),
 	m_Input(nullptr),
-	m_DeltaTime(0.0)
+	m_DeltaTime(0.0),
+	m_DeltaTimeSampleCount(0),
+	m_DeltaTimeSum(0.0),
+	m_DeltaTimeAvg(0.0)
 {
 	m_Title = spec.Title;
 	m_Size = glm::uvec2(spec.Width, spec.Height);
@@ -25,7 +30,7 @@ bool Arg::Window::Create()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	m_pWindowHandle = glfwCreateWindow(
 		static_cast<int>(m_Size.x),
@@ -54,7 +59,14 @@ bool Arg::Window::Create()
 	m_Input = NewBox<WindowInput>();
 	m_Input->Initialize(m_pWindowHandle);
 
+	s_WindowRegistry[m_pWindowHandle] = this;
+
 	SetVSync(m_IsVSync);
+
+	glfwSetFramebufferSizeCallback(
+		m_pWindowHandle,
+		Window::WindowResizeCallback
+	);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -63,7 +75,7 @@ bool Arg::Window::Create()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.IniFilename = "Temp/imgui.ini";
 
-	ImGui::StyleColorsLight();
+	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(m_pWindowHandle, true);
 	ImGui_ImplOpenGL3_Init("#version 150");
@@ -75,107 +87,34 @@ bool Arg::Window::Create()
 
 void Arg::Window::Start()
 {
-	m_DeltaTime = 1.0f / 30.0f;
+	m_DeltaTime = 1.0 / 30.0;
 
 	VOnStart();
 }
 
 void Arg::Window::Update()
 {
+	m_DeltaTimeSum += m_DeltaTime;
+	m_DeltaTimeSampleCount++;
+	
+	if (m_DeltaTimeSum >= 0.3)
+	{
+		m_DeltaTimeAvg = m_DeltaTimeSum / m_DeltaTimeSampleCount;
+		m_DeltaTimeSum = 0.0;
+		m_DeltaTimeSampleCount = 0;
+	}
+
 	const double updateBeginTime = glfwGetTime();
 
 	m_Input->PrePullEvents();
 	glfwPollEvents();
 	m_Input->PostPullEvents();
 
-	// TODO: Remove input test
-	const Rc<KeyboardState>& keyboardState = m_Input->GetKeyboardState();
-	const Rc<MouseState>& mouseState = m_Input->GetMouseState();
-	const Rc<GamepadState>& gamepadState = m_Input->GetGamepadState(0);
-
-	if (keyboardState->IsKeyPressed(KeyCode::A))
-	{
-		std::cout << "A Pressed" << std::endl;
-	}
-
-	if (keyboardState->IsKeyPressed(KeyCode::A, KeyMods::Ctrl))
-	{
-		std::cout << "A Pressed with Ctrl" << std::endl;
-	}
-
-	if (keyboardState->IsKeyPressed(KeyCode::A, KeyMods::Ctrl | KeyMods::Shift))
-	{
-		std::cout << "A Pressed with Ctrl and Shift" << std::endl;
-	}
-
-	if (keyboardState->IsKeyDown(KeyCode::A))
-	{
-		std::cout << "A Down" << std::endl;
-	}
-
-	if (keyboardState->IsKeyReleased(KeyCode::A))
-	{
-		std::cout << "A Released" << std::endl;
-	}
-
-	if (keyboardState->IsKeyPressed(KeyCode::S, KeyMods::Ctrl))
-	{
-		std::cout << "S Pressed with Ctrl" << std::endl;
-	}
-
-	if (mouseState->IsButtonPressed(MouseButton::Right))
-	{
-		std::cout << "Right button Pressed" << std::endl;
-	}
-
-	if (mouseState->IsButtonDown(MouseButton::Right))
-	{
-		std::cout << "Right button Down" << std::endl;
-	}
-
-	if (mouseState->IsButtonReleased(MouseButton::Right))
-	{
-		std::cout << "Right button Released" << std::endl;
-	}
-
-	if (gamepadState != nullptr)
-	{
-		if (gamepadState->GetAxis2D(GamepadAxis2D::Left) != Vec2(0.0))
-		{
-			const Vec2 gamepadAxisLeft = gamepadState->GetAxis2DDelta(GamepadAxis2D::Left);
-			std::cout << "Gamepad axis left: "
-				<< gamepadAxisLeft.x
-				<< " "
-				<< gamepadAxisLeft.y
-				<< std::endl;
-		}
-
-		if (gamepadState->IsButtonPressed(GamepadButton::South))
-		{
-			std::cout << "Gamepad A button Pressed" << std::endl;
-		}
-
-		if (gamepadState->IsButtonDown(GamepadButton::South))
-		{
-			std::cout << "Gamepad A button Down" << std::endl;
-		}
-
-		if (gamepadState->IsButtonReleased(GamepadButton::South))
-		{
-			std::cout << "Gamepad A button Released" << std::endl;
-		}
-	}
-
-	VOnUpdate(m_DeltaTime);
+	VOnUpdate(m_Input, m_DeltaTime);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	ImGui::Begin("Stats");
-	ImGui::Text("FrameTime: %f", m_DeltaTime);
-	ImGui::Text("FPS: %f", 1.0 / m_DeltaTime);
-	ImGui::End();
 
 	VOnGUI();
 
@@ -186,7 +125,7 @@ void Arg::Window::Update()
 	};
 	m_Renderer->BeginFrame(frameParams);
 
-	VOnRender();
+	VOnRender(m_Renderer);
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -194,9 +133,9 @@ void Arg::Window::Update()
 
 	const double updateEndTime = glfwGetTime();
 	m_DeltaTime = updateEndTime - updateBeginTime;
-	if (m_DeltaTime > 1.0f / 30.0f)
+	if (m_DeltaTime > 1.0 / 30.0)
 	{
-		m_DeltaTime = 1.0f / 30.0f;
+		m_DeltaTime = 1.0 / 30.0;
 	}
 }
 
@@ -209,6 +148,8 @@ void Arg::Window::Destroy()
 	ImGui_ImplGlfw_Shutdown();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui::DestroyContext();
+
+	s_WindowRegistry.erase(m_pWindowHandle);
 
 	glfwDestroyWindow(m_pWindowHandle);
 }
@@ -230,4 +171,19 @@ void Arg::Window::OnResized(int newWidth, int newHeight)
 	m_Size.y = newHeight;
 
 	VOnResized();
+}
+
+void Arg::Window::WindowResizeCallback(
+	GLFWwindow* windowHandle,
+	int newWidth,
+	int newHeight
+)
+{
+	if (!s_WindowRegistry.contains(windowHandle))
+	{
+		return;
+	}
+
+	Window* window = s_WindowRegistry[windowHandle];
+	window->OnResized(newWidth, newHeight);
 }

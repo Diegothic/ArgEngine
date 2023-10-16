@@ -1,28 +1,38 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace Arg
 {
 	namespace Math
 	{
 		using namespace glm;
+
+		template<typename T>
+		constexpr typename T::value_type const* Ref(T const& v)
+		{
+			return glm::value_ptr(v);
+		}
 	}
 
-	typedef glm::vec2 Vec2;
-	typedef glm::vec3 Vec3;
-	typedef glm::vec4 Vec4;
+	using Vec2 = glm::vec2;
+	using Vec3 = glm::vec3;
+	using Vec4 = glm::vec4;
 
-	typedef glm::ivec2 Vec2i;
-	typedef glm::ivec3 Vec3i;
-	typedef glm::ivec4 Vec4i;
+	using Vec2i = glm::ivec2;
+	using Vec3i = glm::ivec3;
+	using Vec4i = glm::ivec4;
 
-	typedef glm::uvec2 Vec2u;
-	typedef glm::uvec3 Vec3u;
-	typedef glm::uvec4 Vec4u;
+	using Vec2u = glm::uvec2;
+	using Vec3u = glm::uvec3;
+	using Vec4u = glm::uvec4;
 
-	typedef glm::quat Quat;
+	using Quat = glm::quat;
 
-	typedef glm::mat3 Mat3;
-	typedef glm::mat4 Mat4;
+	using Mat3 = glm::mat3;
+	using Mat4 = glm::mat4;
 }

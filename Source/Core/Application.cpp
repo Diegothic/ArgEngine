@@ -41,13 +41,7 @@ void Arg::ShutDownCore()
 
 Arg::Box<Arg::Application> Arg::CreateApplication()
 {
-	const Arg::WindowSpec windowSpec{
-		.Title = "ArgEngine",
-		.Width = 1920,
-		.Height = 1080,
-		.VSync = true,
-	};
-	const Arg::Rc<Arg::Window> window = Arg::NewRc<Arg::Window>(windowSpec);
+	const Arg::Rc<Arg::Window> window = Arg::Client_CreateWindow();
 	const bool windowCreated = window->Create();
 	if (!windowCreated) {
 		AE_CORE_LOG_ERR("Failed to create a window!");
