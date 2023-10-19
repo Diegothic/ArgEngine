@@ -106,6 +106,8 @@
     <ClCompile Include="Source\Input\MouseState.cpp" />
     <ClCompile Include="Source\Input\WindowInput.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Random\LCG.cpp" />
+    <ClCompile Include="Source\Random\Random.cpp" />
     <ClCompile Include="Source\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="Source\Renderer\RenderAPI.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
@@ -124,10 +126,13 @@
     <ClInclude Include="Source\Arg\Debug.h" />
     <ClInclude Include="Source\Arg\Input.h" />
     <ClInclude Include="Source\Arg\Memory.h" />
+    <ClInclude Include="Source\Arg\Random.h" />
     <ClInclude Include="Source\Arg\Renderer.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Debug\CoreLogger.h" />
     <ClInclude Include="Source\Editor\EditorWindow.h" />
+    <ClInclude Include="Source\Gameplay\Components\Transform.h" />
+    <ClInclude Include="Source\Gameplay\GameObject.h" />
     <ClInclude Include="Source\Input\CursorModes.h" />
     <ClInclude Include="Source\Input\GamepadAxes.h" />
     <ClInclude Include="Source\Input\GamepadButtons.h" />
@@ -142,6 +147,8 @@
     <ClInclude Include="Source\Input\WindowInput.h" />
     <ClInclude Include="Source\Math\MathTypes.h" />
     <ClInclude Include="Source\Memory\SmartPtr.h" />
+    <ClInclude Include="Source\Random\LCG.h" />
+    <ClInclude Include="Source\Random\Random.h" />
     <ClInclude Include="Source\Renderer\GraphicsContext.h" />
     <ClInclude Include="Source\Renderer\RenderAPI.h" />
     <ClInclude Include="Source\Renderer\Renderer.h" />
