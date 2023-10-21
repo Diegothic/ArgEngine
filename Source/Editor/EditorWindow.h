@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Core/Window.h"
+#include "Arg/Gameplay.h"
+#include "Scene/SceneHierarchyWidget.h"
 
 namespace Arg
 {
@@ -21,7 +23,10 @@ namespace Arg
 		void VOnResized() override;
 
 	private:
+		Box<Scene> m_Scene = nullptr;
 		uint32_t m_FrameBufferID;
 		uint32_t m_FrameBufferTextureID;
+
+		Box<SceneHierarchyWidget> m_SceneHierarchyWidget = nullptr;
 	};
 }

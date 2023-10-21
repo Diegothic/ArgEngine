@@ -75,7 +75,8 @@ bool Arg::Window::Create()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.IniFilename = "Temp/imgui.ini";
 
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsLight();
+	io.Fonts->AddFontFromFileTTF("Content\\Engine\\Fonts\\Roboto-Regular.ttf", 18.0f);
 
 	ImGui_ImplGlfw_InitForOpenGL(m_pWindowHandle, true);
 	ImGui_ImplOpenGL3_Init("#version 150");

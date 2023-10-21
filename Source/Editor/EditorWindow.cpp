@@ -16,6 +16,10 @@ Arg::EditorWindow::EditorWindow(const WindowSpec& spec)
 void Arg::EditorWindow::VOnCreate()
 {
 	Window::VOnCreate();
+
+	m_Scene = NewBox<Scene>();
+
+	m_SceneHierarchyWidget = NewBox<SceneHierarchyWidget>(m_Scene.get());
 }
 
 void Arg::EditorWindow::VOnStart()
@@ -37,6 +41,8 @@ void Arg::EditorWindow::VOnStart()
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	m_Scene->Start();
 }
 
 void Arg::EditorWindow::VOnUpdate(
@@ -57,6 +63,8 @@ void Arg::EditorWindow::VOnRender(Box<Renderer>& renderer)
 		.Size = Vec2i(1920, 1080),
 	};
 	renderer->BeginFrame(frameParams);
+
+	m_Scene->Render(renderer);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -91,7 +99,7 @@ void Arg::EditorWindow::VOnGUI()
 			ImGui::EndMenu();
 		}
 
-		ImGui::SameLine(windowWidth - 270.0f);
+		ImGui::SameLine(windowWidth - 300.0f);
 		ImGui::Separator();
 		ImGui::SameLine();
 		ImGui::Text("Editor");
@@ -154,20 +162,42 @@ void Arg::EditorWindow::VOnGUI()
 		ImGuiWindowFlags_NoMove
 		| ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoTitleBar
 	);
 
+	if (ImGui::BeginTabBar("Tabs"))
+	{
+		if (ImGui::BeginTabItem("Scene Hierarchy"))
+		{
+			m_SceneHierarchyWidget->OnGUI();
+
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Create Object"))
+		{
+			if (ImGui::Button("Empty"))
+			{
+				m_Scene->CreateGameObject("New Object");
+			}
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
 
 
 	ImGui::End();
 
+	const ImVec2 inspectorPanelSize(
+		windowWidth * 0.2f,
+		workspaceHeight
+	);
 	ImGui::SetNextWindowPos(ImVec2(
 		workspaceWidth - workspaceWidth * 0.2f,
 		workspaceTop
 	));
-	ImGui::SetNextWindowSize(ImVec2(
-		windowWidth * 0.2f,
-		workspaceHeight
-	));
+	ImGui::SetNextWindowSize(inspectorPanelSize);
 	ImGui::Begin("Inspector",
 		nullptr,
 		ImGuiWindowFlags_NoMove
@@ -175,7 +205,217 @@ void Arg::EditorWindow::VOnGUI()
 		| ImGuiWindowFlags_NoCollapse
 	);
 
+	if (m_SceneHierarchyWidget->GetSelectedGameObjectID() != 0)
+	{
+		GameObject* selectedObject = m_Scene->FindGameObject(m_SceneHierarchyWidget->GetSelectedGameObjectID());
+		if (selectedObject != nullptr)
+		{
+			ImGui::PushID(static_cast<int>(selectedObject->GetID()));
+			char nameBuffer[512];
+			strcpy_s(nameBuffer, selectedObject->GetName().c_str());
+			ImGui::InputText("##Name",
+				nameBuffer,
+				512,
+				ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CallbackAlways,
+				[](ImGuiInputTextCallbackData* data) -> int
+				{
+					if (data->BufTextLen < 1)
+					{
+						return 0;
+					}
 
+					GameObject* gameObject = (GameObject*)data->UserData;
+					const std::string newName(data->Buf);
+					gameObject->SetName(newName);
+
+					return 1;
+				},
+				selectedObject
+			);
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(inspectorPanelSize.x - 50.0f);
+			if (ImGui::Button("X"))
+			{
+				m_Scene->DestroyGameObject(selectedObject->GetID());
+			}
+
+			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				const Transform& transform = selectedObject->GetTransform();
+				const Vec3& position = transform.GetPosition();
+				const Vec3& rotation = transform.GetRotationEuler();
+				const Vec3& scale = transform.GetScale();
+
+				Vec3 newPosition = position;
+				ImGui::Text("Position");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(inspectorPanelSize.x - (inspectorPanelSize.x * 0.36f) - 110.0f);
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+				ImGui::Text("X");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##PosX", &newPosition[0], 0.1f);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+				ImGui::Text("Y");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##PosY", &newPosition[1], 0.1f);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 255, 255));
+				ImGui::Text("Z");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##PosZ", &newPosition[2], 0.1f);
+
+				ImGui::SameLine();
+				if (ImGui::Button("R##Pos"))
+				{
+					newPosition = Vec3(0.0f);
+				}
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (newPosition[i] == position[i])
+					{
+						continue;
+					}
+
+					selectedObject->SetPosition(newPosition);
+				}
+
+				Vec3 newRotation = rotation;
+				ImGui::Text("Rotation");
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(inspectorPanelSize.x - (inspectorPanelSize.x * 0.36f) - 110.0f);
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+				ImGui::Text("X");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##RotX", &newRotation[0]);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+				ImGui::Text("Y");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##RotY", &newRotation[1]);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 255, 255));
+				ImGui::Text("Z");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##RotZ", &newRotation[2]);
+
+				ImGui::SameLine();
+				if (ImGui::Button("R##Rot"))
+				{
+					newRotation = Vec3(0.0f);
+				}
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (newRotation[i] == rotation[i])
+					{
+						continue;
+					}
+
+					selectedObject->SetRotation(newRotation);
+				}
+
+				Vec3 newScale = scale;
+				ImGui::Text("Scale");
+				
+
+				ImGui::SameLine();
+				static bool scaleProportionally = false;
+				ImGui::Checkbox("##Prop", &scaleProportionally);
+
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(inspectorPanelSize.x - (inspectorPanelSize.x * 0.36f) - 110.0f);
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+				ImGui::Text("X");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##ScaX", &newScale[0], 0.1f);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 255, 0, 255));
+				ImGui::Text("Y");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##ScaY", &newScale[1], 0.1f);
+
+				ImGui::SameLine();
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0, 0, 255, 255));
+				ImGui::Text("Z");
+				ImGui::PopStyleColor();
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(inspectorPanelSize.x * 0.12f);
+				ImGui::DragFloat("##ScaZ", &newScale[2], 0.1f);
+
+				ImGui::SameLine();
+				if (ImGui::Button("R##Rot"))
+				{
+					scaleProportionally = false;
+					newScale = Vec3(1.0f);
+				}
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (newScale[i] == scale[i])
+					{
+						continue;
+					}
+
+					if (scaleProportionally)
+					{
+						float proportion = 1.0f;
+						int proportionIndex = 0;
+						for (int j = 0; j < 3; j++)
+						{
+							if (newScale[j] != scale[j])
+							{
+								proportionIndex = j;
+								proportion = newScale[j] / (scale[j] == 0.0f ? 1.0f : scale[j]);
+								break;
+							}
+						}
+
+						for (int j = 0; j < 3; j++)
+						{
+							newScale[j] = (scale[j] == 0.0f ? newScale[proportionIndex] : scale[j] * proportion);
+						}
+					}
+
+					selectedObject->SetScale(newScale);
+				}
+			}
+
+			ImGui::PopID();
+		}
+	}
 
 	ImGui::End();
 
@@ -208,7 +448,7 @@ void Arg::EditorWindow::VOnGUI()
 	);
 	ImGui::SetNextWindowSize(gameWindowSize);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.05f, 0.05f, 0.05f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
 	ImGui::Begin("Game",
 		nullptr,
 		ImGuiWindowFlags_NoMove
