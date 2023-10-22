@@ -25,7 +25,7 @@ namespace Arg
 
 		uint64_t GetID() const { return m_ID; }
 		const std::string& GetName() const { return m_Name; }
-		void SetName(const std::string& name){ m_Name = name; }
+		void SetName(const std::string& name) { m_Name = name; }
 
 		void Tick(const GameTime& gameTime)
 		{
@@ -53,15 +53,22 @@ namespace Arg
 		}
 
 		const Transform& GetTransform() const { return m_Transform; }
-		const Vec3& GetPosition() const { return m_Transform.GetPosition(); }
-		const Quat& GetRotation() const { return m_Transform.GetRotation(); }
-		Vec3 GetRotationEuler() const { return m_Transform.GetRotationEuler(); }
-		const Vec3& GetScale() const { return m_Transform.GetScale(); }
-
+		Vec3 FindPosition() const { return m_Transform.FindPosition(); }
+		Quat FindRotation() const { return m_Transform.FindRotation(); }
+		Vec3 FindRotationEuler() const { return m_Transform.FindRotationEuler(); }
+		Vec3 FindScale() const { return m_Transform.FindScale(); }
+		const Vec3& GetLocalPosition() const { return m_Transform.GetLocalPosition(); }
+		const Quat& GetLocalRotation() const { return m_Transform.GetLocalRotation(); }
+		const Vec3& GetLocalRotationEuler() const { return m_Transform.GetLocalRotationEuler(); }
+		const Vec3& GetLocalScale() const { return m_Transform.GetLocalScale(); }
 		void SetPosition(const Vec3& position) { m_Transform.SetPosition(position); }
 		void SetRotation(const Quat& rotation) { m_Transform.SetRotation(rotation); }
-		void SetRotation(const Vec3& rotationEuler) { m_Transform.SetRotation(rotationEuler); }
+		void SeRotation(const Vec3& rotationEuler) { m_Transform.SetRotation(rotationEuler); }
 		void SetScale(const Vec3& scale) { m_Transform.SetScale(scale); }
+		void SetLocalPosition(const Vec3& position) { m_Transform.SetLocalPosition(position); }
+		void SetLocalRotation(const Quat& rotation) { m_Transform.SetLocalRotation(rotation); }
+		void SetLocalRotation(const Vec3& rotationEuler) { m_Transform.SetLocalRotation(rotationEuler); }
+		void SetLocalScale(const Vec3& scale) { m_Transform.SetLocalScale(scale); }
 
 		GameObject* GetParent() const { return m_pParent; }
 		size_t GetChildrenCount() const { return m_pChildren.size(); }

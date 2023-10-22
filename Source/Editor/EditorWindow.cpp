@@ -32,12 +32,38 @@ void Arg::EditorWindow::VOnStart()
 	glGenTextures(1, &m_FrameBufferTextureID);
 	glBindTexture(GL_TEXTURE_2D, m_FrameBufferTextureID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1920, 1080, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		0, 
+		GL_RGB, 
+		1920, 
+		1080, 
+		0, 
+		GL_RGB,
+		GL_UNSIGNED_BYTE,
+		nullptr
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FrameBufferTextureID, 0);
+
+	glGenTextures(1, &m_FrameBufferDepthTextureID);
+	glBindTexture(GL_TEXTURE_2D, m_FrameBufferDepthTextureID);
+	glTexImage2D(
+		GL_TEXTURE_2D, 
+		0, 
+		GL_DEPTH24_STENCIL8, 
+		1920,
+		1080,
+		0,
+		GL_DEPTH_STENCIL,
+		GL_UNSIGNED_INT_24_8, 
+		nullptr
+	);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_FrameBufferDepthTextureID, 0);
+
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -243,9 +269,9 @@ void Arg::EditorWindow::VOnGUI()
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				const Transform& transform = selectedObject->GetTransform();
-				const Vec3& position = transform.GetPosition();
-				const Vec3& rotation = transform.GetRotationEuler();
-				const Vec3& scale = transform.GetScale();
+				const Vec3& position = transform.GetLocalPosition();
+				const Vec3& rotation = transform.GetLocalRotationEuler();
+				const Vec3& scale = transform.GetLocalScale();
 
 				Vec3 newPosition = position;
 				ImGui::Text("Position");
@@ -290,7 +316,7 @@ void Arg::EditorWindow::VOnGUI()
 						continue;
 					}
 
-					selectedObject->SetPosition(newPosition);
+					selectedObject->SetLocalPosition(newPosition);
 				}
 
 				Vec3 newRotation = rotation;
@@ -336,7 +362,7 @@ void Arg::EditorWindow::VOnGUI()
 						continue;
 					}
 
-					selectedObject->SetRotation(newRotation);
+					selectedObject->SetLocalRotation(newRotation);
 				}
 
 				Vec3 newScale = scale;
@@ -409,7 +435,7 @@ void Arg::EditorWindow::VOnGUI()
 						}
 					}
 
-					selectedObject->SetScale(newScale);
+					selectedObject->SetLocalScale(newScale);
 				}
 			}
 

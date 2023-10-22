@@ -19,3 +19,15 @@ void Arg::RenderAPI::SetViewport(Vec2i position, Vec2i size) const
 {
 	glViewport(position.x, position.y, size.x, size.y);
 }
+
+void Arg::RenderAPI::SetDepthTestEnabled(bool value) const
+{
+	if (value)
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
+}

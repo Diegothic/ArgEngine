@@ -120,18 +120,7 @@ void Arg::Scene::Render(Box<Renderer>& renderer)
 	glUseProgram(shader);
 
 	Mat4 view = Math::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
-	const float cameraSize = 30.0f;
 	const float aspectRatio = (float)1920 / (float)1080;
-	const float cameraWidth = cameraSize * aspectRatio;
-	const float cameraHeight = cameraSize;
-	//Mat4 projection = Math::ortho(
-	//	-cameraWidth * 0.5f,
-	//	cameraWidth * 0.5f,
-	//	-cameraHeight * 0.5f,
-	//	cameraHeight * 0.5f,
-	//	0.1f,
-	//	100.0f
-	//);
 
 	Mat4 projection = Math::perspective(
 		Math::radians(45.0f),
@@ -153,6 +142,55 @@ void Arg::Scene::Render(Box<Renderer>& renderer)
 
 		glBindVertexArray(quadVertexArray);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		glBindVertexArray(0);
+	}
+
+	// Gizmos
+	const GameObject* selectedGameObject = FindGameObject(m_SelectedGameObjectID);
+	if (selectedGameObject != nullptr)
+	{
+		const Vec3 position = selectedGameObject->FindPosition();
+		const Quat rotation = selectedGameObject->FindRotation();
+
+		glBindVertexArray(quadVertexArray);
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		{
+			Mat4 model(1.0f);
+			model = Math::translate(model, position);
+			model *= Math::mat4_cast(rotation);
+			model = Math::scale(model, Vec3(0.2f));
+			model = Math::translate(model, Vec3(0.5f, 0.5f, 0.0f));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			glUniform3f(glGetUniformLocation(shader, "u_Color"), 1.0f, 0.0f, 0.0f);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		}
+
+		{
+			Mat4 model(1.0f);
+			model = Math::translate(model, position);
+			model *= Math::mat4_cast(rotation);
+			model = Math::rotate(model, Math::radians(90.0f), Vec3(0.0f, 1.0f, 0.0f));
+			model = Math::scale(model, Vec3(0.2f));
+			model = Math::translate(model, Vec3(0.5f, 0.5f, 0.0f));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			glUniform3f(glGetUniformLocation(shader, "u_Color"), 0.0f, 1.0f, 0.0f);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		}
+
+		{
+			Mat4 model(1.0f);
+			model = Math::translate(model, position);
+			model *= Math::mat4_cast(rotation);
+			model = Math::rotate(model, Math::radians(90.0f), Vec3(1.0f, 0.0f, 0.0f));
+			model = Math::scale(model, Vec3(0.2f));
+			model = Math::translate(model, Vec3(0.5f, -0.5f, 0.0f));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			glUniform3f(glGetUniformLocation(shader, "u_Color"), 0.0f, 0.0f, 1.0f);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		}
+
 		glBindVertexArray(0);
 	}
 }

@@ -4,26 +4,46 @@
 
 namespace Arg
 {
+	struct DecomposedTransform
+	{
+		Vec3 Position;
+		Quat Rotation;
+		Vec3 Scale;
+	};
+
 	class Transform
 	{
 	public:
 		const Mat4& GetLocalTransform() const { return m_LocalTransform; }
 		const Mat4& GetGlobalTransform() const { return m_GlobalTransform; }
 
-		const Vec3& GetPosition() const { return m_LocalPosition; }
-		const Quat& GetRotation() const { return m_LocalRotation; }
-		Vec3 GetRotationEuler() const { return m_LocalRotationEuler; }
-		const Vec3& GetScale() const { return m_LocalScale; }
+		Vec3 FindPosition() const;
+		Quat FindRotation() const;
+		Vec3 FindRotationEuler() const;
+		Vec3 FindScale() const;
 
-		void SetPosition(const Vec3& position) { m_LocalPosition = position; m_IsDirty = true; }
+		void SetPosition(const Vec3& position);
 		void SetRotation(const Quat& rotation);
 		void SetRotation(const Vec3& rotationEuler);
-		void SetScale(const Vec3& scale) { m_LocalScale = scale; m_IsDirty = true; }
+		void SetScale(const Vec3& scale);
+
+		const Vec3& GetLocalPosition() const { return m_LocalPosition; }
+		const Quat& GetLocalRotation() const { return m_LocalRotation; }
+		const Vec3& GetLocalRotationEuler() const { return m_LocalRotationEuler; }
+		const Vec3& GetLocalScale() const { return m_LocalScale; }
+
+		void SetLocalPosition(const Vec3& position) { m_LocalPosition = position; m_IsDirty = true; }
+		void SetLocalRotation(const Quat& rotation);
+		void SetLocalRotation(const Vec3& rotationEuler);
+		void SetLocalScale(const Vec3& scale) { m_LocalScale = scale; m_IsDirty = true; }
 
 		bool IsDirty() const { return m_IsDirty; }
 		void SetDirty() { m_IsDirty = true; }
 		void Recalculate(const Mat4& parentTransform = Mat4(1.0f));
 		void ChangeParent(const Mat4& newParentTransform);
+
+	protected:
+		static DecomposedTransform Decompose(const Mat4& transform);
 
 	private:
 		Vec3 m_LocalPosition = Vec3(0.0f);

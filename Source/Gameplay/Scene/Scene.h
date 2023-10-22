@@ -29,10 +29,13 @@ namespace Arg
 		void DestroyGameObject(uint64_t ID);
 		void ChangeParentGameObject(uint64_t ID, uint64_t parentID = 0);
 
+		void SetSelectedGameObject(uint64_t ID) { m_SelectedGameObjectID = ID; }
+
 	private:
 		Box<GameObject> m_RootObject;
 		std::vector<Rc<GameObject>> m_GameObjects;
 		std::unordered_map<uint64_t, GameObject*> m_GameObjectsRegistry;
+		uint64_t m_SelectedGameObjectID = 0;
 		GameTime m_GameTime;
 
 		// TEMP:

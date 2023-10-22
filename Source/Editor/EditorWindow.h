@@ -26,6 +26,7 @@ namespace Arg
 		Box<Scene> m_Scene = nullptr;
 		uint32_t m_FrameBufferID;
 		uint32_t m_FrameBufferTextureID;
+		uint32_t m_FrameBufferDepthTextureID;
 
 		Box<SceneHierarchyWidget> m_SceneHierarchyWidget = nullptr;
 	};

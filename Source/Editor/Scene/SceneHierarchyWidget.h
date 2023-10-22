@@ -41,9 +41,15 @@ namespace Arg
 			}
 		}
 
-		uint64_t GetSelectedGameObjectID() const { return m_SelectedObjectID; }
+		uint64_t GetSelectedGameObjectID() const { return m_SelectedGameObjectID; }
 
 	private:
+		void SelectGameObject(uint64_t ID)
+		{
+			m_SelectedGameObjectID = ID;
+			m_pScene->SetSelectedGameObject(m_SelectedGameObjectID);
+		}
+
 		void DrawTransformWithChildren(GameObject* gameObject)
 		{
 			ImGui::PushID(static_cast<int>(gameObject->GetID()));
@@ -55,7 +61,7 @@ namespace Arg
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf;
 			}
 
-			if (gameObject->GetID() == m_SelectedObjectID)
+			if (gameObject->GetID() == m_SelectedGameObjectID)
 			{
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 			}
@@ -63,7 +69,7 @@ namespace Arg
 			bool isOpen = ImGui::TreeNodeEx(gameObject->GetName().c_str(), nodeFlags);
 			if (ImGui::IsItemClicked())
 			{
-				m_SelectedObjectID = gameObject->GetID();
+				SelectGameObject(gameObject->GetID());
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -103,13 +109,13 @@ namespace Arg
 				return;
 			}
 
-			m_SelectedObjectID = targetID;
+			SelectGameObject(targetID);
 			m_pScene->ChangeParentGameObject(ID, targetID);
 		}
 
 	private:
 		Scene* m_pScene;
-		uint64_t m_SelectedObjectID = 0;
+		uint64_t m_SelectedGameObjectID = 0;
 		bool m_CanSelectObject = true;
 	};
 }

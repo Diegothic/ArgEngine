@@ -13,5 +13,6 @@ namespace Arg
 		void ClearBuffer() const;
 		void SetClearColor(Vec4 color) const;
 		void SetViewport(Vec2i position, Vec2i size) const;
+		void SetDepthTestEnabled(bool value) const;
 	};
 }
