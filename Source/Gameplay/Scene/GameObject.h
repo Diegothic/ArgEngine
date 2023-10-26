@@ -56,6 +56,8 @@ namespace Arg
 		void AddChild(GameObject* child);
 		void RemoveChild(GameObject* child);
 
+		size_t GetComponentCount() const { return m_Components.size(); }
+		Component* GetComponent(size_t index) const;
 		void AddComponent(Component* component);
 		void RemoveComponent(Component* component);
 

@@ -81,6 +81,7 @@ bool Arg::Window::Create()
 	ImGui_ImplOpenGL3_Init("#version 150");
 
 	VOnCreate();
+	OnResized(m_Size.x, m_Size.y);
 
 	return true;
 }

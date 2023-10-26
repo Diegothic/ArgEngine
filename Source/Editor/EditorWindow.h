@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "Scene/SceneHierarchyWidget.h"
+#include "EditorWidget.h"
+#include "Gameplay/Scene/Scene.h"
+#include "Inspector/Inpector.h"
 
 namespace Arg
 {
@@ -23,10 +25,14 @@ namespace Arg
 
 	private:
 		Box<Scene> m_Scene = nullptr;
+		Box<Inspector> m_Inspector = nullptr;
 		uint32_t m_FrameBufferID;
 		uint32_t m_FrameBufferTextureID;
 		uint32_t m_FrameBufferDepthTextureID;
 
-		Box<SceneHierarchyWidget> m_SceneHierarchyWidget = nullptr;
+		Box<EditorWidget> m_LeftPanelWidget = nullptr;
+		Box<EditorWidget> m_RightPanelWidget = nullptr;
+		Box<EditorWidget> m_CenterPanelWidget = nullptr;
+		Box<EditorWidget> m_BottomPanelWidget = nullptr;
 	};
 }

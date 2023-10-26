@@ -3,7 +3,7 @@
 #include "Gameplay/Scene/Scene.h"
 #include "Components/Component.h"
 
-Arg::GameObject::GameObject(uint64_t id, Scene* scene, std::string name) 
+Arg::GameObject::GameObject(uint64_t id, Scene* scene, std::string name)
 	: m_ID(id),
 	m_Name(std::move(name)),
 	m_pScene(scene)
@@ -112,6 +112,16 @@ void Arg::GameObject::RemoveChild(GameObject* child)
 	{
 		m_pChildren.erase(it);
 	}
+}
+
+Arg::Component* Arg::GameObject::GetComponent(size_t index) const
+{
+	if (index < 0 || index >= m_Components.size())
+	{
+		return nullptr;
+	}
+
+	return m_Components[index];
 }
 
 void Arg::GameObject::AddComponent(Component* component)

@@ -1,6 +1,9 @@
 #include "StaticMeshComponent.h"
 
+#include <glad/glad.h>
+
 #include "Gameplay/Scene/GameObject.h"
+#include "Editor/Scene/Component/StaticMeshComponentWidget.h"
 
 Arg::StaticMeshComponent::StaticMeshComponent(uint64_t ID, GameObject* owner)
 	: Component(ID, owner)
@@ -56,9 +59,14 @@ void Arg::StaticMeshComponent::Render(const RenderContext& renderContext)
 	const Mat4 transform = GetOwner()->GetTransform().GetGlobalTransform();
 
 	glUniformMatrix4fv(glGetUniformLocation(renderContext.Shader, "u_Model"), 1, GL_FALSE, Math::Ref(transform));
-	glUniform3f(glGetUniformLocation(renderContext.Shader, "u_Color"), 1.0f, 1.0f, 1.0f);
+	glUniform3f(glGetUniformLocation(renderContext.Shader, "u_Color"), m_Color.x, m_Color.y, m_Color.z);
 
 	glBindVertexArray(m_VertexArrayHandle);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
+}
+
+Arg::Rc<Arg::ComponentWidget> Arg::StaticMeshComponent::CreateWidget()
+{
+	return NewRc<StaticMeshComponentWidget>(this);
 }

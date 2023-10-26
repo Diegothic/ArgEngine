@@ -2,20 +2,23 @@
 
 #include <imgui/imgui.h>
 
+#include "Editor/EditorWidget.h"
 #include "Gameplay/Scene/Scene.h"
 
 namespace Arg
 {
-	class SceneHierarchyWidget
+	class SceneHierarchyWidget : public EditorWidget
 	{
 	public:
-		SceneHierarchyWidget(Scene* scene)
-			: m_pScene(scene)
+		SceneHierarchyWidget(Vec2 position, Vec2 size, Scene* scene, Inspector* inspector)
+			: EditorWidget(position, size),
+			m_pScene(scene),
+			m_pInspector(inspector)
 		{
 
 		}
 
-		void OnGUI()
+		virtual void Draw() override
 		{
 			if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -39,13 +42,11 @@ namespace Arg
 			}
 		}
 
-		uint64_t GetSelectedGameObjectID() const { return m_SelectedGameObjectID; }
-
 	private:
-		void SelectGameObject(uint64_t ID)
+		void SelectGameObject(uint64_t ID) const
 		{
-			m_SelectedGameObjectID = ID;
-			m_pScene->SetSelectedGameObject(m_SelectedGameObjectID);
+			m_pInspector->SetInspectedItem(ID);
+			m_pScene->SetSelectedGameObject(m_pInspector->GetInspectedItemID());
 		}
 
 		void DrawTransformWithChildren(GameObject* gameObject)
@@ -59,7 +60,7 @@ namespace Arg
 				nodeFlags |= ImGuiTreeNodeFlags_Leaf;
 			}
 
-			if (gameObject->GetID() == m_SelectedGameObjectID)
+			if (gameObject->GetID() == m_pInspector->GetInspectedItemID())
 			{
 				nodeFlags |= ImGuiTreeNodeFlags_Selected;
 			}
@@ -100,7 +101,7 @@ namespace Arg
 			ImGui::PopID();
 		}
 
-		void OnItemDropped(uint64_t ID, uint64_t targetID = 0)
+		void OnItemDropped(uint64_t ID, uint64_t targetID = 0) const
 		{
 			if (ID == targetID)
 			{
@@ -112,7 +113,7 @@ namespace Arg
 		}
 
 	private:
-		Scene* m_pScene;
-		uint64_t m_SelectedGameObjectID = 0;
+		Scene* m_pScene = nullptr;
+		Inspector* m_pInspector = nullptr;
 	};
 }

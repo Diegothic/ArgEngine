@@ -101,6 +101,7 @@
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
     <ClCompile Include="Source\Editor\EditorWindow.cpp" />
+    <ClCompile Include="Source\Editor\Scene\SceneCreateObjectWidget.h" />
     <ClCompile Include="Source\Gameplay\Scene\Components\Component.cpp" />
     <ClCompile Include="Source\Gameplay\Scene\Components\StaticMeshComponent.cpp" />
     <ClCompile Include="Source\Gameplay\Scene\Components\Transform.cpp" />
@@ -129,8 +130,15 @@
     <ClInclude Include="Libraries\Include\imgui\imstb_truetype.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Debug\CoreLogger.h" />
+    <ClInclude Include="Source\Editor\EditorWidget.h" />
     <ClInclude Include="Source\Editor\EditorWindow.h" />
+    <ClInclude Include="Source\Editor\Inspector\Inpector.h" />
+    <ClInclude Include="Source\Editor\Inspector\InspectorWidget.h" />
+    <ClInclude Include="Source\Editor\Scene\Component\ComponentWidget.h" />
+    <ClInclude Include="Source\Editor\Scene\Component\StaticMeshComponentWidget.h" />
+    <ClInclude Include="Source\Editor\Scene\Component\TransformWidget.h" />
     <ClInclude Include="Source\Editor\Scene\SceneHierarchyWidget.h" />
+    <ClInclude Include="Source\Editor\Scene\SceneManagementWidget.h" />
     <ClInclude Include="Source\Gameplay\Scene\Components\Component.h" />
     <ClInclude Include="Source\Gameplay\Scene\Components\StaticMeshComponent.h" />
     <ClInclude Include="Source\Gameplay\Scene\Components\Transform.h" />

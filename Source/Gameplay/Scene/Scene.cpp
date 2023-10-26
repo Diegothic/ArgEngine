@@ -126,7 +126,8 @@ void Arg::Scene::Render(Renderer* renderer)
 	glUseProgram(shader);
 
 	const Mat4 view = Math::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
-	const float aspectRatio = (float)1920 / (float)1080;
+	const Vec2i frameSize = renderer->GetFrameSize();
+	const float aspectRatio = (float)frameSize.x / (float)frameSize.y;
 
 	const Mat4 projection = Math::perspectiveLH(
 		Math::radians(45.0f),

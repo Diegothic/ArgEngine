@@ -19,15 +19,17 @@ bool Arg::Renderer::Initialize()
 	return true;
 }
 
-void Arg::Renderer::BeginFrame(const FrameParams& params) const
+void Arg::Renderer::BeginFrame(const FrameParams& params)
 {
+	m_FrameParams = params;
+
 	m_RenderAPI->SetViewport(Vec2i(0), params.Size);
 	m_RenderAPI->SetClearColor(Vec4(0.5f, 0.5f, 0.5f, 1.0f));
 	m_RenderAPI->SetDepthTestEnabled(true);
 	m_RenderAPI->ClearBuffer();
 }
 
-void Arg::Renderer::EndFrame() const
+void Arg::Renderer::EndFrame()
 {
 	m_GraphicsContext->SwapBuffers();
 }

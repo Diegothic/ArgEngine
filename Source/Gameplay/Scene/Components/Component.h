@@ -8,6 +8,7 @@
 namespace Arg
 {
 	class GameObject;
+	class ComponentWidget;
 
 	class Component
 	{
@@ -21,6 +22,8 @@ namespace Arg
 
 		virtual void Tick(const GameTime& gameTime) = 0;
 		virtual void Render(const RenderContext& renderContext) = 0;
+
+		virtual Rc<ComponentWidget> CreateWidget() = 0;
 
 	private:
 		uint64_t m_ID = 0;

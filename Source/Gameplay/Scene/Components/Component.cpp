@@ -2,7 +2,7 @@
 
 #include "Gameplay/Scene/GameObject.h"
 
-Arg::Component::Component(uint64_t ID, GameObject* owner) 
+Arg::Component::Component(uint64_t ID, GameObject* owner)
 	: m_ID(ID),
 	m_pOwner(owner)
 {

@@ -23,14 +23,18 @@ namespace Arg
 		Renderer(const RendererSpec& spec);
 		~Renderer() = default;
 
+		const Vec2i& GetFrameSize() const { return m_FrameParams.Size; }
+
 		bool Initialize();
 
-		void BeginFrame(const FrameParams& params) const;
-		void EndFrame() const;
+		void BeginFrame(const FrameParams& params);
+		void EndFrame();
 
 	private:
 		void* m_pWindowHandle;
 		Box<GraphicsContext> m_GraphicsContext;
 		Box<RenderAPI> m_RenderAPI;
+
+		FrameParams m_FrameParams;
 	};
 }
