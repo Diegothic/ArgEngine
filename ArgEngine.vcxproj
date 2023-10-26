@@ -101,7 +101,10 @@
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\Core\Window.cpp" />
     <ClCompile Include="Source\Editor\EditorWindow.cpp" />
+    <ClCompile Include="Source\Gameplay\Scene\Components\Component.cpp" />
+    <ClCompile Include="Source\Gameplay\Scene\Components\StaticMeshComponent.cpp" />
     <ClCompile Include="Source\Gameplay\Scene\Components\Transform.cpp" />
+    <ClCompile Include="Source\Gameplay\Scene\GameObject.cpp" />
     <ClCompile Include="Source\Gameplay\Scene\Scene.cpp" />
     <ClCompile Include="Source\Input\GamepadState.cpp" />
     <ClCompile Include="Source\Input\KeyboardState.cpp" />
@@ -124,18 +127,12 @@
     <ClInclude Include="Libraries\Include\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libraries\Include\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\Include\imgui\imstb_truetype.h" />
-    <ClInclude Include="Source\Arg\Core.h" />
-    <ClInclude Include="Source\Arg\Debug.h" />
-    <ClInclude Include="Source\Arg\Gameplay.h" />
-    <ClInclude Include="Source\Arg\Input.h" />
-    <ClInclude Include="Source\Arg\Memory.h" />
-    <ClInclude Include="Source\Arg\Random.h" />
-    <ClInclude Include="Source\Arg\Renderer.h" />
-    <ClInclude Include="Source\Arg\Time.h" />
     <ClInclude Include="Source\Core\Application.h" />
     <ClInclude Include="Source\Debug\CoreLogger.h" />
     <ClInclude Include="Source\Editor\EditorWindow.h" />
     <ClInclude Include="Source\Editor\Scene\SceneHierarchyWidget.h" />
+    <ClInclude Include="Source\Gameplay\Scene\Components\Component.h" />
+    <ClInclude Include="Source\Gameplay\Scene\Components\StaticMeshComponent.h" />
     <ClInclude Include="Source\Gameplay\Scene\Components\Transform.h" />
     <ClInclude Include="Source\Gameplay\Scene\GameObject.h" />
     <ClInclude Include="Source\Gameplay\Scene\Scene.h" />
@@ -147,7 +144,6 @@
     <ClInclude Include="Source\Input\KeyboardState.h" />
     <ClInclude Include="Source\Input\KeyCodes.h" />
     <ClInclude Include="Source\Core\Window.h" />
-    <ClInclude Include="Source\Arg\Math.h" />
     <ClInclude Include="Source\Input\MouseButtons.h" />
     <ClInclude Include="Source\Input\MouseState.h" />
     <ClInclude Include="Source\Input\WindowInput.h" />
@@ -157,6 +153,7 @@
     <ClInclude Include="Source\Random\Random.h" />
     <ClInclude Include="Source\Renderer\GraphicsContext.h" />
     <ClInclude Include="Source\Renderer\RenderAPI.h" />
+    <ClInclude Include="Source\Renderer\RenderContext.h" />
     <ClInclude Include="Source\Renderer\Renderer.h" />
     <ClInclude Include="Source\Time\GameTime.h" />
   </ItemGroup>

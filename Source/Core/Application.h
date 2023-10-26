@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Arg/Memory.h"
+#include "Memory/SmartPtr.h"
 
 namespace Arg
 {

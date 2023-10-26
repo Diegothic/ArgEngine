@@ -3,13 +3,13 @@
 #include <unordered_map>
 #include <string>
 
-#include "Arg/Time.h"
-#include "Arg/Renderer.h"
+#include "GameObject.h"
+#include "Memory/SmartPtr.h"
+#include "Renderer/Renderer.h"
+#include "Time/GameTime.h"
 
 namespace Arg
 {
-	class GameObject;
-
 	class Scene
 	{
 	public:
@@ -20,7 +20,8 @@ namespace Arg
 
 		void Start();
 		void Tick(double deltaTime);
-		void Render(Box<Renderer>& renderer);
+		void Render(Renderer* renderer);
+		void ClearGarbage();
 
 		GameObject* GetRootObject() const;
 		GameObject* FindGameObject(uint64_t ID);
@@ -31,10 +32,20 @@ namespace Arg
 
 		void SetSelectedGameObject(uint64_t ID) { m_SelectedGameObjectID = ID; }
 
+		template<typename TComponentSubclass>
+		uint64_t CreateComponent(uint64_t ownerID);
+
+	protected:
+		void RemoveGameObject(uint64_t ID);
+
 	private:
 		Box<GameObject> m_RootObject;
 		std::vector<Rc<GameObject>> m_GameObjects;
+		std::vector<Rc<Component>> m_Components;
+
 		std::unordered_map<uint64_t, GameObject*> m_GameObjectsRegistry;
+		std::unordered_map<uint64_t, Component*> m_ComponentsRegistry;
+
 		uint64_t m_SelectedGameObjectID = 0;
 		GameTime m_GameTime;
 
@@ -44,9 +55,9 @@ namespace Arg
 		std::string vertexSource;
 		std::string fragmentSource;
 		uint32_t shader = 0;
-		Vec3 cameraPosition = Vec3(0.0f, 0.0f, -5.0f);
-		Vec3 cameraForward = Vec3(0.0f, 0.0f, 1.0f);
-		Vec3 cameraUp = Vec3(0.0f, -1.0f, 0.0f);
+		Vec3 cameraPosition = Vec3(5.0f, 0.0f, 0.0f);
+		Vec3 cameraForward = Vec3(1.0f, 0.0f, 0.0f);
+		Vec3 cameraUp = Vec3(0.0f, 0.0f, -1.0f);
 		uint32_t quadVertexArray = 0;
 	};
 }

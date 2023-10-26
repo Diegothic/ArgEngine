@@ -1,9 +1,8 @@
 #include <iostream>
 #include <windows.h>
 
-#include "Arg/Core.h"
-#include "Arg/Debug.h"
-#include "Arg/Memory.h"
+#include "Core/Application.h"
+#include "Debug/CoreLogger.h"
 
 namespace Arg
 {

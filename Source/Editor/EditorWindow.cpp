@@ -1,12 +1,9 @@
 #include "EditorWindow.h"
 
 #include <iostream>
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_internal.h"
-#include "glad/glad.h"
-
-#include "Arg/Debug.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
+#include <glad/glad.h>
 
 Arg::EditorWindow::EditorWindow(const WindowSpec& spec)
 	: Arg::Window(spec)
@@ -72,14 +69,16 @@ void Arg::EditorWindow::VOnStart()
 }
 
 void Arg::EditorWindow::VOnUpdate(
-	Box<WindowInput>& input,
+	WindowInput* input,
 	double deltaTime
 )
 {
 	Window::VOnUpdate(input, deltaTime);
+
+	m_Scene->ClearGarbage();
 }
 
-void Arg::EditorWindow::VOnRender(Box<Renderer>& renderer)
+void Arg::EditorWindow::VOnRender(Renderer* renderer)
 {
 	Window::VOnRender(renderer);
 
@@ -365,6 +364,7 @@ void Arg::EditorWindow::VOnGUI()
 					selectedObject->SetLocalRotation(newRotation);
 				}
 
+
 				Vec3 newScale = scale;
 				ImGui::Text("Scale");
 				
@@ -437,6 +437,7 @@ void Arg::EditorWindow::VOnGUI()
 
 					selectedObject->SetLocalScale(newScale);
 				}
+
 			}
 
 			ImGui::PopID();

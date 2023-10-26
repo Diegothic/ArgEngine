@@ -2,9 +2,9 @@
 
 #include <map>
 
-#include "Arg/Math.h"
 #include "MouseButtons.h"
 #include "CursorModes.h"
+#include "Math/MathTypes.h"
 
 namespace Arg
 {

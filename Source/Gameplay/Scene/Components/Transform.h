@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Arg/Math.h"
+#include "Math/MathTypes.h"
 
 namespace Arg
 {
@@ -13,6 +13,11 @@ namespace Arg
 
 	class Transform
 	{
+	public:
+		inline static constexpr Vec3 FORWARD = Vec3(1.0f, 0.0f, 0.0f);
+		inline static constexpr Vec3 RIGHT = Vec3(0.0f, 1.0f, 0.0f);
+		inline static constexpr Vec3 UP = Vec3(0.0f, 0.0f, 1.0f);
+
 	public:
 		const Mat4& GetLocalTransform() const { return m_LocalTransform; }
 		const Mat4& GetGlobalTransform() const { return m_GlobalTransform; }
@@ -36,6 +41,10 @@ namespace Arg
 		void SetLocalRotation(const Quat& rotation);
 		void SetLocalRotation(const Vec3& rotationEuler);
 		void SetLocalScale(const Vec3& scale) { m_LocalScale = scale; m_IsDirty = true; }
+
+		Vec3 FindForward() const;
+		Vec3 FindRight() const;
+		Vec3 FindUp() const;
 
 		bool IsDirty() const { return m_IsDirty; }
 		void SetDirty() { m_IsDirty = true; }

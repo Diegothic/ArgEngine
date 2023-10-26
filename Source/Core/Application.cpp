@@ -1,11 +1,10 @@
 #include "Application.h"
 
-#include <iostream>
 #include <GLFW/glfw3.h>
 
-#include "Arg/Debug.h"
-#include "Arg/Memory.h"
 #include "Window.h"
+#include "Debug/CoreLogger.h"
+#include "Memory/SmartPtr.h"
 
 void Arg::StartUpCore()
 {

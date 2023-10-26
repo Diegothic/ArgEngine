@@ -1,56 +1,35 @@
 #pragma once
 
-#include <cstdint>
-#include <Arg/Memory.h>
+#include <string>
+#include <vector>
 
-#include "Scene.h"
+#include "Components/Component.h"
 #include "Components/Transform.h"
+#include "Renderer/RenderContext.h"
+#include "Time/GameTime.h"
 
 namespace Arg
 {
+	class Scene;
+
 	class GameObject
 	{
 	public:
-		GameObject(uint64_t id, const std::string& name = std::string())
-			: m_ID(id),
-			m_Name(name)
-		{
-		}
+		GameObject(uint64_t id, Scene* scene, std::string name = std::string());
 		~GameObject() = default;
-
-		bool operator==(const GameObject& other) const
-		{
-			return this->m_ID == other.m_ID;
-		}
+		bool operator==(const GameObject& other) const;
 
 		uint64_t GetID() const { return m_ID; }
 		const std::string& GetName() const { return m_Name; }
 		void SetName(const std::string& name) { m_Name = name; }
+		Scene* GetScene() const;
 
-		void Tick(const GameTime& gameTime)
-		{
+		void Tick(const GameTime& gameTime) const;
+		void Render(const RenderContext& renderContext) const;
+		void PrepareForRender();
+		void Destroy();
 
-		}
-
-		void Render(Box<Renderer>& renderer)
-		{
-
-		}
-
-		void PrepareForRender()
-		{
-			if (m_Transform.IsDirty())
-			{
-				RecalculateTransform();
-			}
-			else
-			{
-				for (const auto& child : m_pChildren)
-				{
-					child->PrepareForRender();
-				}
-			}
-		}
+		bool IsMarkedForDestruction() const { return m_IsDestroyed; }
 
 		const Transform& GetTransform() const { return m_Transform; }
 		Vec3 FindPosition() const { return m_Transform.FindPosition(); }
@@ -72,60 +51,29 @@ namespace Arg
 
 		GameObject* GetParent() const { return m_pParent; }
 		size_t GetChildrenCount() const { return m_pChildren.size(); }
-		GameObject* GetChild(size_t index) const
-		{
-			if (index < 0 || index >= m_pChildren.size())
-			{
-				return nullptr;
-			}
+		GameObject* GetChild(size_t index) const;
+		void SetParent(GameObject* parent);
+		void AddChild(GameObject* child);
+		void RemoveChild(GameObject* child);
 
-			return m_pChildren[index];
-		}
-		void SetParent(GameObject* parent)
-		{
-			if (m_pParent != nullptr)
-			{
-				m_pParent->RemoveChild(this);
-			}
-
-			m_pParent = parent;
-			m_Transform.ChangeParent(parent->GetTransform().GetGlobalTransform());
-		}
-		void AddChild(GameObject* child)
-		{
-			child->SetParent(this);
-			m_pChildren.push_back(child);
-			m_Transform.SetDirty();
-		}
-		void RemoveChild(GameObject* child)
-		{
-			const auto& it = std::ranges::find(m_pChildren, child);
-			if (it != m_pChildren.end())
-			{
-				m_pChildren.erase(it);
-			}
-		}
+		void AddComponent(Component* component);
+		void RemoveComponent(Component* component);
 
 	protected:
-		void RecalculateTransform()
-		{
-			if (m_pParent != nullptr)
-			{
-				m_Transform.Recalculate(m_pParent->GetTransform().GetGlobalTransform());
-			}
-
-			for (const auto& child : m_pChildren)
-			{
-				child->RecalculateTransform();
-			}
-		}
+		void RecalculateTransform();
 
 	private:
-		uint64_t m_ID;
-		std::string m_Name;
+		uint64_t m_ID = 0;
+		std::string m_Name = std::string();
 		Transform m_Transform;
+
+		Scene* m_pScene = nullptr;
 
 		GameObject* m_pParent = nullptr;
 		std::vector<GameObject*> m_pChildren;
+
+		bool m_IsDestroyed = false;
+
+		std::vector<Component*> m_Components;
 	};
 }

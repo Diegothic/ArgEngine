@@ -2,20 +2,24 @@
 
 #include <glad/glad.h>
 
-#include "GameObject.h"
+#include "Components/StaticMeshComponent.h"
+#include "Renderer/RenderContext.h"
 
 void Arg::Scene::Start()
 {
 	m_GameTime.ElapsedTime = 0.0f;
 	m_GameTime.DeltaTime = 1.0f / 30.0f;
 
-	m_RootObject = NewBox<GameObject>(1, "SceneRoot");
+	m_RootObject = NewBox<GameObject>(1, this, "SceneRoot");
 
-	CreateGameObject("GameObject1");
+	const uint64_t objectID = CreateGameObject("GameObject1");
 	CreateGameObject("GameObject2", 2);
 	CreateGameObject("GameObject3", 2);
 	CreateGameObject("GameObject4", 3);
-	CreateGameObject("GameObject5");
+	const uint64_t objectID5 = CreateGameObject("GameObject5");
+
+	CreateComponent<StaticMeshComponent>(objectID);
+	CreateComponent<StaticMeshComponent>(objectID5);
 
 	// TEMP:
 	vertexSource = R"(
@@ -44,7 +48,10 @@ void Arg::Scene::Start()
 
 				void main()
 				{
-					FragColor = vec4(o_Color, 1.0);
+					float z = gl_FragCoord.z * 2.0 - 1.0;
+					float depth = ((2.0 * 0.1 * 5.0) / (5.0 + 0.1 - z * (5.0 - 0.1))) / 5.0;
+					
+					FragColor = vec4(o_Color * (1.0 - depth), 1.0);
 				} 
 				)";
 
@@ -109,40 +116,32 @@ void Arg::Scene::Tick(double deltaTime)
 	}
 }
 
-void Arg::Scene::Render(Box<Renderer>& renderer)
+void Arg::Scene::Render(Renderer* renderer)
 {
-	m_RootObject->PrepareForRender();
-	for (const auto& gameObject : m_GameObjects)
-	{
-		gameObject->Render(renderer);
-	}
+	const RenderContext renderContext{
+		.Renderer = renderer,
+		.Shader = shader,
+	};
 
 	glUseProgram(shader);
 
-	Mat4 view = Math::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
+	const Mat4 view = Math::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
 	const float aspectRatio = (float)1920 / (float)1080;
 
-	Mat4 projection = Math::perspective(
+	const Mat4 projection = Math::perspectiveLH(
 		Math::radians(45.0f),
 		aspectRatio,
 		0.1f,
 		1000.0f
 	);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "u_View"), 1, GL_FALSE, Math::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Projection"), 1, GL_FALSE, Math::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_View"), 1, GL_FALSE, Math::Ref(view));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Projection"), 1, GL_FALSE, Math::Ref(projection));
 
-	for (const auto& gameObject : m_GameObjects)
+	m_RootObject->PrepareForRender();
+	for (const Rc<GameObject>& gameObject : m_GameObjects)
 	{
-		// Draw object
-		Mat4 model = gameObject->GetTransform().GetGlobalTransform();
-
-		glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
-		glUniform3f(glGetUniformLocation(shader, "u_Color"), 1.0f, 1.0f, 1.0f);
-
-		glBindVertexArray(quadVertexArray);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-		glBindVertexArray(0);
+		gameObject->Render(renderContext);
 	}
 
 	// Gizmos
@@ -162,7 +161,7 @@ void Arg::Scene::Render(Box<Renderer>& renderer)
 			model *= Math::mat4_cast(rotation);
 			model = Math::scale(model, Vec3(0.2f));
 			model = Math::translate(model, Vec3(0.5f, 0.5f, 0.0f));
-			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::Ref(model));
 			glUniform3f(glGetUniformLocation(shader, "u_Color"), 1.0f, 0.0f, 0.0f);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		}
@@ -173,8 +172,8 @@ void Arg::Scene::Render(Box<Renderer>& renderer)
 			model *= Math::mat4_cast(rotation);
 			model = Math::rotate(model, Math::radians(90.0f), Vec3(0.0f, 1.0f, 0.0f));
 			model = Math::scale(model, Vec3(0.2f));
-			model = Math::translate(model, Vec3(0.5f, 0.5f, 0.0f));
-			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			model = Math::translate(model, Vec3(-0.5f, 0.5f, 0.0f));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::Ref(model));
 			glUniform3f(glGetUniformLocation(shader, "u_Color"), 0.0f, 1.0f, 0.0f);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		}
@@ -183,15 +182,32 @@ void Arg::Scene::Render(Box<Renderer>& renderer)
 			Mat4 model(1.0f);
 			model = Math::translate(model, position);
 			model *= Math::mat4_cast(rotation);
-			model = Math::rotate(model, Math::radians(90.0f), Vec3(1.0f, 0.0f, 0.0f));
+			model = Math::rotate(model, Math::radians(-90.0f), Vec3(1.0f, 0.0f, 0.0f));
 			model = Math::scale(model, Vec3(0.2f));
 			model = Math::translate(model, Vec3(0.5f, -0.5f, 0.0f));
-			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::value_ptr(model));
+			glUniformMatrix4fv(glGetUniformLocation(shader, "u_Model"), 1, GL_FALSE, Math::Ref(model));
 			glUniform3f(glGetUniformLocation(shader, "u_Color"), 0.0f, 0.0f, 1.0f);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		}
 
 		glBindVertexArray(0);
+	}
+}
+
+void Arg::Scene::ClearGarbage()
+{
+	std::vector<uint64_t> gameObjectsToRemove;
+	for (const Rc<GameObject>& gameObject : m_GameObjects)
+	{
+		if (gameObject->IsMarkedForDestruction())
+		{
+			gameObjectsToRemove.push_back(gameObject->GetID());
+		}
+	}
+
+	for (const uint64_t& gameObjectID : gameObjectsToRemove)
+	{
+		RemoveGameObject(gameObjectID);
 	}
 }
 
@@ -213,7 +229,7 @@ Arg::GameObject* Arg::Scene::FindGameObject(uint64_t ID)
 uint64_t Arg::Scene::CreateGameObject(const std::string& name, uint64_t parentID)
 {
 	m_LastUsedID++;
-	const Rc<GameObject> newObject = NewRc<GameObject>(m_LastUsedID, name);
+	const Rc<GameObject> newObject = NewRc<GameObject>(m_LastUsedID, this, name);
 	m_GameObjects.push_back(newObject);
 	m_GameObjectsRegistry[m_LastUsedID] = newObject.get();
 	GameObject* parent = parentID == 0 ? m_RootObject.get() : FindGameObject(parentID);
@@ -223,7 +239,19 @@ uint64_t Arg::Scene::CreateGameObject(const std::string& name, uint64_t parentID
 
 void Arg::Scene::DestroyGameObject(uint64_t ID)
 {
-	//TODO: Mark for destruction -> Destroy on destruction cycle
+	GameObject* gameObject = FindGameObject(ID);
+	gameObject->Destroy();
+}
+
+void Arg::Scene::ChangeParentGameObject(uint64_t ID, uint64_t parentID)
+{
+	GameObject* gameObject = FindGameObject(ID);
+	GameObject* newParent = parentID == 0 ? m_RootObject.get() : FindGameObject(parentID);
+	newParent->AddChild(gameObject);
+}
+
+void Arg::Scene::RemoveGameObject(uint64_t ID)
+{
 	GameObject* gameObject = FindGameObject(ID);
 	GameObject* parent = gameObject->GetParent();
 	const size_t childrenCount = gameObject->GetChildrenCount();
@@ -256,9 +284,14 @@ void Arg::Scene::DestroyGameObject(uint64_t ID)
 	}
 }
 
-void Arg::Scene::ChangeParentGameObject(uint64_t ID, uint64_t parentID)
+
+template <typename TComponentSubclass>
+uint64_t Arg::Scene::CreateComponent(uint64_t ownerID)
 {
-	GameObject* gameObject = FindGameObject(ID);
-	GameObject* newParent = parentID == 0 ? m_RootObject.get() : FindGameObject(parentID);
-	newParent->AddChild(gameObject);
+	GameObject* owner = FindGameObject(ownerID);
+	m_LastUsedID++;
+	const Rc<Component> newComponent = NewRc<TComponentSubclass>(m_LastUsedID, owner);
+	m_Components.push_back(newComponent);
+	m_ComponentsRegistry[m_LastUsedID] = newComponent.get();
+	return m_LastUsedID;
 }

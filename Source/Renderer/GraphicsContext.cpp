@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Arg/Debug.h"
+#include "Debug/CoreLogger.h"
 
 Arg::GraphicsContext::GraphicsContext(GLFWwindow* windowHandle)
 	: m_pWindowHandle(windowHandle)

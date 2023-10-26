@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Memory/SmartPtr.h"
 #include "Input/KeyboardState.h"
 #include "Input/MouseButtons.h"
 #include "Input/MouseState.h"
 #include "Input/GamepadState.h"
-
-#include "Arg/Memory.h"
 
 struct GLFWwindow;
 
@@ -24,6 +23,8 @@ namespace Arg
 		const Rc<KeyboardState>& GetKeyboardState() const;
 		const Rc<MouseState>& GetMouseState() const;
 		const Rc<GamepadState>& GetGamepadState(int id) const;
+
+		void SetCursorMode(CursorMode mode) const;
 
 	private:
 		void CreateKeyboardState();

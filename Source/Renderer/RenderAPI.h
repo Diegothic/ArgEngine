@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Arg/Math.h"
+#include "Math/MathTypes.h"
 
 namespace Arg
 {

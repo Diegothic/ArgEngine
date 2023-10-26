@@ -1,9 +1,8 @@
 #pragma once
 
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 
-#include "Arg/Debug.h"
-#include "Arg/Gameplay.h"
+#include "Gameplay/Scene/Scene.h"
 
 namespace Arg
 {
@@ -18,7 +17,6 @@ namespace Arg
 
 		void OnGUI()
 		{
-			m_CanSelectObject = true;
 			if (ImGui::CollapsingHeader("Scene", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				const GameObject* sceneRoot = m_pScene->GetRootObject();
@@ -116,6 +114,5 @@ namespace Arg
 	private:
 		Scene* m_pScene;
 		uint64_t m_SelectedGameObjectID = 0;
-		bool m_CanSelectObject = true;
 	};
 }

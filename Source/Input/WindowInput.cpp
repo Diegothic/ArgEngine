@@ -4,7 +4,7 @@
 #include <ranges>
 #include <GLFW/glfw3.h>
 
-#include "Arg/Debug.h"
+#include "Debug/CoreLogger.h"
 
 std::map<GLFWwindow*, Arg::WindowInput*> Arg::WindowInput::s_WindowInputRegistry;
 
@@ -130,6 +130,12 @@ const Arg::Rc<Arg::GamepadState>& Arg::WindowInput::GetGamepadState(int id) cons
 	}
 
 	return m_pGamepadStateForID.at(id);
+}
+
+void Arg::WindowInput::SetCursorMode(CursorMode mode) const
+{
+	glfwSetInputMode(m_pWindowHandle, GLFW_CURSOR, mode);
+	m_pMouseState->OnCursorModeChanged(mode);
 }
 
 void Arg::WindowInput::CreateKeyboardState()

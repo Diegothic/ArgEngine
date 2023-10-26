@@ -100,6 +100,21 @@ void Arg::Transform::SetLocalRotation(const Vec3& rotationEuler)
 	m_IsDirty = true;
 }
 
+Arg::Vec3 Arg::Transform::FindForward() const
+{
+	return m_LocalRotation * Transform::FORWARD;
+}
+
+Arg::Vec3 Arg::Transform::FindRight() const
+{
+	return m_LocalRotation * Transform::RIGHT;
+}
+
+Arg::Vec3 Arg::Transform::FindUp() const
+{
+	return m_LocalRotation * Transform::UP;
+}
+
 void Arg::Transform::Recalculate(const Mat4& parentTransform)
 {
 	m_IsDirty = false;

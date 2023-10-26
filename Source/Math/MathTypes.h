@@ -18,6 +18,12 @@ namespace Arg
 		{
 			return glm::value_ptr(v);
 		}
+
+		template<typename T>
+		constexpr typename T::value_type* Ref(T & v)
+		{
+			return glm::value_ptr(v);
+		}
 	}
 
 	using Vec2 = glm::vec2;

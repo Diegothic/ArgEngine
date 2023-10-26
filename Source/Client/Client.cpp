@@ -1,5 +1,6 @@
-#include "Arg/Core.h"
+#include "Core/Application.h"
 #include "Editor/EditorWindow.h"
+#include "Memory/SmartPtr.h"
 
 Arg::Rc<Arg::Window> Arg::Client_CreateWindow()
 {

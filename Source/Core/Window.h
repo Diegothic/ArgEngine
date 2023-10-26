@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "Arg/Memory.h"
-#include "Arg/Math.h"
-#include "Arg/Input.h"
-#include "Arg/Renderer.h"
+#include "Input/WindowInput.h"
+#include "Renderer/Renderer.h"
+#include "Math/MathTypes.h"
+#include "Memory/SmartPtr.h"
 
 struct GLFWwindow;
 
@@ -44,8 +44,8 @@ namespace Arg
 	protected:
 		virtual void VOnCreate() {}
 		virtual void VOnStart() {}
-		virtual void VOnUpdate(Box<WindowInput>& input, double deltaTime) {}
-		virtual void VOnRender(Box<Renderer>& renderer) {}
+		virtual void VOnUpdate(WindowInput* input, double deltaTime) {}
+		virtual void VOnRender(Renderer* renderer) {}
 		virtual void VOnGUI() {}
 		virtual void VOnDestroy() {}
 

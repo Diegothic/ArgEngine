@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Window.h"
-#include "Arg/Gameplay.h"
 #include "Scene/SceneHierarchyWidget.h"
 
 namespace Arg
@@ -15,8 +14,8 @@ namespace Arg
 	protected:
 		void VOnCreate() override;
 		void VOnStart() override;
-		void VOnUpdate(Box<WindowInput>& input, double deltaTime) override;
-		void VOnRender(Box<Renderer>& renderer) override;
+		void VOnUpdate(WindowInput* input, double deltaTime) override;
+		void VOnRender(Renderer* renderer) override;
 		void VOnGUI() override;
 		void VOnDestroy() override;
 

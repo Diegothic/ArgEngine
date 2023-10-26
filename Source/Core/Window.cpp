@@ -1,13 +1,12 @@
 #include "Window.h"
 
-#include <iostream>
 #include <ranges>
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
 
-#include "Arg/Debug.h"
+#include "Debug/CoreLogger.h"
 
 std::map<GLFWwindow*, Arg::Window*> Arg::Window::s_WindowRegistry;
 
@@ -111,7 +110,7 @@ void Arg::Window::Update()
 	glfwPollEvents();
 	m_Input->PostPullEvents();
 
-	VOnUpdate(m_Input, m_DeltaTime);
+	VOnUpdate(m_Input.get(), m_DeltaTime);
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -126,7 +125,7 @@ void Arg::Window::Update()
 	};
 	m_Renderer->BeginFrame(frameParams);
 
-	VOnRender(m_Renderer);
+	VOnRender(m_Renderer.get());
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

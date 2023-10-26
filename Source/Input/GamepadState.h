@@ -2,10 +2,10 @@
 
 #include <map>
 
-#include "Arg/Math.h"
 #include "GamepadConstants.h"
 #include "GamepadButtons.h"
 #include "GamepadAxes.h"
+#include "Math/MathTypes.h"
 
 namespace Arg
 {
