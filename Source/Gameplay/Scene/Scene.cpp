@@ -2,8 +2,8 @@
 
 #include <glad/glad.h>
 
-#include "Components/StaticMeshComponent.h"
 #include "Renderer/RenderContext.h"
+#include "Component/Component.h"
 
 void Arg::Scene::Start()
 {
@@ -11,15 +11,6 @@ void Arg::Scene::Start()
 	m_GameTime.DeltaTime = 1.0f / 30.0f;
 
 	m_RootObject = NewBox<GameObject>(1, this, "SceneRoot");
-
-	const uint64_t objectID = CreateGameObject("GameObject1");
-	CreateGameObject("GameObject2", 2);
-	CreateGameObject("GameObject3", 2);
-	CreateGameObject("GameObject4", 3);
-	const uint64_t objectID5 = CreateGameObject("GameObject5");
-
-	CreateComponent<StaticMeshComponent>(objectID);
-	CreateComponent<StaticMeshComponent>(objectID5);
 
 	// TEMP:
 	vertexSource = R"(
@@ -210,6 +201,20 @@ void Arg::Scene::ClearGarbage()
 	{
 		RemoveGameObject(gameObjectID);
 	}
+
+	std::vector<uint64_t> componentsToRemove;
+	for (const Rc<Component>& component : m_Components)
+	{
+		if (component->IsMarkedForDestruction())
+		{
+			componentsToRemove.push_back(component->GetID());
+		}
+	}
+
+	for (const uint64_t& componentID : componentsToRemove)
+	{
+		RemoveComponent(componentID);
+	}
 }
 
 Arg::GameObject* Arg::Scene::GetRootObject() const
@@ -285,14 +290,38 @@ void Arg::Scene::RemoveGameObject(uint64_t ID)
 	}
 }
 
-
-template <typename TComponentSubclass>
-uint64_t Arg::Scene::CreateComponent(uint64_t ownerID)
+Arg::Component* Arg::Scene::FindComponent(uint64_t ID)
 {
-	GameObject* owner = FindGameObject(ownerID);
-	m_LastUsedID++;
-	const Rc<Component> newComponent = NewRc<TComponentSubclass>(m_LastUsedID, owner);
-	m_Components.push_back(newComponent);
-	m_ComponentsRegistry[m_LastUsedID] = newComponent.get();
-	return m_LastUsedID;
+	if (!m_ComponentsRegistry.contains(ID))
+	{
+		return nullptr;
+	}
+
+	return m_ComponentsRegistry[ID];
+}
+
+void Arg::Scene::DestroyComponent(uint64_t ID)
+{
+	Component* component = FindComponent(ID);
+	component->Destroy();
+}
+
+void Arg::Scene::RemoveComponent(uint64_t ID)
+{
+	Component* component = FindComponent(ID);
+	GameObject* owner = component->GetOwner();
+	owner->RemoveComponent(component);
+
+	m_ComponentsRegistry.erase(ID);
+	const auto it = std::ranges::find_if(
+		m_Components,
+		[&component](const Rc<Component>& element)
+		{
+			return (*element.get()) == (*component);
+		}
+	);
+	if (it != m_Components.end())
+	{
+		m_Components.erase(it);
+	}
 }

@@ -30,16 +30,16 @@
     <ClCompile Include="Source\Core\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\KeyboardState.cpp">
+    <ClCompile Include="Source\Core\Input\KeyboardState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\MouseState.cpp">
+    <ClCompile Include="Source\Core\Input\MouseState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\GamepadState.cpp">
+    <ClCompile Include="Source\Core\Input\GamepadState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Input\WindowInput.cpp">
+    <ClCompile Include="Source\Core\Input\WindowInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Renderer\GraphicsContext.cpp">
@@ -78,28 +78,58 @@
     <ClCompile Include="Source\Client\Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Random\Random.cpp">
+    <ClCompile Include="Source\Core\Random\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Random\LCG.cpp">
+    <ClCompile Include="Source\Core\Random\LCG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\Scene\Components\Transform.cpp">
+    <ClCompile Include="Source\Gameplay\Scene\GameObject\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Gameplay\Scene\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\Scene\GameObject.cpp">
+    <ClCompile Include="Source\Gameplay\Scene\GameObject\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\Scene\Components\Component.cpp">
+    <ClCompile Include="Source\Gameplay\Scene\Component\Component.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\Scene\Components\StaticMeshComponent.cpp">
+    <ClCompile Include="Source\Gameplay\Scene\Component\StaticMeshComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Scene\SceneCreateObjectWidget.h">
+    <ClCompile Include="Source\Editor\GUI\Scene\SceneCreateObjectWidget.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\Component\StaticMeshComponentWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Inspector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Inspector\InspectorWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\Component\ComponentWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\TransformWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\EditorWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\SceneManagementWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\SceneHierarchyWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\GUI\Scene\SceneCreateObjectWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\GUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -110,43 +140,43 @@
     <ClInclude Include="Source\Core\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Math\MathTypes.h">
+    <ClInclude Include="Source\Core\Math\MathTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\KeyCodes.h">
+    <ClInclude Include="Source\Core\Input\KeyCodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\KeyboardState.h">
+    <ClInclude Include="Source\Core\Input\KeyboardState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\MouseState.h">
+    <ClInclude Include="Source\Core\Input\MouseState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\MouseButtons.h">
+    <ClInclude Include="Source\Core\Input\MouseButtons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\CursorModes.h">
+    <ClInclude Include="Source\Core\Input\CursorModes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\GamepadState.h">
+    <ClInclude Include="Source\Core\Input\GamepadState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\GamepadButtons.h">
+    <ClInclude Include="Source\Core\Input\GamepadButtons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\GamepadConstants.h">
+    <ClInclude Include="Source\Core\Input\GamepadConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\GamepadAxes.h">
+    <ClInclude Include="Source\Core\Input\GamepadAxes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Input\WindowInput.h">
+    <ClInclude Include="Source\Core\Input\WindowInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Debug\CoreLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Memory\SmartPtr.h">
+    <ClInclude Include="Source\Core\Memory\SmartPtr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Renderer\Renderer.h">
@@ -188,55 +218,58 @@
     <ClInclude Include="Source\Editor\EditorWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\Scene\GameObject.h">
+    <ClInclude Include="Source\Gameplay\Scene\GameObject\GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\Scene\Components\Transform.h">
+    <ClInclude Include="Source\Gameplay\Scene\GameObject\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Random\Random.h">
+    <ClInclude Include="Source\Core\Random\Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Random\LCG.h">
+    <ClInclude Include="Source\Core\Random\LCG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Gameplay\Scene\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Time\GameTime.h">
+    <ClInclude Include="Source\Core\Time\GameTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\SceneHierarchyWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Scene\SceneHierarchyWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\Scene\Components\StaticMeshComponent.h">
+    <ClInclude Include="Source\Gameplay\Scene\Component\StaticMeshComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\Scene\Components\Component.h">
+    <ClInclude Include="Source\Gameplay\Scene\Component\Component.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Renderer\RenderContext.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\EditorWidget.h">
+    <ClInclude Include="Source\Editor\GUI\EditorWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\SceneManagementWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Scene\SceneManagementWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Inspector\InspectorWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Inspector\InspectorWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Inspector\Inpector.h">
+    <ClInclude Include="Source\Editor\Inspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\Component\ComponentWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Scene\Component\ComponentWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\Component\TransformWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Scene\TransformWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Scene\Component\StaticMeshComponentWidget.h">
+    <ClInclude Include="Source\Editor\GUI\Scene\Component\StaticMeshComponentWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\GUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

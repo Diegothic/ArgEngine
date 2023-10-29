@@ -1,13 +1,12 @@
 #include "EditorWindow.h"
 
 #include <iostream>
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
 #include <glad/glad.h>
 
-#include "Inspector/InspectorWidget.h"
-#include "Scene/SceneHierarchyWidget.h"
-#include "Scene/SceneManagementWidget.h"
+#include "Gameplay/Scene/Scene.h"
+#include "GUI/Inspector/InspectorWidget.h"
+#include "GUI/Scene/SceneHierarchyWidget.h"
+#include "GUI/Scene/SceneManagementWidget.h"
 
 Arg::EditorWindow::EditorWindow(const WindowSpec& spec)
 	: Arg::Window(spec)

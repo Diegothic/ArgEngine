@@ -3,10 +3,10 @@
 #include <unordered_map>
 #include <string>
 
-#include "GameObject.h"
-#include "Memory/SmartPtr.h"
+#include "Core/Memory/SmartPtr.h"
+#include "Core/Time/GameTime.h"
 #include "Renderer/Renderer.h"
-#include "Time/GameTime.h"
+#include "GameObject/GameObject.h"
 
 namespace Arg
 {
@@ -32,11 +32,14 @@ namespace Arg
 
 		void SetSelectedGameObject(uint64_t ID) { m_SelectedGameObjectID = ID; }
 
+		Component* FindComponent(uint64_t ID);
 		template<typename TComponentSubclass>
 		uint64_t CreateComponent(uint64_t ownerID);
+		void DestroyComponent(uint64_t ID);
 
 	protected:
 		void RemoveGameObject(uint64_t ID);
+		void RemoveComponent(uint64_t ID);
 
 	private:
 		Box<GameObject> m_RootObject;
@@ -60,4 +63,17 @@ namespace Arg
 		Vec3 cameraUp = Vec3(0.0f, 0.0f, -1.0f);
 		uint32_t quadVertexArray = 0;
 	};
+}
+
+template <typename TComponentSubclass>
+uint64_t Arg::Scene::CreateComponent(uint64_t ownerID)
+{
+	m_LastUsedID++;
+	GameObject* owner = FindGameObject(ownerID);
+	const Rc<Component> newComponent = NewRc<TComponentSubclass>(m_LastUsedID, owner);
+	owner->AddComponent(newComponent.get());
+
+	m_Components.push_back(newComponent);
+	m_ComponentsRegistry[m_LastUsedID] = newComponent.get();
+	return m_LastUsedID;
 }
