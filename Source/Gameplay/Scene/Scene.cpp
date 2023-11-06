@@ -1,9 +1,11 @@
 #include "Scene.h"
 
+#include <iostream>
 #include <glad/glad.h>
 
 #include "Renderer/RenderContext.h"
 #include "Component/Component.h"
+#include "Resources/ResourceTypes/TextureResource.h"
 
 void Arg::Scene::Start()
 {
@@ -46,6 +48,44 @@ void Arg::Scene::Start()
 				} 
 				)";
 
+	vertexSource2 = R"(
+				#version 460 core
+				layout (location = 0) in vec3 l_Position;
+				layout (location = 1) in vec3 l_Normal;
+				layout (location = 2) in vec2 l_TexCoords;
+				
+				uniform mat4 u_Model;
+				uniform mat4 u_View;
+				uniform mat4 u_Projection;
+
+				out vec2 v_TexCoords;
+
+				void main()
+				{
+					gl_Position = u_Projection * u_View * u_Model * vec4(l_Position, 1.0);
+					v_TexCoords = l_TexCoords;
+				}
+				)";
+
+	fragmentSource2 = R"(
+				#version 460 core
+				out vec4 FragColor;
+
+				in vec2 v_TexCoords;
+
+				uniform sampler2D u_Texture0;
+				uniform vec3 u_Color;
+
+				void main()
+				{
+					float z = gl_FragCoord.z * 2.0 - 1.0;
+					float depth = ((2.0 * 0.1 * 5.0) / (5.0 + 0.1 - z * (5.0 - 0.1))) / 5.0;
+					
+					vec3 diffuse = vec3(texture(u_Texture0, v_TexCoords)) * u_Color;
+					FragColor = vec4(diffuse * (1.0 - depth), 1.0);
+				} 
+				)";
+
 	const char* vertexSourceBuffer = vertexSource.c_str();
 	const uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSourceBuffer, nullptr);
@@ -57,12 +97,45 @@ void Arg::Scene::Start()
 	glCompileShader(fragmentShader);
 
 	shader = glCreateProgram();
+	glUseProgram(shader);
 	glAttachShader(shader, vertexShader);
 	glAttachShader(shader, fragmentShader);
 	glLinkProgram(shader);
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	glUseProgram(0);
+
+	const char* vertexSourceBuffer2 = vertexSource2.c_str();
+	const uint32_t vertexShader2 = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader2, 1, &vertexSourceBuffer2, nullptr);
+	glCompileShader(vertexShader2);
+
+	const char* fragmentSourceBuffer2 = fragmentSource2.c_str();
+	const uint32_t fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader2, 1, &fragmentSourceBuffer2, nullptr);
+	glCompileShader(fragmentShader2);
+
+	shader2 = glCreateProgram();
+	glUseProgram(shader2);
+	glAttachShader(shader2, vertexShader2);
+	glAttachShader(shader2, fragmentShader2);
+	glLinkProgram(shader2);
+
+	int success;
+	char infoLog[512];
+	glGetProgramiv(shader2, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shader2, 512, nullptr, infoLog);
+		std::cout << "Shader Program link failed!\n" << infoLog << std::endl;
+	}
+
+	glDeleteShader(vertexShader2);
+	glDeleteShader(fragmentShader2);
+
+	glUseProgram(0);
 
 	const float quadVertices[] = {
 		-0.5f, -0.5f, 0.0f,
@@ -94,6 +167,8 @@ void Arg::Scene::Start()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
+
+	content.Initialize();
 }
 
 void Arg::Scene::Tick(double deltaTime)
@@ -109,12 +184,11 @@ void Arg::Scene::Tick(double deltaTime)
 
 void Arg::Scene::Render(Renderer* renderer)
 {
-	const RenderContext renderContext{
+	RenderContext renderContext{
 		.Renderer = renderer,
 		.Shader = shader,
+		.Content = &content,
 	};
-
-	glUseProgram(shader);
 
 	const Mat4 view = Math::lookAt(cameraPosition, cameraPosition + cameraForward, cameraUp);
 	const Vec2i frameSize = renderer->GetFrameSize();
@@ -127,8 +201,11 @@ void Arg::Scene::Render(Renderer* renderer)
 		1000.0f
 	);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader, "u_View"), 1, GL_FALSE, Math::Ref(view));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Projection"), 1, GL_FALSE, Math::Ref(projection));
+	renderContext.Shader = shader2;
+	glUseProgram(shader2);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader2, "u_View"), 1, GL_FALSE, Math::Ref(view));
+	glUniformMatrix4fv(glGetUniformLocation(shader2, "u_Projection"), 1, GL_FALSE, Math::Ref(projection));
 
 	m_RootObject->PrepareForRender();
 	for (const Rc<GameObject>& gameObject : m_GameObjects)
@@ -137,6 +214,12 @@ void Arg::Scene::Render(Renderer* renderer)
 	}
 
 	// Gizmos
+	renderContext.Shader = shader;
+	glUseProgram(shader);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_View"), 1, GL_FALSE, Math::Ref(view));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "u_Projection"), 1, GL_FALSE, Math::Ref(projection));
+
 	const GameObject* selectedGameObject = FindGameObject(m_SelectedGameObjectID);
 	if (selectedGameObject != nullptr)
 	{

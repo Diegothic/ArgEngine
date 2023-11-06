@@ -33,6 +33,7 @@ namespace Arg
 		Box<EditorWidget> m_LeftPanelWidget = nullptr;
 		Box<EditorWidget> m_RightPanelWidget = nullptr;
 		Box<EditorWidget> m_CenterPanelWidget = nullptr;
-		Box<EditorWidget> m_BottomPanelWidget = nullptr;
+		Box<EditorWidget> m_ContentBrowserWidget = nullptr;
+		Box<EditorWidget> m_ConsoleLogWidget = nullptr;
 	};
 }

@@ -4,9 +4,9 @@
 #include "SceneHierarchyWidget.h"
 
 
-Arg::SceneManagementWidget::SceneManagementWidget(Vec2 position, Vec2 size, Scene* scene, Inspector* inspector): EditorWidget(position, size),
-                                                                                                                 m_pScene(scene),
-                                                                                                                 m_pInspector(inspector)
+Arg::SceneManagementWidget::SceneManagementWidget(Vec2 position, Vec2 size, Scene* scene, Inspector* inspector) : EditorWidget(position, size),
+m_pScene(scene),
+m_pInspector(inspector)
 {
 	m_HierarchyWidget = NewBox<SceneHierarchyWidget>(position, size, m_pScene, m_pInspector);
 	m_CreateObjectWidget = NewBox<SceneCreateObjectWidget>(position, size, m_pScene);
@@ -20,11 +20,11 @@ void Arg::SceneManagementWidget::VOnDraw()
 	ImGui::SetNextWindowPos(ImVec2(position.x, position.y));
 	ImGui::SetNextWindowSize(ImVec2(size.x, size.y));
 	ImGui::Begin("SceneManagement",
-	             nullptr,
-	             ImGuiWindowFlags_NoMove
-	             | ImGuiWindowFlags_NoResize
-	             | ImGuiWindowFlags_NoCollapse
-	             | ImGuiWindowFlags_NoTitleBar
+		nullptr,
+		ImGuiWindowFlags_NoMove
+		| ImGuiWindowFlags_NoResize
+		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoTitleBar
 	);
 
 	if (ImGui::BeginTabBar("Tabs"))
@@ -49,6 +49,8 @@ void Arg::SceneManagementWidget::VOnDraw()
 
 void Arg::SceneManagementWidget::VOnResized(Vec2 newPosition, Vec2 newSize)
 {
+	EditorWidget::VOnResized(newPosition, newSize);
+
 	m_HierarchyWidget->Resize(newPosition, newSize);
 	m_CreateObjectWidget->Resize(newPosition, newSize);
 }

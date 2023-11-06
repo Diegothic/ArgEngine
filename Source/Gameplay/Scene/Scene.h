@@ -7,6 +7,7 @@
 #include "Core/Time/GameTime.h"
 #include "Renderer/Renderer.h"
 #include "GameObject/GameObject.h"
+#include "Resources/Content.h"
 
 namespace Arg
 {
@@ -15,6 +16,11 @@ namespace Arg
 	public:
 		Scene()
 		{
+			const ContentSpec contentSpec
+			{
+				.RootDirectory = "Content/"
+			};
+			content = Content(contentSpec);
 		}
 		~Scene() = default;
 
@@ -37,6 +43,8 @@ namespace Arg
 		uint64_t CreateComponent(uint64_t ownerID);
 		void DestroyComponent(uint64_t ID);
 
+		Content* GetContent() { return &content; }
+
 	protected:
 		void RemoveGameObject(uint64_t ID);
 		void RemoveComponent(uint64_t ID);
@@ -53,15 +61,20 @@ namespace Arg
 		GameTime m_GameTime;
 
 		// TEMP:
+		GUIDGenerator IDGenerator;
 		uint64_t m_LastUsedID = 1;
 
 		std::string vertexSource;
 		std::string fragmentSource;
+		std::string vertexSource2;
+		std::string fragmentSource2;
 		uint32_t shader = 0;
+		uint32_t shader2 = 0;
 		Vec3 cameraPosition = Vec3(5.0f, 0.0f, 0.0f);
 		Vec3 cameraForward = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 cameraUp = Vec3(0.0f, 0.0f, -1.0f);
 		uint32_t quadVertexArray = 0;
+		Content content;
 	};
 }
 

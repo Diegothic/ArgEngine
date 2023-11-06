@@ -53,7 +53,7 @@ void Arg::InspectorWidget::VOnDraw()
 
 void Arg::InspectorWidget::VOnResized(Vec2 newPosition, Vec2 newSize)
 {
-
+	EditorWidget::VOnResized(newPosition, newSize);
 }
 
 void Arg::InspectorWidget::DrawGameObjectInspector(GameObject* gameObject) const

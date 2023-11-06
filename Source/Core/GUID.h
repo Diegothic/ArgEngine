@@ -38,3 +38,17 @@ namespace Arg
 		Random m_Generator;
 	};
 }
+
+namespace std
+{
+	template <typename T> struct hash;
+
+	template <>
+	struct hash<Arg::GUID>
+	{
+		size_t operator()(const Arg::GUID& ID) const
+		{
+			return (uint64_t)ID;
+		}
+	};
+}

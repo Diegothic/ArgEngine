@@ -75,7 +75,7 @@ bool Arg::Window::Create()
 	io.IniFilename = "Temp/imgui.ini";
 
 	ImGui::StyleColorsLight();
-	io.Fonts->AddFontFromFileTTF("Content\\Engine\\Fonts\\Roboto-Regular.ttf", 18.0f);
+	io.Fonts->AddFontFromFileTTF("Content\\_Engine\\Fonts\\Roboto-Regular.ttf", 18.0f);
 
 	ImGui_ImplGlfw_InitForOpenGL(m_pWindowHandle, true);
 	ImGui_ImplOpenGL3_Init("#version 150");

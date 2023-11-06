@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 
 #include "Gameplay/Scene/Scene.h"
+#include "GUI/Content/ContentBrowserWidget.h"
 #include "GUI/Inspector/InspectorWidget.h"
 #include "GUI/Scene/SceneHierarchyWidget.h"
 #include "GUI/Scene/SceneManagementWidget.h"
@@ -23,7 +24,8 @@ void Arg::EditorWindow::VOnCreate()
 	m_LeftPanelWidget = NewBox<SceneManagementWidget>(Vec2(0.0f), Vec2(1.0f), m_Scene.get(), m_Inspector.get());
 	m_RightPanelWidget = NewBox<InspectorWidget>(Vec2(0.0f), Vec2(1.0f), m_Inspector.get(), m_Scene.get());
 	m_CenterPanelWidget = NewBox<SceneHierarchyWidget>(Vec2(0.0f), Vec2(1.0f), m_Scene.get(), m_Inspector.get());
-	m_BottomPanelWidget = NewBox<SceneHierarchyWidget>(Vec2(0.0f), Vec2(1.0f), m_Scene.get(), m_Inspector.get());
+	m_ContentBrowserWidget = NewBox<ContentBrowserWidget>(Vec2(0.0f), Vec2(1.0f), m_Scene.get()->GetContent());
+	m_ConsoleLogWidget = NewBox<ContentBrowserWidget>(Vec2(0.0f), Vec2(1.0f), m_Scene.get()->GetContent());
 
 	glGenFramebuffers(1, &m_FrameBufferID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
@@ -192,12 +194,30 @@ void Arg::EditorWindow::VOnGUI()
 		workspaceWidth - workspaceWidth * 0.2f + 1.0f,
 		workspaceHeight - workspaceHeight * 0.65f + 1.0f
 	));
-	ImGui::Begin("Console",
+	ImGui::Begin("##Bottom",
 		nullptr,
 		ImGuiWindowFlags_NoMove
 		| ImGuiWindowFlags_NoResize
 		| ImGuiWindowFlags_NoCollapse
+		| ImGuiWindowFlags_NoTitleBar
 	);
+
+	if (ImGui::BeginTabBar("BottomTabs"))
+	{
+		if (ImGui::BeginTabItem("Content Browser"))
+		{
+			m_ContentBrowserWidget->Draw();
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Console log"))
+		{
+			m_ConsoleLogWidget->Draw();
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+	}
 
 	ImGui::End();
 
@@ -318,7 +338,8 @@ void Arg::EditorWindow::VOnResized()
 	m_LeftPanelWidget->Resize(leftPanelPosition, leftPanelSize);
 	m_RightPanelWidget->Resize(rightPanelPosition, rightPanelSize);
 	m_CenterPanelWidget->Resize(centerPanelPosition, centerPanelSize);
-	m_BottomPanelWidget->Resize(bottomPanelPosition, bottomPanelSize);
+	m_ContentBrowserWidget->Resize(bottomPanelPosition, bottomPanelSize);
+	m_ConsoleLogWidget->Resize(bottomPanelPosition, bottomPanelSize);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID);
 	glBindTexture(GL_TEXTURE_2D, m_FrameBufferTextureID);
