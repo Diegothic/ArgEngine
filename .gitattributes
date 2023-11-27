@@ -1,0 +1,11 @@
+*.cpp linguist-language=C++
+*.hpp linguist-language=C++
+*.h linguist-language=C++
+ArgEngine/Libraries/* linguist-vendored
+ArgEditor/Libraries/* linguist-vendored
+ArgRuntime/Libraries/* linguist-vendored
+Libraries/* linguist-vendored
+*.meta linguist-detectable=false
+*.data linguist-detectable=false
+*.atex linguist-detectable=false
+ArgEngine/Libraries/Lib/assimp.lib filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{bf671895-916b-4518-b2a6-543923439d70}</ProjectGuid>
+    <RootNamespace>ArgEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Bin\Engine_$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Temp\Engine\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(ProjectDir)Source;$(ProjectDir)Libraries\Include;$(ProjectDir)Libraries\Include\lua;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Bin\Engine_$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)Temp\Engine\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(ProjectDir)Source;$(ProjectDir)Libraries\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>arg_pch.hpp</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimp.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>arg_pch.hpp</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cpp.lib;zlibstatic.lib;assimp.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Libraries\Include\glad\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Libraries\Include\stb\stb_image.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Content\Content.cpp" />
+    <ClCompile Include="Source\Content\Import\ImporterDataConversion.cpp" />
+    <ClCompile Include="Source\Content\Import\SkeletalAnimationImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\SkeletalMeshImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\SkeletonImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\StaticMeshImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\TextureImporter.cpp" />
+    <ClCompile Include="Source\Content\ResourceCache.cpp" />
+    <ClCompile Include="Source\Content\Resource\Resource.cpp" />
+    <ClCompile Include="Source\Content\Resource\ResourceFolder.cpp" />
+    <ClCompile Include="Source\Content\Resource\ResourceTypes\TextureResource.cpp" />
+    <ClCompile Include="Source\Core\Application.cpp" />
+    <ClCompile Include="Source\Renderer\Buffers.cpp" />
+    <ClCompile Include="Source\Renderer\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Renderer\Camera\OrthoCamera.cpp" />
+    <ClCompile Include="Source\Renderer\Camera\PerspectiveCamera.cpp" />
+    <ClCompile Include="Source\Renderer\FrameBuffer.cpp" />
+    <ClCompile Include="Source\Renderer\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Source\Renderer\Light\PointLight.cpp" />
+    <ClCompile Include="Source\Renderer\Light\SpotLight.cpp" />
+    <ClCompile Include="Source\Renderer\RenderAPI.cpp" />
+    <ClCompile Include="Source\Renderer\Renderer.cpp" />
+    <ClCompile Include="Source\Renderer\RenderTarget.cpp" />
+    <ClCompile Include="Source\Renderer\ShaderProgram.cpp" />
+    <ClCompile Include="Source\Renderer\SkeletalMesh.cpp" />
+    <ClCompile Include="Source\Renderer\StaticMesh.cpp" />
+    <ClCompile Include="Source\Renderer\Texture.cpp" />
+    <ClInclude Include="Source\Content\Content.hpp" />
+    <ClInclude Include="Source\Content\Import\ImporterDataConversion.hpp" />
+    <ClInclude Include="Source\Content\Import\SkeletalAnimationImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\SkeletalMeshImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\SkeletonImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\StaticMeshImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\TextureImporter.hpp" />
+    <ClInclude Include="Source\Content\ResourceCache.hpp" />
+    <ClInclude Include="Source\Content\Resource\ResourceFolder.hpp" />
+    <ClInclude Include="Source\Content\Resource\ResourceTypes\TextureResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\Resource.hpp" />
+    <ClInclude Include="Source\Content\Yaml\CustomTypes.hpp" />
+    <ClInclude Include="Source\Content\Yaml\Yaml.hpp" />
+    <ClInclude Include="Source\Core\GUID.hpp" />
+    <ClCompile Include="Source\Core\GUID.cpp" />
+    <ClCompile Include="Source\Core\Input\GamepadState.cpp" />
+    <ClCompile Include="Source\Core\Input\KeyboardState.cpp" />
+    <ClCompile Include="Source\Core\Input\MouseState.cpp" />
+    <ClCompile Include="Source\Core\Input\Input.cpp" />
+    <ClCompile Include="Source\Core\Random\LCG.cpp" />
+    <ClCompile Include="Source\Core\Random\Random.cpp" />
+    <ClCompile Include="Source\Debug\ScopeTimer.cpp" />
+    <ClInclude Include="Source\Debug\ScopeTimer.hpp" />
+    <ClCompile Include="Source\EntryPoint.cpp" />
+    <ClCompile Include="Source\arg_pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClInclude Include="Source\Core\Math\Math.hpp" />
+    <ClCompile Include="Source\Core\Window\Window.cpp" />
+    <ClInclude Include="Source\GameEngine.hpp" />
+    <ClInclude Include="Source\Gameplay\Actor.hpp" />
+    <ClInclude Include="Source\Gameplay\ActorComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\ActorHandle.hpp" />
+    <ClInclude Include="Source\Gameplay\GameWorld.hpp" />
+    <ClInclude Include="Source\Renderer\Animation\SkeletalAnimation.hpp" />
+    <ClInclude Include="Source\Renderer\RenderTarget.hpp" />
+    <ClInclude Include="Source\Renderer\SkeletalMesh.hpp" />
+    <ClInclude Include="Source\Renderer\Animation\Skeleton.hpp" />
+    <ClInclude Include="Source\Renderer\Buffers.hpp" />
+    <ClInclude Include="Source\Renderer\Camera\Camera.hpp" />
+    <ClInclude Include="Source\Renderer\Camera\OrthoCamera.hpp" />
+    <ClInclude Include="Source\Renderer\FrameBuffer.hpp" />
+    <ClInclude Include="Source\Renderer\Light\DirectionalLight.hpp" />
+    <ClInclude Include="Source\Renderer\Light\PointLight.hpp" />
+    <ClInclude Include="Source\Renderer\Light\SpotLight.hpp" />
+    <ClInclude Include="Source\Renderer\Material.hpp" />
+    <ClInclude Include="Source\Renderer\Camera\PerspectiveCamera.hpp" />
+    <ClInclude Include="Source\Renderer\RenderAPI.hpp" />
+    <ClInclude Include="Source\Renderer\Renderer.hpp" />
+    <ClInclude Include="Source\Renderer\RenderWorld.h" />
+    <ClInclude Include="Source\Renderer\ShaderProgram.hpp" />
+    <ClInclude Include="Source\Renderer\StaticMesh.hpp" />
+    <ClInclude Include="Source\Renderer\Texture.hpp" />
+    <ClInclude Include="Source\Renderer\Vertex.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Core\Application.hpp" />
+    <ClInclude Include="Source\Core\Input\CursorModes.hpp" />
+    <ClInclude Include="Source\Core\Input\GamepadAxes.hpp" />
+    <ClInclude Include="Source\Core\Input\GamepadButtons.hpp" />
+    <ClInclude Include="Source\Core\Input\GamepadConstants.hpp" />
+    <ClInclude Include="Source\Core\Input\GamepadState.hpp" />
+    <ClInclude Include="Source\Core\Input\KeyboardState.hpp" />
+    <ClInclude Include="Source\Core\Input\KeyCodes.hpp" />
+    <ClInclude Include="Source\Core\Input\MouseButtons.hpp" />
+    <ClInclude Include="Source\Core\Input\MouseState.hpp" />
+    <ClInclude Include="Source\Core\Input\Input.hpp" />
+    <ClInclude Include="Source\Core\Random\LCG.hpp" />
+    <ClInclude Include="Source\Core\Random\Random.hpp" />
+    <ClInclude Include="Source\Debug\Assert.hpp" />
+    <ClInclude Include="Source\Debug\Log.hpp" />
+    <ClInclude Include="Source\Core\Window\Window.hpp" />
+    <ClInclude Include="Source\arg_pch.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
