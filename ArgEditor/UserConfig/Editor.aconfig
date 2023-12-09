@@ -1,0 +1,8 @@
+ArgEditorConfig:
+  GUI:
+    Font: OpenSans-SemiBold
+    FontSize: 18
+  Window:
+    Width: 1920
+    Height: 1080
+    IsVSync: true

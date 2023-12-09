@@ -59,13 +59,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;YAML_CPP_STATIC_DEFINE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -74,9 +79,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;YAML_CPP_STATIC_DEFINE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -98,8 +105,18 @@
     <ClCompile Include="Libraries\Include\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Dialog\MessageBox\MessageBoxDialog.cpp" />
+    <ClCompile Include="Source\Editor.cpp" />
     <ClCompile Include="Source\EditorApplication.cpp" />
-    <ClCompile Include="Source\FileDialog\FileOpenDialog.cpp" />
+    <ClCompile Include="Source\Dialog\FileDialog\FileOpenDialog.cpp" />
+    <ClCompile Include="Source\EditorCamera.cpp" />
+    <ClCompile Include="Source\GUI\EditorGUI.cpp" />
+    <ClCompile Include="Source\GUI\EditorGUIPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\ContentBrowserPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\DetailsPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\ResourceDetailsPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\WorldOutlinerPanel.cpp" />
+    <ClCompile Include="Source\Project\Project.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\Include\imgui\imconfig.h" />
@@ -111,9 +128,18 @@
     <ClInclude Include="Libraries\Include\imgui\imstb_rectpack.h" />
     <ClInclude Include="Libraries\Include\imgui\imstb_textedit.h" />
     <ClInclude Include="Libraries\Include\imgui\imstb_truetype.h" />
+    <ClInclude Include="Source\Dialog\MessageBox\MessageBoxDialog.hpp" />
+    <ClInclude Include="Source\Editor.hpp" />
     <ClInclude Include="Source\EditorApplication.hpp" />
-    <ClInclude Include="Source\FileDialog\FileOpenDialog.hpp" />
-    <ClInclude Include="Source\GUI\Window\ContentBrowser.hpp" />
+    <ClInclude Include="Source\Dialog\FileDialog\FileOpenDialog.hpp" />
+    <ClInclude Include="Source\EditorCamera.hpp" />
+    <ClInclude Include="Source\GUI\EditorGUI.hpp" />
+    <ClInclude Include="Source\GUI\EditorGUIPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\ContentBrowserPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\DetailsPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\ResourceDetailsPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\WorldOutlinerPanel.hpp" />
+    <ClInclude Include="Source\Project\Project.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,0 @@
-resource:
-  id: 4261431285625527739
-  type: Texture
-  file: awesomeface.tex
-data:
-  width: 512
-  height: 512
-  format: 4

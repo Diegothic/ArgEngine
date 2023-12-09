@@ -3,11 +3,50 @@
 
 #include "Debug/Assert.hpp"
 
+#include "Resource/GameResources/ShaderResource.hpp"
+#include "Resource/GameResources/TextureResource.hpp"
+#include "Resource/GameResources/StaticModelResource.hpp"
+#include "Resource/GameResources/WorldResource.hpp"
+#include "Resource/GameResources/MaterialResource.hpp"
+
 void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& resource)
 {
 	ARG_ASSERT(!m_pResources.contains(resource->GetID()), "Invalid resource ID!");
 	m_pResources[resource->GetID()] = resource;
 	m_pResourcesByPathID[resource->GetPathID()] = resource;
+
+	if (resource->GetType() != ResourceType::ResourceTypeFolder)
+	{
+		ARG_ASSERT(!m_pGameResources.contains(resource->GetID()), "Invalid resource ID!");
+		switch (resource->GetType())
+		{
+		case ResourceType::ResourceTypeShader:
+		{
+			m_pGameResources[resource->GetID()] = std::make_shared<ShaderResource>(resource);
+			break;
+		}
+		case ResourceType::ResourceTypeMaterial:
+		{
+			m_pGameResources[resource->GetID()] = std::make_shared<MaterialResource>(resource);
+			break;
+		}
+		case ResourceType::ResourceTypeTexture:
+		{
+			m_pGameResources[resource->GetID()] = std::make_shared<TextureResource>(resource);
+			break;
+		}
+		case ResourceType::ResourceTypeStaticModel:
+		{
+			m_pGameResources[resource->GetID()] = std::make_shared<StaticModelResource>(resource);
+			break;
+		}
+		case ResourceType::ResourceTypeWorld:
+		{
+			m_pGameResources[resource->GetID()] = std::make_shared<WorldResource>(resource);
+			break;
+		}
+		}
+	}
 }
 
 void Arg::Content::ResourceCache::RemoveResource(const std::shared_ptr<Resource>& resource)
@@ -16,16 +55,10 @@ void Arg::Content::ResourceCache::RemoveResource(const std::shared_ptr<Resource>
 	const GUID resourcePathID = resource->GetPathID();
 	ARG_ASSERT(m_pResources.contains(resourceID), "Invalid resource ID!");
 
-	switch (resource->GetType())
+	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-	case ResourceType::ResourceTypeTexture:
-	{
-		std::shared_ptr<TextureResource> textureResource = GetResourceByType(resourceID);
-		textureResource->Remove();
-		break;
-	}
-	default:
-		break;
+		ARG_ASSERT(m_pGameResources.contains(resourceID), "Invalid resource ID!");
+		m_pGameResources.at(resourceID)->VRemoveFiles();
 	}
 
 	FreeResource(resourceID);
@@ -35,22 +68,20 @@ void Arg::Content::ResourceCache::RemoveResource(const std::shared_ptr<Resource>
 	m_pResourcesByPathID.erase(resourcePathID);
 }
 
-void Arg::Content::ResourceCache::SaveResource(const GUID ID)
+void Arg::Content::ResourceCache::SaveResource(const GUID ID) const
 {
 	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
 	const auto& resource = m_pResources.at(ID);
 	resource->Save();
 
-	switch (resource->GetType())
+	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-	case ResourceType::ResourceTypeTexture:
-	{
-		std::shared_ptr<TextureResource> textureResource = GetResourceByType(resource->GetID());
-		textureResource->Save();
-		break;
-	}
-	default:
-		break;
+		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		const auto& gameResource = m_pGameResources.at(ID);
+		if(gameResource->VIsSaveable())
+		{
+			m_pGameResources.at(ID)->VSaveFiles();
+		}
 	}
 }
 
@@ -62,45 +93,35 @@ void Arg::Content::ResourceCache::RenameResource(
 	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
 	const auto& resource = m_pResources.at(ID);
 
-	switch (resource->GetType())
-	{
-	case ResourceType::ResourceTypeFolder:
+	if (resource->GetType() == ResourceType::ResourceTypeFolder)
 	{
 		std::filesystem::rename(
 			resource->GetPath() / resource->GetName(),
 			resource->GetPath() / name
 		);
-		break;
 	}
-	case ResourceType::ResourceTypeTexture:
+	else
 	{
-		std::shared_ptr<TextureResource> textureResource = GetResourceByType(resource->GetID());
-		textureResource->Rename(name);
-		break;
-	}
-	default:
-		break;
+		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		m_pGameResources.at(ID)->VRenameFiles(name);
 	}
 
 	resource->Rename(name);
 }
 
-void Arg::Content::ResourceCache::MoveResource(const GUID ID, const std::filesystem::path& destination)
+void Arg::Content::ResourceCache::MoveResource(
+	const GUID ID,
+	const std::filesystem::path& destination
+)
 {
 	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
 	const auto& resource = m_pResources.at(ID);
 	resource->Move(destination);
 
-	switch (resource->GetType())
+	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-	case ResourceType::ResourceTypeTexture:
-	{
-		std::shared_ptr<TextureResource> textureResource = GetResourceByType(resource->GetID());
-		textureResource->Move(destination);
-		break;
-	}
-	default:
-		break;
+		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		m_pGameResources.at(ID)->VMoveFiles(destination);
 	}
 }
 
@@ -111,45 +132,48 @@ void Arg::Content::ResourceCache::RemoveResource(const GUID ID)
 	RemoveResource(resource);
 }
 
-auto Arg::Content::ResourceCache::GetResourceByType(const GUID ID) -> std::shared_ptr<TextureResource>&
-{
-	const auto& resource = m_pResources.at(ID);
-	ARG_ASSERT(resource->GetType() == ResourceType::ResourceTypeTexture, "Invalid resource type!");
-	if (m_pLoadedTextures.contains(ID))
-	{
-		return m_pLoadedTextures.at(ID);
-	}
-
-	auto textureResource = std::make_shared<TextureResource>(resource);
-	textureResource->Create();
-
-	m_pLoadedTextures[ID] = textureResource;
-	return m_pLoadedTextures[ID];
-}
-
 auto Arg::Content::ResourceCache::GetResource(const GUID ID) -> std::shared_ptr<Resource>&
 {
 	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
 	return m_pResources[ID];
 }
 
+auto Arg::Content::ResourceCache::GetGameResource(const GUID ID) -> std::shared_ptr<GameResource>&
+{
+	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+	return m_pGameResources.at(ID);
+}
+
+auto Arg::Content::ResourceCache::GetGameResource(const std::string& path) -> std::shared_ptr<GameResource>&
+{
+	const GUID pathID = std::hash<std::string>{}(path);
+	ARG_ASSERT(m_pResourcesByPathID.contains(pathID), "Invalid resource Path!");
+	const GUID ID = m_pResourcesByPathID.at(pathID)->GetID();
+	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+	return m_pGameResources.at(ID);
+}
+
 void Arg::Content::ResourceCache::FreeResource(const GUID ID)
 {
 	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
 	const auto& resource = m_pResources[ID];
-	switch (resource->GetType())
+	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-	case ResourceType::ResourceTypeTexture:
-	{
-		if (m_pLoadedTextures.contains(ID))
-		{
-			m_pLoadedTextures[ID] = nullptr;
-			m_pLoadedTextures.erase(ID);
-		}
-		break;
+		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		m_pGameResources[ID] = nullptr;
+		m_pGameResources.erase(ID);
 	}
-	default:
-		break;
+}
+
+void Arg::Content::ResourceCache::SaveAll() const
+{
+	for (const auto& resourceKey : m_pResources
+		| std::ranges::views::keys
+		)
+	{
+		SaveResource(resourceKey);
 	}
 }
 

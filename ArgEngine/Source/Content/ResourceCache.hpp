@@ -4,7 +4,7 @@
 
 #include "Debug/Assert.hpp"
 #include "Resource/Resource.hpp"
-#include "Resource/ResourceTypes/TextureResource.hpp"
+#include "Resource/GameResource.hpp"
 
 namespace Arg
 {
@@ -24,8 +24,12 @@ namespace Arg
 			auto operator=(const ResourceHandle<TResourceType>& other)->ResourceHandle<TResourceType>&;
 			auto operator==(const ResourceHandle<TResourceType>& other) -> bool;
 
+			auto GetID() const -> const GUID& { return m_ResourceID; }
 			auto IsValid() const -> bool;
-			auto Get() const->std::shared_ptr<TResourceType>&;
+			auto Get() const->std::shared_ptr<TResourceType>;
+
+			void AddRef();
+			void FreeRef();
 
 		private:
 			GUID m_ResourceID = GUID::Empty;
@@ -49,7 +53,7 @@ namespace Arg
 			void RemoveResource(const std::shared_ptr<Resource>& resource);
 			void RemoveResource(const GUID ID);
 
-			void SaveResource(const GUID ID);
+			void SaveResource(const GUID ID) const;
 			void RenameResource(
 				const GUID ID,
 				const std::string& name
@@ -59,24 +63,22 @@ namespace Arg
 				const std::filesystem::path& destination
 			);
 
+			auto IsValid(const GUID ID) -> bool;
+
 			auto GetResource(const GUID ID) -> std::shared_ptr<Resource>&;
-			template<typename TResourceType>
-			auto GetResource(const GUID ID) -> std::shared_ptr<TResourceType>&;
-			template<typename TResourceType>
-			auto GetResource(const std::string& path) -> std::shared_ptr<TResourceType>&;
+
+			auto GetGameResource(const GUID ID) -> std::shared_ptr<GameResource>&;
+			auto GetGameResource(const std::string& path) -> std::shared_ptr<GameResource>&;
 
 			void FreeResource(const GUID ID);
 
-			auto IsValid(const GUID ID) -> bool;
-
-		private:
-			auto GetResourceByType(const GUID ID) -> std::shared_ptr<TextureResource>&;
+			void SaveAll() const;
 
 		private:
 			std::unordered_map<GUID, std::shared_ptr<Resource>> m_pResources;
 			std::unordered_map<GUID, std::shared_ptr<Resource>> m_pResourcesByPathID;
 
-			std::unordered_map<GUID, std::shared_ptr<TextureResource>> m_pLoadedTextures;
+			std::unordered_map<GUID, std::shared_ptr<GameResource>> m_pGameResources;
 		};
 
 		template <typename TResourceType>
@@ -100,7 +102,9 @@ namespace Arg
 		}
 
 		template <typename TResourceType>
-		auto Arg::Content::ResourceHandle<TResourceType>::operator=(const ResourceHandle<TResourceType>& other) ->ResourceHandle<TResourceType>&
+		auto Arg::Content::ResourceHandle<TResourceType>::operator=(
+			const ResourceHandle<TResourceType>& other
+			) ->ResourceHandle<TResourceType>&
 		{
 			m_ResourceID = other.m_ResourceID;
 			m_pResourceCache = other.m_pResourceCache;
@@ -108,7 +112,9 @@ namespace Arg
 		}
 
 		template <typename TResourceType>
-		auto Arg::Content::ResourceHandle<TResourceType>::operator==(const ResourceHandle<TResourceType>& other) -> bool
+		auto Arg::Content::ResourceHandle<TResourceType>::operator==(
+			const ResourceHandle<TResourceType>& other
+			) -> bool
 		{
 			return m_ResourceID == other.m_ResourceID;
 		}
@@ -120,25 +126,21 @@ namespace Arg
 		}
 
 		template <typename TResourceType>
-		auto Arg::Content::ResourceHandle<TResourceType>::Get() const -> std::shared_ptr<TResourceType>&
+		auto Arg::Content::ResourceHandle<TResourceType>::Get() const -> std::shared_ptr<TResourceType>
 		{
-			return m_pResourceCache->GetResource<TResourceType>(m_ResourceID);
+			return dynamic_pointer_cast<TResourceType>(m_pResourceCache->GetGameResource(m_ResourceID));
 		}
 
-		template<typename TResourceType>
-		auto Arg::Content::ResourceCache::GetResource(const std::string& path) -> std::shared_ptr<TResourceType>&
+		template <typename TResourceType>
+		void Arg::Content::ResourceHandle<TResourceType>::AddRef()
 		{
-			const GUID pathID = std::hash<std::string>{}(path);
-			ARG_ASSERT(m_pResourcesByPathID.contains(pathID), "Invalid resource Path!");
-			const GUID ID = m_pResourcesByPathID.at(pathID)->GetID();
-			return GetResourceByType(ID);
+			m_pResourceCache->GetGameResource(m_ResourceID)->AddRef();
 		}
 
-		template<typename TResourceType>
-		auto Arg::Content::ResourceCache::GetResource(const GUID ID) -> std::shared_ptr<TResourceType>&
+		template <typename TResourceType>
+		void Arg::Content::ResourceHandle<TResourceType>::FreeRef()
 		{
-			ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
-			return GetResourceByType(ID);
+			m_pResourceCache->GetGameResource(m_ResourceID)->FreeRef();
 		}
 
 		template<typename TResourceType>

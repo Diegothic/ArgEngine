@@ -21,7 +21,8 @@ namespace Arg
 			void ChangeColor(const Vec3& color);
 
 			auto GetID() const -> const GUID&;
-			auto GetPath() const->const std::filesystem::path&;
+			auto GetPath() const-> const std::filesystem::path&;
+			auto GetFullPath() const->std::filesystem::path;
 			auto GetName() const ->const std::string&;
 			auto GetColor() const-> const Vec3&;
 

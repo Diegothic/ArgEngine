@@ -42,7 +42,7 @@ namespace Arg
 
 		private:
 			void InitializeBuffer(
-				const Texture& map,
+				Texture& map,
 				const FrameBuffer& buffer,
 				const int32_t size
 			) const;

@@ -18,11 +18,15 @@ Arg::Renderer::Texture::~Texture()
 	glDeleteTextures(1, &m_RendererID);
 }
 
-void Arg::Renderer::Texture::SetData(const TextureData& data) const
+void Arg::Renderer::Texture::SetData(const TextureData& data)
 {
+	m_Width = data.Width;
+	m_Height = data.Height;
+	m_Format = data.Format;
+
 	Bind();
 	int32_t textureFormat = 0;
-	switch (data.Format)
+	switch (m_Format)
 	{
 	case TextureFormat::FormatRGB:
 		textureFormat = GL_RGB;
@@ -41,7 +45,7 @@ void Arg::Renderer::Texture::SetData(const TextureData& data) const
 	ARG_ASSERT(textureFormat != 0, "Invalid texture format!");
 
 	int32_t internalFormat = 0;
-	switch (data.Format)
+	switch (m_Format)
 	{
 	case TextureFormat::FormatRGB:
 		internalFormat = GL_RGB;
@@ -58,7 +62,7 @@ void Arg::Renderer::Texture::SetData(const TextureData& data) const
 	}
 
 	uint32_t dataType = 0;
-	switch (data.Format)
+	switch (m_Format)
 	{
 	case TextureFormat::FormatRGB:
 		dataType = GL_UNSIGNED_BYTE;
@@ -77,8 +81,8 @@ void Arg::Renderer::Texture::SetData(const TextureData& data) const
 	glTexImage2D(GL_TEXTURE_2D,
 		0,
 		internalFormat,
-		data.Width,
-		data.Height,
+		m_Width,
+		m_Height,
 		0,
 		textureFormat,
 		dataType,
@@ -181,4 +185,31 @@ void Arg::Renderer::Texture::Unbind() const
 {
 	s_CurrentBoundID = -1;
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+auto Arg::Renderer::Texture::VOnSerialize(YAML::Node& node) const -> bool
+{
+	auto header = node["Texture"];
+	header["Width"] = m_Width;
+	header["Height"] = m_Height;
+	header["TextureFormat"] = static_cast<uint32_t>(m_Format);
+
+	return true;
+}
+
+auto Arg::Renderer::Texture::VOnDeserialize(const YAML::Node& node) -> bool
+{
+	const auto header = node["Texture"];
+	if (!header)
+	{
+		return false;
+	}
+
+	m_Width = ValueOr<int32_t>(header["Width"], 1);
+	m_Height = ValueOr<int32_t>(header["Height"], 1);
+	m_Format = static_cast<Renderer::TextureFormat>(
+		ValueOr<int32_t>(header["TextureFormat"], 0)
+		);
+
+	return true;
 }

@@ -1,8 +1,0 @@
-resource:
-  id: 6837509368509943094
-  type: Texture
-  file: container.tex
-data:
-  width: 512
-  height: 512
-  format: 3

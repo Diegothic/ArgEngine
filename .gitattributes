@@ -1,11 +1,17 @@
+# Source - language
 *.cpp linguist-language=C++
 *.hpp linguist-language=C++
 *.h linguist-language=C++
+# Vendor - ingore in stats
 ArgEngine/Libraries/* linguist-vendored
 ArgEditor/Libraries/* linguist-vendored
 ArgRuntime/Libraries/* linguist-vendored
 Libraries/* linguist-vendored
+# Non-source - ingore in stats
 *.meta linguist-detectable=false
 *.data linguist-detectable=false
 *.atex linguist-detectable=false
+*.amodel linguist-detectable=false
+# Git LFS
 ArgEngine/Libraries/Lib/assimp.lib filter=lfs diff=lfs merge=lfs -text
+ArgEngine/Libraries/Lib/assimpd.lib filter=lfs diff=lfs merge=lfs -text

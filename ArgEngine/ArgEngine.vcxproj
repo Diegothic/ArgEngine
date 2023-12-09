@@ -66,13 +66,17 @@
       <PrecompiledHeaderFile>arg_pch.hpp</PrecompiledHeaderFile>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimp.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimpd.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -89,6 +93,8 @@
       <PrecompiledHeaderFile>arg_pch.hpp</PrecompiledHeaderFile>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,13 +120,28 @@
     <ClCompile Include="Source\Content\Import\SkeletalAnimationImporter.cpp" />
     <ClCompile Include="Source\Content\Import\SkeletalMeshImporter.cpp" />
     <ClCompile Include="Source\Content\Import\SkeletonImporter.cpp" />
-    <ClCompile Include="Source\Content\Import\StaticMeshImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\StaticModelImporter.cpp" />
     <ClCompile Include="Source\Content\Import\TextureImporter.cpp" />
     <ClCompile Include="Source\Content\ResourceCache.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\GameDataResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\MaterialResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\ShaderResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\StaticModelResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\WorldResource.cpp" />
     <ClCompile Include="Source\Content\Resource\Resource.cpp" />
     <ClCompile Include="Source\Content\Resource\ResourceFolder.cpp" />
-    <ClCompile Include="Source\Content\Resource\ResourceTypes\TextureResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\TextureResource.cpp" />
+    <ClCompile Include="Source\Content\Serialization\YamlSerializable.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
+    <ClCompile Include="Source\GameEngine.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Actor.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\ActorHandle.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\ActorComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
+    <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
     <ClCompile Include="Source\Renderer\Buffers.cpp" />
     <ClCompile Include="Source\Renderer\Camera\Camera.cpp" />
     <ClCompile Include="Source\Renderer\Camera\OrthoCamera.cpp" />
@@ -129,24 +150,35 @@
     <ClCompile Include="Source\Renderer\Light\DirectionalLight.cpp" />
     <ClCompile Include="Source\Renderer\Light\PointLight.cpp" />
     <ClCompile Include="Source\Renderer\Light\SpotLight.cpp" />
+    <ClCompile Include="Source\Renderer\Material.cpp" />
     <ClCompile Include="Source\Renderer\RenderAPI.cpp" />
+    <ClCompile Include="Source\Renderer\RenderContext.cpp" />
     <ClCompile Include="Source\Renderer\Renderer.cpp" />
     <ClCompile Include="Source\Renderer\RenderTarget.cpp" />
     <ClCompile Include="Source\Renderer\ShaderProgram.cpp" />
     <ClCompile Include="Source\Renderer\SkeletalMesh.cpp" />
     <ClCompile Include="Source\Renderer\StaticMesh.cpp" />
+    <ClCompile Include="Source\Renderer\StaticModel.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClInclude Include="Source\Content\Content.hpp" />
     <ClInclude Include="Source\Content\Import\ImporterDataConversion.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletalAnimationImporter.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletalMeshImporter.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletonImporter.hpp" />
-    <ClInclude Include="Source\Content\Import\StaticMeshImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\StaticModelImporter.hpp" />
     <ClInclude Include="Source\Content\Import\TextureImporter.hpp" />
     <ClInclude Include="Source\Content\ResourceCache.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\GameDataResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\MaterialResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\ShaderResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\StaticModelResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\WorldResource.hpp" />
     <ClInclude Include="Source\Content\Resource\ResourceFolder.hpp" />
-    <ClInclude Include="Source\Content\Resource\ResourceTypes\TextureResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\TextureResource.hpp" />
     <ClInclude Include="Source\Content\Resource\Resource.hpp" />
+    <ClInclude Include="Source\Content\Serialization\ISerializable.hpp" />
+    <ClInclude Include="Source\Content\Serialization\YamlSerializable.hpp" />
     <ClInclude Include="Source\Content\Yaml\CustomTypes.hpp" />
     <ClInclude Include="Source\Content\Yaml\Yaml.hpp" />
     <ClInclude Include="Source\Core\GUID.hpp" />
@@ -167,11 +199,17 @@
     <ClInclude Include="Source\Core\Math\Math.hpp" />
     <ClCompile Include="Source\Core\Window\Window.cpp" />
     <ClInclude Include="Source\GameEngine.hpp" />
-    <ClInclude Include="Source\Gameplay\Actor.hpp" />
-    <ClInclude Include="Source\Gameplay\ActorComponent.hpp" />
-    <ClInclude Include="Source\Gameplay\ActorHandle.hpp" />
-    <ClInclude Include="Source\Gameplay\GameWorld.hpp" />
+    <ClInclude Include="Source\Gameplay\GameContext.hpp" />
+    <ClInclude Include="Source\Gameplay\GameTime.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Actor.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\ActorHandle.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
+    <ClInclude Include="Source\Gameplay\World\GameWorld.hpp" />
     <ClInclude Include="Source\Renderer\Animation\SkeletalAnimation.hpp" />
+    <ClInclude Include="Source\Renderer\RenderContext.hpp" />
     <ClInclude Include="Source\Renderer\RenderTarget.hpp" />
     <ClInclude Include="Source\Renderer\SkeletalMesh.hpp" />
     <ClInclude Include="Source\Renderer\Animation\Skeleton.hpp" />
@@ -186,9 +224,9 @@
     <ClInclude Include="Source\Renderer\Camera\PerspectiveCamera.hpp" />
     <ClInclude Include="Source\Renderer\RenderAPI.hpp" />
     <ClInclude Include="Source\Renderer\Renderer.hpp" />
-    <ClInclude Include="Source\Renderer\RenderWorld.h" />
     <ClInclude Include="Source\Renderer\ShaderProgram.hpp" />
     <ClInclude Include="Source\Renderer\StaticMesh.hpp" />
+    <ClInclude Include="Source\Renderer\StaticModel.hpp" />
     <ClInclude Include="Source\Renderer\Texture.hpp" />
     <ClInclude Include="Source\Renderer\Vertex.hpp" />
   </ItemGroup>

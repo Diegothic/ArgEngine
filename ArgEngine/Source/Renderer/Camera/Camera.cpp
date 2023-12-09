@@ -22,7 +22,7 @@ void Arg::Renderer::Camera::SetYaw(float angle)
 
 auto Arg::Renderer::Camera::GetView() const -> Mat4
 {
-	return Math::lookAt(
+	return Math::lookAtRH(
 		m_Position,
 		m_Position + m_Forward,
 		m_WorldUp

@@ -2,6 +2,7 @@
 #include "Resource.hpp"
 
 #include "Content/Yaml/Yaml.hpp"
+#include "Content/ResourceCache.hpp"
 
 auto Arg::Content::Resource::operator==(const Resource& other) const -> bool
 {
@@ -9,10 +10,13 @@ auto Arg::Content::Resource::operator==(const Resource& other) const -> bool
 }
 
 void Arg::Content::Resource::Create(
+	ResourceCache* pResourceCache,
 	const std::filesystem::path& file,
 	const std::filesystem::path& rootDirectory
 )
 {
+	m_pResourceCache = pResourceCache;
+
 	const auto resourceData = YAML::LoadFile(file.string());
 	auto header = resourceData["Resource"];
 
@@ -31,7 +35,7 @@ void Arg::Content::Resource::Create(
 	m_Path = file.parent_path();
 	m_Name = fileName;
 	m_Type = static_cast<ResourceType>(header["Type"].as<uint32_t>());
-	if (header["Color"])
+	if (m_Type == ResourceTypeFolder && header["Color"])
 	{
 		m_Color = header["Color"].as<Vec3>();
 	}
@@ -44,6 +48,7 @@ void Arg::Content::Resource::Remove()
 }
 
 void Arg::Content::Resource::Create(
+	ResourceCache* pResourceCache,
 	const GUID ID,
 	const std::string& name,
 	const ResourceType type,
@@ -51,6 +56,8 @@ void Arg::Content::Resource::Create(
 	const std::filesystem::path& rootDirectory
 )
 {
+	m_pResourceCache = pResourceCache;
+
 	const auto relativePath = std::filesystem::relative(
 		path / name,
 		rootDirectory
@@ -74,7 +81,10 @@ void Arg::Content::Resource::Save() const
 	auto header = resourceData["Resource"];
 	header["ID"] = m_ID;
 	header["Type"] = static_cast<uint32_t>(m_Type);
-	header["Color"] = m_Color;
+	if (m_Type == ResourceTypeFolder)
+	{
+		header["Color"] = m_Color;
+	}
 
 	std::ofstream file(filePath, std::ofstream::out | std::ofstream::trunc);
 	file << resourceData;
@@ -108,4 +118,9 @@ void Arg::Content::Resource::SetPath(
 		rootDirectory
 	).replace_extension("");
 	m_PathID = GUID(std::hash<std::string>{}(relativePath.string()));
+}
+
+auto Arg::Content::Resource::GetResourceCache() -> ResourceCache*
+{
+	return m_pResourceCache;
 }

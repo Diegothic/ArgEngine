@@ -31,7 +31,7 @@ auto Arg::Import::SkeletonImporter::ImportFile(const std::string& file) -> bool
 	m_Data.BoneMap.clear();
 
 	int32_t meshIndex = -1;
-	for (auto i = 0; i < scene->mNumMeshes; i++)
+	for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 	{
 		if (scene->mMeshes[i]->mNumBones > 0)
 		{
@@ -47,23 +47,23 @@ auto Arg::Import::SkeletonImporter::ImportFile(const std::string& file) -> bool
 		return false;
 	}
 
-	auto mesh = scene->mMeshes[meshIndex];
-	for (auto i = 0; i < mesh->mNumBones; i++)
+	const auto mesh = scene->mMeshes[meshIndex];
+	for (uint32_t i = 0; i < mesh->mNumBones; i++)
 	{
 		const auto importedBone = mesh->mBones[i];
 		const std::string boneName = DataConversion::Convert(importedBone->mName);
 		const std::string parentName = DataConversion::Convert(
 			importedBone->mNode->mParent->mName
 		);
-		int32_t parentIndex = -1;
+		uint32_t parentIndex = -1;
 		if (i > 0)
 		{
 			parentIndex = m_Data.Bones[m_Data.BoneMap[parentName]].Index;
 		}
 
 		Renderer::Bone bone{
-			.Index = i,
-			.ParentIndex = parentIndex,
+			.Index = static_cast<int32_t>(i),
+			.ParentIndex = static_cast<int32_t>(parentIndex),
 			.Name = boneName,
 			.LocalTransform = DataConversion::Convert(importedBone->mNode->mTransformation),
 			.OffsetTransform = DataConversion::Convert(importedBone->mOffsetMatrix)

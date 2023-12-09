@@ -31,29 +31,29 @@ auto Arg::Import::SkeletalMeshImporter::ImportFile(const std::string& file) -> b
 	m_Data.Vertices.clear();
 	m_Data.Indices.clear();
 
-	for (auto i = 0; i < 1; i++)
+	for (uint32_t i = 0; i < 1; i++)
 	{
 		const auto mesh = scene->mMeshes[i];
 
 		std::vector<Vec4i> boneIndices(mesh->mNumVertices);
 		std::vector<Vec4> boneWeights(mesh->mNumVertices);
-		for (auto j = 0; j < mesh->mNumVertices; j++)
+		for (uint32_t j = 0; j < mesh->mNumVertices; j++)
 		{
 			boneIndices[j] = Vec4i(-1);
 			boneWeights[j] = Vec4(0.0f);
 		}
 
-		for (auto j = 0; j < mesh->mNumBones; j++)
+		for (uint32_t j = 0; j < mesh->mNumBones; j++)
 		{
 			const auto bone = mesh->mBones[j];
-			for (auto k = 0; k < bone->mNumWeights; k++)
+			for (uint32_t k = 0; k < bone->mNumWeights; k++)
 			{
 				const auto weight = bone->mWeights[k];
 				const int32_t vertexIndex = weight.mVertexId;
 				const float vertexWeight = weight.mWeight;
 
-				int32_t weightIndex = 0;
-				for (auto l = 0; l < 4; l++)
+				uint32_t weightIndex = 0;
+				for (uint32_t l = 0; l < 4; l++)
 				{
 					if (boneIndices[vertexIndex][l] < 0)
 					{
@@ -67,7 +67,7 @@ auto Arg::Import::SkeletalMeshImporter::ImportFile(const std::string& file) -> b
 			}
 		}
 
-		for (auto j = 0; j < mesh->mNumVertices; j++)
+		for (uint32_t j = 0; j < mesh->mNumVertices; j++)
 		{
 			Renderer::SkeletalVertex vertex{
 				.Position = DataConversion::Convert(mesh->mVertices[j]),
@@ -80,10 +80,10 @@ auto Arg::Import::SkeletalMeshImporter::ImportFile(const std::string& file) -> b
 			m_Data.Vertices.push_back(vertex);
 		}
 
-		for (auto j = 0; j < mesh->mNumFaces; j++)
+		for (uint32_t j = 0; j < mesh->mNumFaces; j++)
 		{
 			const auto face = &mesh->mFaces[j];
-			for (auto k = 0; k < face->mNumIndices; k++)
+			for (uint32_t k = 0; k < face->mNumIndices; k++)
 			{
 				m_Data.Indices.push_back(face->mIndices[k]);
 			}

@@ -68,14 +68,14 @@ void Arg::Renderer::ShadowMap::End()
 }
 
 void Arg::Renderer::ShadowMap::InitializeBuffer(
-	const Texture& map,
+	Texture& map,
 	const FrameBuffer& buffer,
 	const int32_t size
 ) const
 {
 	map.Bind();
 	{
-		TextureData mapData{
+		const TextureData mapData{
 			.Data = nullptr,
 			.Width = size,
 			.Height = size,

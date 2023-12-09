@@ -16,7 +16,10 @@ namespace Arg
 
 			auto ImportFile(const std::string& file) -> bool;
 
-			void Save(const std::string& fileName, const std::filesystem::path& destination);
+			void Save(
+				const std::string& fileName,
+				const std::filesystem::path& destination
+			);
 
 			auto GetData() const -> const Renderer::TextureData&;
 

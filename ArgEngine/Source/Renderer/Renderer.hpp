@@ -2,8 +2,10 @@
 
 #include <arg_pch.hpp>
 
+#include "ShaderProgram.hpp"
 #include "StaticMesh.hpp"
 #include "Material.hpp"
+#include "Texture.hpp"
 
 namespace Arg
 {
@@ -18,17 +20,17 @@ namespace Arg
 		class Renderer
 		{
 		public:
+			void Initialize();
 
 			void BeginFrame(const FrameParams& params) const;
+			void EndFrame() const;
 
 			void BeginOpaque() const;
 			void BeginTransparent() const;
 
-			void DrawStaticMesh(
-				const std::shared_ptr<const StaticMesh>& mesh,
-				const std::shared_ptr<const Material>& material,
-				const Mat4& transform
-			) const;
+		private:
+			std::unique_ptr<Texture> m_pWhiteTexture = nullptr;
+			std::unique_ptr<Texture> m_pBlackTexture = nullptr;
 		};
 	}
 }

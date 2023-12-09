@@ -3,7 +3,7 @@
 
 auto Arg::Renderer::PerspectiveCamera::VGetProjection(float aspectRatio) const -> Mat4
 {
-	return Math::perspective(
+	return Math::perspectiveRH(
 		Math::radians(m_FOVAngle),
 		aspectRatio,
 		GetNearPlane(),

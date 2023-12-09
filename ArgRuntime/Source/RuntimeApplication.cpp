@@ -13,7 +13,7 @@
 #include "Renderer/Texture.hpp"
 #include "Renderer/FrameBuffer.hpp"
 #include "Content/Import/TextureImporter.hpp"
-#include "Content/Import/StaticMeshImporter.hpp"
+#include "Content/Import/StaticModelImporter.hpp"
 #include <glad/glad.h>
 #include "Renderer/Light/DirectionalLight.hpp"
 #include "Renderer/Light/PointLight.hpp"
@@ -60,7 +60,7 @@ void Arg::RuntimeApplication::VOnRun()
 	const std::shared_ptr<Renderer::StaticMesh> cubeMesh(new Renderer::StaticMesh());
 	cubeMesh->Bind();
 	{
-		Import::StaticMeshImporter meshImporter;
+		Import::StaticModelImporter meshImporter;
 		const bool bIsSuccess = meshImporter.ImportFile("..\\Content\\Meshes\\cube.fbx");
 		if (bIsSuccess)
 		{
@@ -72,7 +72,7 @@ void Arg::RuntimeApplication::VOnRun()
 	const std::shared_ptr<Renderer::StaticMesh> planeMesh(new Renderer::StaticMesh());
 	planeMesh->Bind();
 	{
-		Import::StaticMeshImporter meshImporter;
+		Import::StaticModelImporter meshImporter;
 		const bool bIsSuccess = meshImporter.ImportFile("..\\Content\\Meshes\\plane.fbx");
 		if (bIsSuccess)
 		{
@@ -84,7 +84,7 @@ void Arg::RuntimeApplication::VOnRun()
 	const std::shared_ptr<Renderer::StaticMesh> armorMesh(new Renderer::StaticMesh());
 	armorMesh->Bind();
 	{
-		Import::StaticMeshImporter meshImporter;
+		Import::StaticModelImporter meshImporter;
 		const bool bIsSuccess = meshImporter.ImportFile("..\\Content\\Meshes\\tmpl_armor.fbx");
 		if (bIsSuccess)
 		{
@@ -96,7 +96,7 @@ void Arg::RuntimeApplication::VOnRun()
 	const std::shared_ptr<Renderer::StaticMesh> skyBoxMesh(new Renderer::StaticMesh());
 	skyBoxMesh->Bind();
 	{
-		Import::StaticMeshImporter meshImporter;
+		Import::StaticModelImporter meshImporter;
 		const bool bIsSuccess = meshImporter.ImportFile("..\\Content\\Meshes\\skyBox.fbx");
 		if (bIsSuccess)
 		{

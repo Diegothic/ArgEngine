@@ -23,9 +23,14 @@ auto Arg::Content::ResourceFolder::GetID() const -> const GUID&
 	return m_pResource->GetID();
 }
 
-auto Arg::Content::ResourceFolder::GetPath() const->const std::filesystem::path&
+auto Arg::Content::ResourceFolder::GetPath() const-> const std::filesystem::path&
 {
 	return m_pResource->GetPath();
+}
+
+auto Arg::Content::ResourceFolder::GetFullPath() const-> std::filesystem::path
+{
+	return m_pResource->GetFullPath();
 }
 
 auto Arg::Content::ResourceFolder::GetName() const ->const std::string&
@@ -66,7 +71,11 @@ void Arg::Content::ResourceFolder::RemoveSubfolder(const std::shared_ptr<Resourc
 void Arg::Content::ResourceFolder::SortSubfolders()
 {
 	std::ranges::sort(m_pSubfolders, [](const std::shared_ptr<ResourceFolder>& a, const std::shared_ptr<ResourceFolder>& b) {
-		return a->GetName() < b->GetName();
+		auto nameA = a->GetName();
+		auto nameB = b->GetName();
+		std::transform(nameA.begin(), nameA.end(), nameA.begin(), static_cast<int(*)(int)>(std::tolower));
+		std::transform(nameB.begin(), nameB.end(), nameB.begin(), static_cast<int(*)(int)>(std::tolower));
+		return nameA < nameB;
 		});
 }
 

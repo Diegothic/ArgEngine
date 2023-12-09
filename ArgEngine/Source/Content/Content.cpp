@@ -23,8 +23,13 @@ void Arg::Content::Content::Initialize()
 		std::filesystem::create_directory(m_RootDirectory);
 	}
 
+	m_ConfigFile = m_RootDirectory / "Content.aconfig";
+	LoadConfig();
+	m_IDGenerator.SetSeed(m_Config.LastGeneratedID);
+
 	auto resource = std::make_shared<Resource>();
 	resource->Create(
+		m_pResourceCache.get(),
 		GUID::Empty,
 		"Content",
 		ResourceType::ResourceTypeFolder,
@@ -65,7 +70,8 @@ void Arg::Content::Content::CreateFolder(const std::shared_ptr<ResourceFolder>& 
 
 	auto resource = std::make_shared<Resource>();
 	resource->Create(
-		GUID(m_IDGenerator.Next()),
+		m_pResourceCache.get(),
+		GenerateID(),
 		folderName,
 		ResourceType::ResourceTypeFolder,
 		folderPath,
@@ -134,7 +140,8 @@ auto Arg::Content::Content::CreateResource(
 {
 	auto resource = std::make_shared<Resource>();
 	resource->Create(
-		GUID(m_IDGenerator.Next()),
+		m_pResourceCache.get(),
+		GenerateID(),
 		name,
 		type,
 		parent->GetPath() / parent->GetName(),
@@ -158,8 +165,8 @@ void Arg::Content::Content::RemoveResource(
 }
 
 void Arg::Content::Content::MoveResource(
-	const std::shared_ptr<Resource>& resource, 
-	const std::shared_ptr<ResourceFolder>& source, 
+	const std::shared_ptr<Resource>& resource,
+	const std::shared_ptr<ResourceFolder>& source,
 	const std::shared_ptr<ResourceFolder>& destination
 )
 {
@@ -169,13 +176,18 @@ void Arg::Content::Content::MoveResource(
 	}
 
 	m_pResourceCache->MoveResource(
-		resource->GetID(), 
+		resource->GetID(),
 		destination->GetPath() / destination->GetName()
 	);
 	source->RemoveResource(resource);
 	destination->AddResource(resource);
 
 	UpdatePaths(destination);
+}
+
+void Arg::Content::Content::Save() const
+{
+	m_pResourceCache->SaveAll();
 }
 
 void Arg::Content::Content::ScanDirectory(
@@ -189,10 +201,10 @@ void Arg::Content::Content::ScanDirectory(
 		if (entryPath.extension() == ".meta")
 		{
 			auto foundResource = std::make_shared<Resource>();
-			foundResource->Create(entryPath, m_RootDirectory);
+			foundResource->Create(m_pResourceCache.get(), entryPath, m_RootDirectory);
 			if (foundResource->GetID() == GUID::Empty)
 			{
-				const GUID generatedID = GUID(m_IDGenerator.Next());
+				const GUID generatedID = GenerateID();
 				foundResource->SetID(generatedID);
 			}
 
@@ -247,4 +259,48 @@ void Arg::Content::Content::UpdatePaths(const std::shared_ptr<ResourceFolder>& f
 			m_RootDirectory
 		);
 	}
+}
+
+auto Arg::Content::Content::GenerateID() -> GUID
+{
+	const GUID ID = GUID(m_IDGenerator.Next() + static_cast<uint64_t>(1));
+	m_Config.LastGeneratedID = static_cast<uint64_t>(ID) - 1;
+	SaveConfig();
+	return ID;
+}
+
+void Arg::Content::Content::LoadConfig()
+{
+	if (!std::filesystem::exists(m_ConfigFile))
+	{
+		m_Config.Serialize(m_ConfigFile);
+	}
+
+	m_Config.Deserialize(m_ConfigFile);
+}
+
+void Arg::Content::Content::SaveConfig() const
+{
+	m_Config.Serialize(m_ConfigFile);
+}
+
+auto Arg::Content::ContentConfig::VOnSerialize(YAML::Node& node) const -> bool
+{
+	auto header = node["Content"];
+	header["LastGeneratedID"] = LastGeneratedID;
+
+	return true;
+}
+
+auto Arg::Content::ContentConfig::VOnDeserialize(const YAML::Node& node) -> bool
+{
+	const auto header = node["Content"];
+	if (!header)
+	{
+		return false;
+	}
+
+	LastGeneratedID = ValueOr<uint64_t>(header["LastGeneratedID"], 0);
+
+	return true;
 }

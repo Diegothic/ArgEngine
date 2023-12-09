@@ -5,6 +5,7 @@ Arg::Random::Random::Random(const uint64_t seed)
 	: m_LCG(34359738368, 3141592653, 2718281829),
 	m_InitialSeed(seed)
 {
+	m_LCG.SetSeed(seed);
 }
 
 auto Arg::Random::Random::GetSeed() const -> const uint64_t&

@@ -3,6 +3,7 @@
 #include <arg_pch.hpp>
 
 #include "Core/Math/Math.hpp"
+#include "Content/Serialization/YamlSerializable.hpp"
 
 namespace Arg
 {
@@ -45,7 +46,7 @@ namespace Arg
 			TextureFormat Format = TextureFormat::FormatRGB;
 		};
 
-		class Texture
+		class Texture : public Content::YamlSerializable
 		{
 		public:
 			Texture();
@@ -54,7 +55,11 @@ namespace Arg
 
 			auto GetRendererID() const -> const uint32_t& { return m_RendererID; }
 
-			void SetData(const TextureData& data) const;
+			auto GetWidth() const -> const int32_t& { return m_Width; }
+			auto GetHeight() const -> const int32_t& { return m_Height; }
+			auto GetFormat() const -> const TextureFormat& { return m_Format; }
+
+			void SetData(const TextureData& data);
 			void SetWrapMode(const TextureWrapMode mode) const;
 			void SetBorderColor(const Vec4& color) const;
 			void SetFilter(const TextureFilter filter) const;
@@ -63,11 +68,19 @@ namespace Arg
 			void Bind(const int32_t unit) const;
 			void Unbind() const;
 
+		protected:
+			auto VOnSerialize(YAML::Node& node) const -> bool override;
+			auto VOnDeserialize(const YAML::Node& node) -> bool override;
+
 		private:
 			static uint32_t s_CurrentBoundID;
 
 		private:
 			uint32_t m_RendererID = -1;
+
+			int32_t m_Width = 0;
+			int32_t m_Height = 0;
+			TextureFormat m_Format = TextureFormat::FormatRGB;
 		};
 	}
 }

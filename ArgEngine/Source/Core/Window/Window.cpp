@@ -263,6 +263,12 @@ auto Arg::Window::GetElapsedTime() const -> float
 	return static_cast<float>(glfwGetTime());
 }
 
+void Arg::Window::SetTitle(const std::string& title)
+{
+	m_Title = title;
+	glfwSetWindowTitle(static_cast<GLFWwindow*>(m_pWindowHandle), m_Title.c_str());
+}
+
 auto Arg::Window::GetWidth() const -> int32_t
 {
 	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
@@ -279,7 +285,7 @@ auto Arg::Window::GetWidth() const -> int32_t
 	return 0;
 }
 
-void Arg::Window::SetWidth(int width)
+void Arg::Window::SetWidth(int32_t width)
 {
 	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	ARG_ASSERT(width >= 0, "Window height can't be negative!");
@@ -314,7 +320,7 @@ auto Arg::Window::GetHeight() const -> int32_t
 	return 0;
 }
 
-void Arg::Window::SetHeight(int height)
+void Arg::Window::SetHeight(int32_t height)
 {
 	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	ARG_ASSERT(height >= 0, "Window height can't be negative!");

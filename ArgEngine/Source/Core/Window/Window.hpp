@@ -47,10 +47,11 @@ namespace Arg
 		auto GetInput() const -> const Input::Input& { return m_Input; }
 		auto GetElapsedTime() const -> float;
 		auto GetTitle() const -> const std::string& { return m_Title; }
-		auto GetWidth() const -> int32_t;
-		void SetWidth(int width);
-		auto GetHeight() const -> int32_t;
-		void SetHeight(int height);
+		void SetTitle(const std::string& title);
+		auto GetWidth() const->int32_t;
+		void SetWidth(int32_t width);
+		auto GetHeight() const->int32_t;
+		void SetHeight(int32_t height);
 		auto GetMode() const -> const WindowMode& { return m_Mode; }
 		void SetMode(WindowMode mode);
 		auto IsVSyncEnabled() const -> const bool& { return m_bIsVSync; }

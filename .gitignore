@@ -1,4 +1,7 @@
 # Visual Studio
 .vs/
+# IntelliJ
+.idea/
+# Build
 Bin/
 Temp/

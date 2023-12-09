@@ -9,24 +9,25 @@ namespace Arg
 {
 	namespace Content
 	{
+		class ResourceCache;
+
 		enum ResourceType
 		{
 			ResourceTypeFolder = 0,
-			ResourceTypeConfig,
+			ResourceTypeConfig = 1,
 			// Data resources
-			ResourceTypeTexture,
-			ResourceTypeStaticModel,
-			ResourceTypeSkeletalModel,
-			ResourceTypeSkeletalAnimation,
-			ResourceTypeShader,
-			ResourceTypeMaterial,
+			ResourceTypeTexture = 100,
+			ResourceTypeStaticModel = 101,
+			ResourceTypeSkeletalModel = 102,
+			ResourceTypeSkeletalAnimation = 103,
+			ResourceTypeShader = 104,
+			ResourceTypeMaterial = 105,
+			ResourceTypeSound = 106,
 			// Gameplay resources
-			ResourceTypePrefab,
-			ResourceTypeMap,
-			ResourceTypeScriptComponent,
-			ResourceTypeScriptData,
-			// For enumeration:
-			RESOURCE_TYPE_MAX
+			ResourceTypePrefab = 200,
+			ResourceTypeWorld = 201,
+			ResourceTypeScriptComponent = 202,
+			ResourceTypeScriptData = 203,
 		};
 
 		class Resource
@@ -37,6 +38,7 @@ namespace Arg
 			~Resource() = default;
 
 			void Create(
+				ResourceCache* pResourceCache,
 				const GUID ID,
 				const std::string& name,
 				const ResourceType type,
@@ -44,6 +46,7 @@ namespace Arg
 				const std::filesystem::path& rootDirectory
 			);
 			void Create(
+				ResourceCache* pResourceCache,
 				const std::filesystem::path& file,
 				const std::filesystem::path& rootDirectory
 			);
@@ -63,6 +66,7 @@ namespace Arg
 				const std::filesystem::path& path,
 				const std::filesystem::path& rootDirectory
 			);
+			auto GetFullPath() const -> std::filesystem::path { return m_Path / m_Name; }
 
 			auto GetName() const -> const std::string& { return m_Name; }
 
@@ -72,7 +76,11 @@ namespace Arg
 			auto GetColor() const -> const Vec3& { return m_Color; }
 			void SetColor(const Vec3& color) { m_Color = color; }
 
+			auto GetResourceCache() -> ResourceCache*;
+
 		private:
+			ResourceCache* m_pResourceCache = nullptr;
+
 			GUID m_ID = GUID::Empty;
 			GUID m_PathID = GUID::Empty;
 

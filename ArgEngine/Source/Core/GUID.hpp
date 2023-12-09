@@ -12,7 +12,7 @@ namespace Arg
 		GUID() = default;
 		GUID(uint64_t ID);
 		GUID(const GUID& other) = default;
-		operator uint64_t() const { return m_ID; }
+		constexpr operator uint64_t() const { return m_ID; }
 		auto operator==(const GUID& other) const -> bool { return m_ID == other.m_ID; }
 
 	public:

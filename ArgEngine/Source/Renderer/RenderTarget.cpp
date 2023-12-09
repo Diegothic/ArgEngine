@@ -50,7 +50,7 @@ void Arg::Renderer::RenderTarget::End() const
 
 auto Arg::Renderer::RenderTarget::GetRendererID() const -> const uint32_t&
 {
-	return m_Buffer.GetRendererID();
+	return m_ColorAttachment.GetRendererID();
 }
 
 void Arg::Renderer::RenderTarget::SetSize(const Vec2i& size)

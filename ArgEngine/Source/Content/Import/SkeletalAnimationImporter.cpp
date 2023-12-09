@@ -28,11 +28,11 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 	}
 
 	int32_t meshIndex = -1;
-	for (auto i = 0; i < scene->mNumMeshes; i++)
+	for (uint32_t i = 0; i < scene->mNumMeshes; i++)
 	{
 		if (scene->mMeshes[i]->mNumBones > 0)
 		{
-			meshIndex = i;
+			meshIndex = static_cast<int32_t>(i);
 			break;
 		}
 	}
@@ -47,14 +47,14 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 
 	const auto mesh = scene->mMeshes[meshIndex];
 	std::unordered_map<std::string, int32_t> boneMap(mesh->mNumBones);
-	for (auto i = 0; i < mesh->mNumBones; i++)
+	for (uint32_t i = 0; i < mesh->mNumBones; i++)
 	{
 		const auto importedBone = mesh->mBones[i];
 		const std::string boneName = DataConversion::Convert(importedBone->mName);
 		boneMap[boneName] = i;
 	}
 
-	for (auto i = 2; i < 3; i++)
+	for (uint32_t i = 2; i < 3; i++)
 	{
 		const auto animation = scene->mAnimations[i];
 
@@ -67,7 +67,7 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 		m_Data.TicksPerSecond = ticksPerSecond;
 		m_Data.Channels = std::vector<Renderer::SkleletalAnimationChannel>(mesh->mNumBones);
 
-		for (auto j = 0; j < animation->mNumChannels; j++)
+		for (uint32_t j = 0; j < animation->mNumChannels; j++)
 		{
 			const auto channel = animation->mChannels[j];
 			const std::string channelName = DataConversion::Convert(channel->mNodeName);
@@ -86,7 +86,7 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 			m_Data.Channels[boneIndex].ScaleKeys
 				= std::vector<Renderer::SkeletalAnimationScaleKey>(channel->mNumScalingKeys);
 
-			for (auto k = 0; k < channel->mNumPositionKeys; k++)
+			for (uint32_t k = 0; k < channel->mNumPositionKeys; k++)
 			{
 				const auto positionKey = channel->mPositionKeys[k];
 				const Renderer::SkeletalAnimationPositionKey key{
@@ -97,7 +97,7 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 				m_Data.Channels[boneIndex].PositionKeys[k] = key;
 			}
 
-			for (auto k = 0; k < channel->mNumRotationKeys; k++)
+			for (uint32_t k = 0; k < channel->mNumRotationKeys; k++)
 			{
 				const auto rotationKey = channel->mRotationKeys[k];
 				const Renderer::SkeletalAnimationRotationKey key{
@@ -108,7 +108,7 @@ auto Arg::Import::SkeletalAnimationImporter::ImportFile(const std::string& file)
 				m_Data.Channels[boneIndex].RotationKeys[k] = key;
 			}
 
-			for (auto k = 0; k < channel->mNumScalingKeys; k++)
+			for (uint32_t k = 0; k < channel->mNumScalingKeys; k++)
 			{
 				const auto scaleKey = channel->mScalingKeys[k];
 				const Renderer::SkeletalAnimationScaleKey key{

@@ -5,6 +5,8 @@
 #include "Core/Application.hpp"
 #include "Core/Window/Window.hpp"
 
+#include "Editor.hpp"
+
 namespace Arg
 {
 	class EditorApplication : public Application
@@ -19,6 +21,7 @@ namespace Arg
 		auto VOnRun() -> void override;
 
 	private:
-		std::unique_ptr<Window> m_pWindow = nullptr;
+		std::shared_ptr<Window> m_pWindow = nullptr;
+		std::unique_ptr<Editor::Editor> m_pEditor = nullptr;
 	};
 }
