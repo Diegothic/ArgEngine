@@ -48,9 +48,8 @@ auto Arg::Editor::EditorConfig::VOnDeserialize(const YAML::Node& node) -> bool
 
 Arg::Editor::Editor::Editor(const EditorSpec& spec)
 	: m_ConfigPath(spec.ConfigPath),
-	m_pWindow(spec.pWindow)
+	  m_pWindow(spec.pWindow)
 {
-
 }
 
 void Arg::Editor::Editor::Initialize()
@@ -95,7 +94,7 @@ void Arg::Editor::Editor::Initialize()
 	// Init GUI
 	{
 		const GUI::EditorGUISpec guiSpec{
-				.ConfigFile = "UserConfig\\GUI.ini"
+			.ConfigFile = "UserConfig\\GUI.ini"
 		};
 		m_pGUI = std::make_unique<GUI::EditorGUI>(guiSpec);
 		const GUI::EditorGUIContext guiContext{
@@ -150,6 +149,11 @@ void Arg::Editor::Editor::Update(const float deltaTime)
 	{
 		m_pGameEngine->Update(deltaTime);
 	}
+
+	// Clear frame garbage
+	{
+		m_pGameEngine->ClearGarbage();
+	}
 }
 
 void Arg::Editor::Editor::Render()
@@ -157,7 +161,7 @@ void Arg::Editor::Editor::Render()
 	// Render GUI
 	{
 		const GUI::EditorGUIContext guiContext{
-				.pEditor = this
+			.pEditor = this
 		};
 		m_pGUI->OnGUI(guiContext);
 	}
@@ -170,8 +174,8 @@ void Arg::Editor::Editor::Render()
 		auto basicShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\BasicStatic");
 		auto basicShader = basicShaderHandle.IsValid()
-			? basicShaderHandle.Get()->GetShader()
-			: nullptr;
+			                   ? basicShaderHandle.Get()->GetShader()
+			                   : nullptr;
 
 		const Renderer::RenderContextSpec renderContextSpec{
 			.pCamera = camera,
@@ -183,7 +187,7 @@ void Arg::Editor::Editor::Render()
 
 		m_pEditorViewRenderTarget->Begin();
 
-		renderContext.Render(m_pRenderer);
+		renderContext.Render(*m_pRenderer);
 
 		m_pEditorViewRenderTarget->End();
 	}
@@ -194,12 +198,12 @@ void Arg::Editor::Editor::Render()
 	// TODO: Render game view
 }
 
-auto Arg::Editor::Editor::GetEditorViewRendererID() const->uint32_t
+auto Arg::Editor::Editor::GetEditorViewRendererID() const -> uint32_t
 {
 	return m_pEditorViewRenderTarget->GetRendererID();
 }
 
-auto Arg::Editor::Editor::GetEditorViewSize() const->const Vec2i&
+auto Arg::Editor::Editor::GetEditorViewSize() const -> const Vec2i&
 {
 	return m_pEditorViewRenderTarget->GetSize();
 }
@@ -227,7 +231,7 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	m_pGameEngine->Initialize(m_pProject->GetResourceCache());
 
 	const auto editorMapPath = m_pProject->GetEditorMap();
-	if (editorMapPath != "")
+	if (!editorMapPath.empty())
 	{
 		m_pGameEngine->LoadWorld(m_pProject->GetEditorMap());
 	}
@@ -235,15 +239,17 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	m_pProject->Save();
 }
 
-auto Arg::Editor::Editor::GetSelectedActor() const->std::shared_ptr<Gameplay::Actor>
+auto Arg::Editor::Editor::GetSelectedActor(Gameplay::Actor*& pOutActor) const -> bool
 {
 	if (m_pGameEngine->IsWorldLoaded())
 	{
-		auto& pWorld = m_pGameEngine->GetLoadedWorld();
-		return pWorld->GetActor(m_SelectedActorID);
+		const auto& pWorld = m_pGameEngine->GetLoadedWorld();
+		pOutActor = &pWorld->GetActor(m_SelectedActorID);
+		return true;
 	}
 
-	return nullptr;
+	pOutActor = nullptr;
+	return false;
 }
 
 void Arg::Editor::Editor::SelectActor(const GUID actorID)
@@ -256,19 +262,19 @@ void Arg::Editor::Editor::DeselectActor()
 	m_SelectedActorID = GUID::Empty;
 }
 
-auto Arg::Editor::Editor::GetSelectedResource() const-> std::shared_ptr<Content::Resource>&
+auto Arg::Editor::Editor::GetSelectedResource() const -> std::shared_ptr<Content::Resource>&
 {
 	ARG_ASSERT(m_SelectedResourceID != GUID::Empty, "No resource selected! Check first!");
 	return IsProjectOpened()
-		? m_pProject->GetResourceCache()->GetResource(m_SelectedResourceID)
-		: m_pResourceCache->GetResource(m_SelectedResourceID);
+		       ? m_pProject->GetResourceCache()->GetResource(m_SelectedResourceID)
+		       : m_pResourceCache->GetResource(m_SelectedResourceID);
 }
 
 void Arg::Editor::Editor::SelectResource(const GUID resourceID)
 {
 	auto& resourceCache = IsProjectOpened()
-		? m_pProject->GetResourceCache()
-		: m_pResourceCache;
+		                      ? m_pProject->GetResourceCache()
+		                      : m_pResourceCache;
 
 	if (m_SelectedResourceID != GUID::Empty
 		&& resourceCache->IsValid(m_SelectedResourceID))

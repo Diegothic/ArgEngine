@@ -51,6 +51,7 @@ void Arg::GameEngine::Update(const float deltaTime)
 	if (IsWorldLoaded() && m_bIsPlaying)
 	{
 		m_pLoadedWorld->Tick(m_GameTime);
+		m_pLoadedWorld->ClearGarbage();
 	}
 }
 
@@ -59,5 +60,13 @@ void Arg::GameEngine::RenderEditor(Renderer::RenderContext& context) const
 	if (IsWorldLoaded())
 	{
 		m_pLoadedWorld->Render(context);
+	}
+}
+
+void Arg::GameEngine::ClearGarbage()
+{
+	if (IsWorldLoaded())
+	{
+		m_pLoadedWorld->ClearGarbage();
 	}
 }

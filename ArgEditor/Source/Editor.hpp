@@ -59,7 +59,7 @@ namespace Arg
 			void OpenProject(const std::filesystem::path& projectFile);
 
 			auto HasSelectedActor() const -> bool { return m_SelectedActorID != GUID::Empty; }
-			auto GetSelectedActor() const->std::shared_ptr<Gameplay::Actor>;
+			auto GetSelectedActor(Arg::Gameplay::Actor*& pOutActor) const -> bool;
 			void SelectActor(const GUID actorID);
 			void DeselectActor();
 

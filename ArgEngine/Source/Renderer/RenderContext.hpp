@@ -33,7 +33,7 @@ namespace Arg
 			);
 
 			void Render(
-				const std::shared_ptr<Renderer>& renderer
+				const Renderer& renderer
 			) const;
 
 		private:

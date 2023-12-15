@@ -15,7 +15,7 @@ auto Arg::Gameplay::ActorHandle::IsValid() const -> bool
 	return true;
 }
 
-auto Arg::Gameplay::ActorHandle::Get() const->std::shared_ptr<Actor>
+auto Arg::Gameplay::ActorHandle::Get() const-> Actor&
 {
 	return m_pWorld->GetActor(m_ActorID);
 }

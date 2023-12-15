@@ -30,6 +30,8 @@ namespace Arg
 
 		void RenderEditor(Renderer::RenderContext& context) const;
 
+		void ClearGarbage();
+
 	private:
 		Gameplay::GameTime m_GameTime;
 		bool m_bIsPlaying = false;

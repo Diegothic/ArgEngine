@@ -18,16 +18,24 @@ namespace Arg
 		class ActorComponent : public Content::YamlSerializable
 		{
 		public:
-			virtual auto VCreateDefault() const->std::shared_ptr<ActorComponent> = 0;
+			ActorComponent() = default;
+			virtual ~ActorComponent() = default;
 
-			auto GetOwner() const ->Actor* { return m_pOwner; }
+			virtual auto VCreateDefault() const -> std::shared_ptr<ActorComponent> = 0;
+
+			auto GetOwner() const -> Actor* { return m_pOwner; }
 			void SetOwner(Actor* actor) { m_pOwner = actor; }
 
-			virtual auto VGetID() const->GUID = 0;
-			virtual auto VGetName() const-> const std::string& = 0;
+			virtual auto VGetID() const -> GUID = 0;
+			virtual auto VGetName() const -> const std::string& = 0;
 
-			virtual void VTick(const GameTime& deltaTime) {};
-			virtual void VRender(Renderer::RenderContext& context) {};
+			virtual void VTick(const GameTime& deltaTime)
+			{
+			}
+
+			virtual void VRender(Renderer::RenderContext& context)
+			{
+			}
 
 			virtual void VOnComponentAdded() = 0;
 			virtual void VOnComponentRemoved() = 0;
@@ -39,8 +47,8 @@ namespace Arg
 			virtual auto VOnSerialize(YAML::Node& node) const -> bool override { return true; }
 			virtual auto VOnDeserialize(const YAML::Node& node) -> bool override { return true; }
 
-			auto GetResourceCache() const->Content::ResourceCache*;
-			auto GetComponentRegistry() const->ComponentRegistry*;
+			auto GetResourceCache() const -> Content::ResourceCache*;
+			auto GetComponentRegistry() const -> ComponentRegistry*;
 
 		protected:
 			bool m_bCanEverTick = true;

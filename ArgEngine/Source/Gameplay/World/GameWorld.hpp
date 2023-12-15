@@ -26,16 +26,20 @@ namespace Arg
 
 			auto GetName() const -> const std::string& { return m_Name; }
 
-			auto GetRootActor() const->const std::shared_ptr<Actor>&;
-			auto GetActor(const GUID& actorID) const->const std::shared_ptr<Actor>&;
-			auto GetActor(const GUID& actorID) -> std::shared_ptr<Actor>&;
+		public:
+			auto GetRootActor() const -> Actor&;
+			auto GetActor(const GUID& actorID) const -> const Actor&;
+			auto GetActor(const GUID& actorID) -> Actor&;
 
 			auto CreateActor() -> GUID;
-			auto CreateActor(const std::shared_ptr<Actor>& parentActor) -> GUID;
-			void DestroyActor(const std::shared_ptr<Actor>& actor);
+			auto CreateActor(Actor& parentActor) -> GUID;
+			void DestroyActor(Actor& actor);
+			void ReparentActor(Actor& actor, Actor& newParentActor);
 
+		public:
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
+			void ClearGarbage();
 
 			auto GetResourceCache() const -> Content::ResourceCache* { return m_pResources; }
 			auto GetComponentRegistry() const -> ComponentRegistry* { return m_pComponents; }
@@ -53,9 +57,9 @@ namespace Arg
 		private:
 			std::string m_Name = "Default";
 
-			std::shared_ptr<Actor> m_pRootActor = nullptr;
-			std::vector<std::shared_ptr<Actor>> m_pActors;
-			std::unordered_map<GUID, std::shared_ptr<Actor>> m_pActorsRegistry;
+			std::unique_ptr<Actor> m_pRootActor = nullptr;
+			std::vector<std::unique_ptr<Actor>> m_Actors;
+			std::unordered_map<GUID, Actor*> m_ActorsRegistry;
 
 			Content::ResourceCache* m_pResources = nullptr;
 			ComponentRegistry* m_pComponents = nullptr;

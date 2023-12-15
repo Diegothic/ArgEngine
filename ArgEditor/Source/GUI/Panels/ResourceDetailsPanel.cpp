@@ -4,12 +4,12 @@
 #include <imgui/imgui.h>
 
 #include "Editor.hpp"
+#include "GUI/Elements/Properties.hpp"
 
 void Arg::Editor::GUI::ResourceDetailsPanel::OnInitialize(
 	const EditorGUIContext& context
 )
 {
-
 }
 
 void Arg::Editor::GUI::ResourceDetailsPanel::OnDraw(
@@ -57,18 +57,18 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawResourceDetails(
 	switch (pResource->GetType())
 	{
 	case Content::ResourceType::ResourceTypeMaterial:
-	{
-		auto materialHandle = pResource->GetResourceCache()
-			->CreateHandle<Content::MaterialResource>(resourceID);
-		if (!materialHandle.IsValid())
 		{
+			auto materialHandle = pResource->GetResourceCache()
+			                               ->CreateHandle<Content::MaterialResource>(resourceID);
+			if (!materialHandle.IsValid())
+			{
+				break;
+			}
+
+			auto material = materialHandle.Get()->GetMaterial();
+			DrawGameResourceDetails(context, material);
 			break;
 		}
-
-		auto material = materialHandle.Get()->GetMaterial();
-		DrawGameResourceDetails(context, material);
-		break;
-	}
 	}
 
 	ImGui::PopID();
@@ -80,17 +80,17 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawGameResourceDetails(
 )
 {
 	Editor* pEditor = context.pEditor;
-	const bool isProjectOpended = pEditor->IsProjectOpened();
-	auto& pResourceCache = isProjectOpended
-		? pEditor->GetProject()->GetResourceCache()
-		: pEditor->GetResourceCache();
-	auto& pContent = isProjectOpended
-		? pEditor->GetProject()->GetContent()
-		: pEditor->GetContent();
+	const bool isProjectOpened = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpened
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpened
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
 
 	if (ImGui::CollapsingHeader("Material",
-		ImGuiTreeNodeFlags_DefaultOpen)
-		)
+	                            ImGuiTreeNodeFlags_DefaultOpen)
+	)
 	{
 		if (ImGui::BeginTable(
 			"##MaterialTable",
@@ -110,114 +110,139 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawGameResourceDetails(
 
 				ImGui::TableNextColumn();
 
-				const auto cursorPos = ImGui::GetCursorPos();
-				ImGui::Button(
+				const auto diffuseMap = pMaterial->GetDiffuseMap();
+				ResourceHandleProperty(
 					"##DiffuseMapHandle",
-					ImVec2(ImGui::GetWindowWidth() - 160.0f, 25.0f)
-				);
-
-				{
-					static bool droppedResource = false;
-					static GUID droppedResourceID;
-					if (ImGui::BeginDragDropTarget())
+					Vec2(ImGui::GetWindowWidth() - 160.0f, 25.0f),
+					diffuseMap.IsValid() ? diffuseMap.Get()->GetName().c_str() : nullptr,
+					[&](GUID droppedResourceID)
 					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource"))
-						{
-							IM_ASSERT(payload->DataSize == sizeof(GUID));
-							droppedResourceID = *((GUID*)payload->Data);
-							droppedResource = true;
-						}
-						ImGui::EndDragDropTarget();
-					}
-
-					if (droppedResource)
-					{
-						droppedResource = false;
 						const auto& resource = pResourceCache->GetResource(droppedResourceID);
 						if (resource->GetType() == Content::ResourceType::ResourceTypeTexture)
 						{
-							const auto diffuseMap = pResourceCache
+							pMaterial->SetDiffuseMap(
+								pResourceCache
 								->CreateHandle<Content::TextureResource>(
 									droppedResourceID
-								);
-							pMaterial->SetDiffuseMap(diffuseMap);
+								)
+							);
 						}
+					},
+					[&]
+					{
+						pMaterial->SetDiffuseMap(
+							pResourceCache->CreateHandle<Content::TextureResource>(GUID::Empty)
+						);
 					}
-				}
-
-				ImGui::SetCursorPos(ImVec2(cursorPos.x + ImGui::GetWindowWidth() - 160.0f, cursorPos.y));
-				if (ImGui::Button(
-					"X",
-					ImVec2(25.0f, 25.0f)
-				))
-				{
-					const auto diffuseMap = pResourceCache->CreateHandle<Content::TextureResource>(GUID::Empty);
-					pMaterial->SetDiffuseMap(diffuseMap);
-				}
-
-				ImGui::SetCursorPos(ImVec2(cursorPos.x + 10.0f, cursorPos.y + 5.0f));
-
-				const auto diffuseMap = pMaterial->GetDiffuseMap();
-				if (diffuseMap.IsValid())
-				{
-					const auto& diffuseMapName = diffuseMap.Get()->GetName();
-					ImGui::Text(diffuseMapName.c_str());
-				}
-				else
-				{
-					ImGui::TextDisabled("Null reference");
-				}
+				);
 			}
 
 			// Diffuse color
 			{
-				ImGui::TableNextColumn();
-				ImGui::Dummy(ImVec2(100.0f, 0.0f));
+				const auto diffuseMap = pMaterial->GetDiffuseMap();
+				if (!diffuseMap.IsValid())
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-				ImGui::Text("Diffuse");
+					ImGui::Text("Diffuse");
 
-				ImGui::TableNextColumn();
+					ImGui::TableNextColumn();
 
-				static Vec4 diffuseColor = Vec4(1.0f);
-				diffuseColor = pMaterial->GetDiffuseColor();
-				ImGui::ColorEdit4(
-					"##DiffuseColor",
-					Math::ValuePtr(diffuseColor),
-					ImGuiColorEditFlags_Float
-					| ImGuiColorEditFlags_HDR
-				);
-				pMaterial->SetDiffuseColor(diffuseColor);
+					static Vec4 diffuseColor = Vec4(1.0f);
+					diffuseColor = pMaterial->GetDiffuseColor();
+					ImGui::ColorEdit4(
+						"##DiffuseColor",
+						Math::ValuePtr(diffuseColor),
+						ImGuiColorEditFlags_Float
+						| ImGuiColorEditFlags_HDR
+					);
+					pMaterial->SetDiffuseColor(diffuseColor);
+				}
 			}
 
-			// Specular
+			// Specular map
 			{
 				ImGui::TableNextColumn();
 				ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-				ImGui::Text("Specular");
+				ImGui::Text("Specular Texture");
 
 				ImGui::TableNextColumn();
 
-				static float specular = 1.0f;
-				specular = pMaterial->GetSpecular();
-				ImGui::SliderFloat("##Specular", &specular, 0.0f, 1.0f);
-				pMaterial->SetSpecular(specular);
+				const auto specularMap = pMaterial->GetSpecularMap();
+				ResourceHandleProperty(
+					"##SpecularMapHandle",
+					Vec2(ImGui::GetWindowWidth() - 160.0f, 25.0f),
+					specularMap.IsValid() ? specularMap.Get()->GetName().c_str() : nullptr,
+					[&](GUID droppedResourceID)
+					{
+						const auto& resource = pResourceCache->GetResource(droppedResourceID);
+						if (resource->GetType() == Content::ResourceType::ResourceTypeTexture)
+						{
+							pMaterial->SetSpecularMap(
+								pResourceCache
+								->CreateHandle<Content::TextureResource>(
+									droppedResourceID
+								)
+							);
+						}
+					},
+					[&]
+					{
+						pMaterial->SetSpecularMap(
+							pResourceCache->CreateHandle<Content::TextureResource>(GUID::Empty)
+						);
+						pMaterial->SetSpecular(0.5f);
+					}
+				);
 			}
 
 			// Specular
-			//{
-			//	ImGui::TableNextColumn();
-			//	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+			{
+				const auto specularMap = pMaterial->GetSpecularMap();
+				if (!specularMap.IsValid())
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			//	ImGui::Text("Shininess");
+					ImGui::Text("Specular");
 
-			//	ImGui::TableNextColumn();
+					ImGui::TableNextColumn();
 
-			//	static float shininess = 1.0f;
-			//	shininess = pMaterial->GetSpecular();
-			//	ImGui::DragFloat("#Specular", &specular, 0.1f, 0.0f, 1.0f);
-			//	pMaterial->SetSpecular(specular);
-			//}
+					float specular = pMaterial->GetSpecular();
+					ImGui::SliderFloat("##Specular", &specular, 0.0f, 1.0f);
+					pMaterial->SetSpecular(specular);
+				}
+			}
+
+			// Shininess
+			{
+				ImGui::TableNextColumn();
+				ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+				ImGui::Text("Shininess");
+
+				ImGui::TableNextColumn();
+
+				float shininess = pMaterial->GetShininess();
+				ImGui::SliderFloat("##Shininess", &shininess, 0.0f, 1.0f);
+				pMaterial->SetShininess(shininess);
+			}
+
+			// Shininess
+			{
+				ImGui::TableNextColumn();
+				ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+				ImGui::Text("Reflectivity");
+
+				ImGui::TableNextColumn();
+
+				float reflectivity = pMaterial->GetReflectivity();
+				ImGui::SliderFloat("##Reflectivity", &reflectivity, 0.0f, 1.0f);
+				pMaterial->SetReflectivity(reflectivity);
+			}
 		}
 		ImGui::EndTable();
 	}

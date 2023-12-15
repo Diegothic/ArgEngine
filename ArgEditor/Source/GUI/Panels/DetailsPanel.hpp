@@ -22,13 +22,13 @@ namespace Arg
 			private:
 				void DrawActorDetails(
 					const EditorGUIContext& context,
-					std::shared_ptr<Gameplay::Actor>& actor
+					Gameplay::Actor* actor
 				);
 
 				void DrawActorComponentProperties(
 					const EditorGUIContext& context,
-					std::shared_ptr<Gameplay::Actor>& actor,
-					std::shared_ptr<Gameplay::StaticModelComponent>& component
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Gameplay::StaticModelComponent>& pComponent
 				);
 			};
 		}

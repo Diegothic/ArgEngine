@@ -51,16 +51,7 @@ void Arg::Editor::GUI::ContentBrowserPanel::OnDraw(const EditorGUIContext& conte
 	ImGui::PopStyleVar();
 	if (isOpen)
 	{
-		if (pEditor->IsProjectOpened())
-		{
-			auto& project = pEditor->GetProject();
-			project->GetContent();
-			DrawBrowser(context);
-		}
-		else
-		{
-			DrawBrowser(context);
-		}
+		DrawBrowser(context);
 	}
 
 	ImGui::End();
@@ -140,7 +131,7 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 			ImGui::Text(m_pOpenedFolder->GetName().c_str());
 
 			const ImVec2 cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 350.0f, cursorPos.y - 29.0f));
+			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 450.0f, cursorPos.y - 29.0f));
 			if (ImGui::Button("Import", ImVec2(100.0f, 24.0f)))
 			{
 				ImGui::OpenPopup(ImGui::GetID("##ImportContextMenu"));
@@ -151,8 +142,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 				if (ImGui::MenuItem("Texture"))
 				{
 					std::filesystem::path path;
-					const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
-					if (isSuccess)
+					const bool bIsSuccess = Dialog::FileOpenDialog::GetFile(path);
+					if (bIsSuccess)
 					{
 						if (path.has_extension()
 							&& (path.extension() == ".png"
@@ -184,7 +175,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 							if (!bImported)
 							{
 								Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
-								// TODO: Log/Show on status bar: Fail
 							}
 
 							importer.Save(resourceName, currentFolderPath);
@@ -205,7 +195,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 						else
 						{
 							Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
-							// TODO: Log/Show on status bar: Fail
 						}
 					}
 				}
@@ -578,7 +567,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 			ImGui::SetKeyboardFocusHere();
 			char buffer[1024];
 			strcpy_s(buffer, subfolder->GetName().c_str());
-			GUID subfolderID = subfolder->GetID();
 			ImGui::InputText("##FolderNewName", buffer, 1024, ImGuiInputTextFlags_CallbackAlways,
 				[](ImGuiInputTextCallbackData* data) -> int32_t
 				{

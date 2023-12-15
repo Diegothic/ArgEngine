@@ -19,16 +19,15 @@ namespace Arg
 		{
 		public:
 			Actor(const GUID ID, GameWorld* world);
-			~Actor();
+			virtual ~Actor() = default;
 
 			auto operator==(const Actor& other) const { return m_ID == other.m_ID; }
 
 			auto GetID() const -> const GUID& { return m_ID; }
 			void SetID(const GUID ID) { m_ID = ID; }
 			auto GetName() const -> const std::string& { return m_Name; }
+			void SetName(const std::string& name);
 			auto GetWorld() const -> GameWorld* { return m_pWorld; }
-
-			auto GetComponentCount() const->size_t;
 
 			template <typename TComponentType>
 			auto GetComponent() -> std::shared_ptr<TComponentType>&;
@@ -37,6 +36,7 @@ namespace Arg
 			template <typename TComponentType>
 			auto RemoveComponent() -> bool;
 
+			auto GetComponentCount() const -> size_t;
 			auto GetComponent(const GUID& componentID) -> std::shared_ptr<ActorComponent>&;
 			auto GetComponentByIndex(const size_t index) -> std::shared_ptr<ActorComponent>&;
 			auto AddComponent(const std::shared_ptr<ActorComponent>& component) -> bool;
@@ -45,13 +45,14 @@ namespace Arg
 			auto GetParentActor() const -> Actor* { return m_pParentActor; }
 			void SetParentActor(Actor* actor);
 			auto GetChildActorsCount() const -> size_t { return m_pChildActors.size(); }
-			auto GetChildActor(const size_t index) const -> const std::shared_ptr<Actor>& { return m_pChildActors[index]; }
-			void AddChildActor(const std::shared_ptr<Actor>& actor);
-			void RemoveChildActor(const std::shared_ptr<Actor>& actor);
+			auto GetChildActor(const size_t index) const -> Actor* { return m_pChildActors[index]; }
+			void AddChildActor(Actor* actor);
+			void RemoveChildActor(const Actor* actor);
 			void ClearChildActors();
 
 			auto GetTransform() const -> const Mat4& { return m_GlobalTransform; }
 			void UpdateTransform(const Mat4& parentTransform);
+			void ReparentTransform(const Actor& newParentActor);
 
 			auto GetLocalPosition() const -> const Vec3& { return m_Transform.GetTranslation(); }
 			void SetLocalPosition(const Vec3& position);
@@ -60,15 +61,19 @@ namespace Arg
 			auto GetLocalScale() const -> const Vec3& { return m_Transform.GetScale(); }
 			void SetLocalScale(const Vec3& scale);
 
-			auto GetPosition() const->Vec3;
+			auto GetPosition() const -> Vec3;
 			void SetPosition(const Vec3& position);
-			auto GetRotation() const->Vec3;
+			auto GetRotation() const -> Vec3;
 			void SetRotation(const Vec3& rotation);
-			auto GetScale() const->Vec3;
+			auto GetScale() const -> Vec3;
 			void SetScale(const Vec3& scale);
 
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
+
+			void MarkForDestruction() { m_bIsDestroyed = true; }
+			auto IsMarkedForDestruction() const -> bool { return m_bIsDestroyed; }
+			void Destroy();
 
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
@@ -76,8 +81,8 @@ namespace Arg
 
 			void RefreshTransform(const Mat4& parentTransform);
 
-			auto GetResourceCache() const->Content::ResourceCache*;
-			auto GetComponentRegistry() const->ComponentRegistry*;
+			auto GetResourceCache() const -> Content::ResourceCache*;
+			auto GetComponentRegistry() const -> ComponentRegistry*;
 
 		private:
 			GUID m_ID = GUID::Empty;
@@ -86,6 +91,7 @@ namespace Arg
 			Transform m_Transform;
 			Mat4 m_GlobalTransform = Mat4(1.0f);
 			bool m_bRefreshTransform = false;
+			bool m_bIsDestroyed = false;
 
 			GameWorld* m_pWorld = nullptr;
 
@@ -93,20 +99,20 @@ namespace Arg
 			std::unordered_map<GUID, std::shared_ptr<ActorComponent>> m_ComponentsRegistry;
 
 			Actor* m_pParentActor = nullptr;
-			std::vector<std::shared_ptr<Actor>> m_pChildActors;
+			std::vector<Actor*> m_pChildActors;
 		};
 
 		template <typename TComponentType>
-		auto Arg::Gameplay::Actor::GetComponent()->std::shared_ptr<TComponentType>&
+		auto Arg::Gameplay::Actor::GetComponent() -> std::shared_ptr<TComponentType>&
 		{
 			const GUID componentID = TComponentType::GetID();
 			return GetComponent(componentID);
 		}
 
 		template <typename TComponentType>
-		auto Arg::Gameplay::Actor::AddComponent() ->bool
+		auto Arg::Gameplay::Actor::AddComponent() -> bool
 		{
-			std::shared_ptr<ActorComponent> component = TComponentType::CreateDefault();
+			const std::shared_ptr<ActorComponent> component = TComponentType::CreateDefault();
 			return AddComponent(component);
 		}
 

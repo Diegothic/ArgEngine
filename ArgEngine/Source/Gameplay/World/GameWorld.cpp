@@ -8,7 +8,7 @@ Arg::GameEngine* Arg::Gameplay::GameWorld::s_pEngine = nullptr;
 
 Arg::Gameplay::GameWorld::GameWorld()
 {
-	m_pRootActor = std::make_shared<Actor>(GUID::Empty, this);
+	m_pRootActor = std::make_unique<Actor>(GUID::Empty, this);
 }
 
 void Arg::Gameplay::GameWorld::Create()
@@ -22,41 +22,74 @@ void Arg::Gameplay::GameWorld::Initialize(const GameContext& context)
 	m_pComponents = context.Components;
 }
 
-auto Arg::Gameplay::GameWorld::GetRootActor() const->const std::shared_ptr<Actor>&
+auto Arg::Gameplay::GameWorld::GetRootActor() const -> Actor&
 {
-	return m_pRootActor;
+	return *m_pRootActor;
 }
 
-auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) const->const std::shared_ptr<Actor>&
+auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) const -> const Actor&
 {
-	ARG_ASSERT(m_pActorsRegistry.contains(actorID), "Invalid Actor ID!");
-	return m_pActorsRegistry.at(actorID);
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	return *m_ActorsRegistry.at(actorID);
 }
 
-auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) ->std::shared_ptr<Actor>&
+auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) -> Actor&
 {
-	ARG_ASSERT(m_pActorsRegistry.contains(actorID), "Invalid Actor ID!");
-	return m_pActorsRegistry.at(actorID);
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	return *m_ActorsRegistry.at(actorID);
 }
 
 auto Arg::Gameplay::GameWorld::CreateActor() -> GUID
 {
-	return GUID::Empty;
+	return CreateActor(*m_pRootActor);
 }
 
-auto Arg::Gameplay::GameWorld::CreateActor(const std::shared_ptr<Actor>& parentActor) -> GUID
+auto Arg::Gameplay::GameWorld::CreateActor(Actor& parentActor) -> GUID
 {
-	return GUID::Empty;
+	const GUID newActorID = GenerateID();
+	const auto& newActor = m_Actors.emplace_back(std::make_unique<Actor>(newActorID, this));
+	m_ActorsRegistry[newActorID] = newActor.get();
+	
+	newActor->SetParentActor(&parentActor);
+	parentActor.AddChildActor(newActor.get());
+
+	return newActorID;
 }
 
-void Arg::Gameplay::GameWorld::DestroyActor(const std::shared_ptr<Actor>& actor)
+void Arg::Gameplay::GameWorld::DestroyActor(Actor& actor)
 {
+	 Actor* parentActor = actor.GetParentActor();
+	 for (size_t i = actor.GetChildActorsCount(); i > 0; i--)
+	 {
+	 	ReparentActor(*actor.GetChildActor(i - 1), *parentActor);
+	 }
+	
+	 parentActor->RemoveChildActor(&actor);
+	 actor.Destroy();
+	
+	 const GUID actorID = actor.GetID();
+	 ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	 m_ActorsRegistry.erase(actorID);
+	
+	 const auto it = std::ranges::find_if(m_Actors, [&](const std::unique_ptr<Actor>& pActor)
+	 {
+	 	return pActor->GetID() == actorID;
+	 });
+	 ARG_ASSERT(it != m_Actors.end(), "Invalid Actor!");
+	m_Actors.erase(it);
+}
 
+void Arg::Gameplay::GameWorld::ReparentActor(Actor& actor, Actor& newParentActor)
+{
+	actor.GetParentActor()->RemoveChildActor(&actor);
+	actor.SetParentActor(&newParentActor);
+	actor.ReparentTransform(newParentActor);
+	newParentActor.AddChildActor(&actor);
 }
 
 void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime)
 {
-	for (auto& actor : m_pActors)
+	for (const auto& actor : m_Actors)
 	{
 		actor->Tick(gameTime);
 	}
@@ -64,17 +97,36 @@ void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime)
 
 void Arg::Gameplay::GameWorld::Render(Renderer::RenderContext& context)
 {
-	auto& rootActor = GetRootActor();
-	for (size_t i = 0; i < rootActor->GetChildActorsCount(); i++)
+	const auto& rootActor = GetRootActor();
+	for (size_t i = 0; i < rootActor.GetChildActorsCount(); i++)
 	{
-		const Mat4& rootActorTransform = rootActor->GetTransform();
-		const auto& childActor = rootActor->GetChildActor(i);
+		const Mat4& rootActorTransform = rootActor.GetTransform();
+		Actor* childActor = rootActor.GetChildActor(i);
 		childActor->UpdateTransform(rootActorTransform);
 	}
 
-	for (auto& actor : m_pActors)
+	for (const auto& actor : m_Actors)
 	{
 		actor->Render(context);
+	}
+}
+
+void Arg::Gameplay::GameWorld::ClearGarbage()
+{
+	std::vector<GUID> actorsToDestroy;
+	actorsToDestroy.reserve(m_Actors.size());
+	for (const auto& actor : m_Actors)
+	{
+		if(actor->IsMarkedForDestruction())
+		{
+			actorsToDestroy.push_back(actor->GetID());
+		}
+	}
+
+	for(const auto& actorID : actorsToDestroy)
+	{
+		Actor& actor = GetActor(actorID);
+		DestroyActor(actor);
 	}
 }
 
@@ -96,33 +148,54 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 	const auto lastGeneratedID = ValueOr<uint64_t>(header["LastGeneratedID"], 0);
 	m_IDGenerator.SetSeed(lastGeneratedID);
 
-	m_pActorsRegistry.clear();
+	m_ActorsRegistry.clear();
 	m_pRootActor->ClearChildActors();
 	const auto& actors = header["Actors"];
 	if (actors)
 	{
 		for (size_t i = 0; i < actors.size(); i++)
 		{
-			auto actor = std::make_shared<Actor>(GUID::Empty, this);
 			const auto& actorNode = actors[i];
+			auto& actor = m_Actors.emplace_back(std::make_unique<Actor>(GUID::Empty, this));
 			actor->Deserialize(actorNode);
-			m_pActors.push_back(actor);
 
 			if (actor->GetID() == GUID::Empty)
 			{
 				actor->SetID(GenerateID());
 			}
-			m_pActorsRegistry[actor->GetID()] = actor;
+			m_ActorsRegistry[actor->GetID()] = actor.get();
 
 			actor->SetParentActor(m_pRootActor.get());
-			m_pRootActor->AddChildActor(actor);
+			m_pRootActor->AddChildActor(actor.get());
+		}
+	}
+
+	const auto& actorsRelations = header["ActorRelations"];
+	if (actorsRelations)
+	{
+		for (size_t i = 0; i < actorsRelations.size(); i++)
+		{
+			const auto& relationNode = actorsRelations[i];
+			const GUID parentID = ValueOr<GUID>(relationNode["ParentID"], GUID::Empty);
+			const GUID childID = ValueOr<GUID>(relationNode["ChildID"], GUID::Empty);
+			if(childID == GUID::Empty)
+			{
+				ARG_CONSOLE_LOG_WARN("Invalid actor relation [%llu] for map %s", i, m_Name.c_str());
+				continue;
+			}
+
+			Actor* childActor = m_ActorsRegistry.at(childID);
+			Actor* parentActor = parentID == GUID::Empty ? m_pRootActor.get() : m_ActorsRegistry.at(parentID);
+			childActor->GetParentActor()->RemoveChildActor(childActor);
+			childActor->SetParentActor(parentActor);
+			parentActor->AddChildActor(childActor);
 		}
 	}
 
 	return true;
 }
 
-auto Arg::Gameplay::GameWorld::GenerateID() ->GUID
+auto Arg::Gameplay::GameWorld::GenerateID() -> GUID
 {
 	const GUID ID = GUID(m_IDGenerator.Next() + static_cast<uint64_t>(1));
 	return ID;

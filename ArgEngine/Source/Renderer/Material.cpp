@@ -4,7 +4,6 @@
 Arg::Renderer::Material::Material(Content::ResourceCache* pResourceCache)
 	: m_pResourceCache(pResourceCache)
 {
-
 }
 
 void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader)
@@ -40,13 +39,13 @@ void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader
 	{
 		m_ReflectivityMap.Get()->GetTexture()->Bind(TEXTURE_UNIT_REFLECTIVITY);
 		shader->SetUniform("u_Material.reflectionMap", TEXTURE_UNIT_REFLECTIVITY);
-		shader->SetUniform("u_Material.reflection", 1.0f);
 	}
 	else
 	{
-		shader->SetUniform("u_Material.reflectionMap", 0);
-		shader->SetUniform("u_Material.reflection", m_Reflectivity);
+		shader->SetUniform("u_Material.reflectionMap", 1);
 	}
+
+	shader->SetUniform("u_Material.reflection", m_Reflectivity);
 }
 
 void Arg::Renderer::Material::SetDiffuseMap(const TextureHandle diffuseMap)
@@ -141,7 +140,6 @@ auto Arg::Renderer::Material::VOnSerialize(YAML::Node& node) const -> bool
 	header["Specular"] = m_Specular;
 	header["Shininess"] = m_Shininess;
 
-	header["ReflectivityMapID"] = m_ReflectivityMap.GetID();
 	header["Reflectivity"] = m_Reflectivity;
 
 	return true;
@@ -164,8 +162,6 @@ auto Arg::Renderer::Material::VOnDeserialize(const YAML::Node& node) -> bool
 	m_Specular = ValueOr<float>(header["Specular"], 0.5f);
 	m_Shininess = ValueOr<float>(header["Shininess"], 0.1f);
 
-	const GUID reflectivityMapID = ValueOr<GUID>(header["ReflectivityMapID"], GUID::Empty);
-	m_ReflectivityMap = m_pResourceCache->CreateHandle<Content::TextureResource>(reflectivityMapID);
 	m_Reflectivity = ValueOr<float>(header["Reflectivity"], 0.0f);
 
 	return true;

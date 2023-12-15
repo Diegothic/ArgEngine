@@ -8,15 +8,14 @@
 Arg::Gameplay::Actor::Actor(const GUID ID, GameWorld* world)
 	: m_ID(ID), m_pWorld(world)
 {
-
 }
 
-Arg::Gameplay::Actor::~Actor()
+void Arg::Gameplay::Actor::SetName(const std::string& name)
 {
-
+	m_Name = name;
 }
 
-auto Arg::Gameplay::Actor::GetComponentCount() const->size_t
+auto Arg::Gameplay::Actor::GetComponentCount() const -> size_t
 {
 	return m_Components.size();
 }
@@ -80,13 +79,13 @@ void Arg::Gameplay::Actor::SetParentActor(Actor* actor)
 	m_pParentActor = actor;
 }
 
-void Arg::Gameplay::Actor::AddChildActor(const std::shared_ptr<Actor>& actor)
+void Arg::Gameplay::Actor::AddChildActor(Actor* actor)
 {
 	ARG_ASSERT(std::ranges::find(m_pChildActors, actor) == m_pChildActors.end(), "Actor is already a child actor!");
 	m_pChildActors.push_back(actor);
 }
 
-void Arg::Gameplay::Actor::RemoveChildActor(const std::shared_ptr<Actor>& actor)
+void Arg::Gameplay::Actor::RemoveChildActor(const Actor* actor)
 {
 	const auto it = std::ranges::find(m_pChildActors, actor);
 	ARG_ASSERT(it != m_pChildActors.end(), "Child actor not found!");
@@ -114,9 +113,24 @@ void Arg::Gameplay::Actor::UpdateTransform(const Mat4& parentTransform)
 
 	for (size_t i = 0; i < GetChildActorsCount(); i++)
 	{
-		auto& childActor = GetChildActor(i);
+		const auto childActor = GetChildActor(i);
 		childActor->UpdateTransform(m_GlobalTransform);
 	}
+}
+
+void Arg::Gameplay::Actor::ReparentTransform(const Actor& newParentActor)
+{
+	const Mat4 newParentTransform = newParentActor.m_GlobalTransform;
+	// Vec3 newParentTranslation, newParentRotation, newParentScale;
+	// Math::Decompose(newParentTransform, newParentTranslation, newParentRotation, newParentScale);
+	// Math::Decompose(m_GlobalTransform, translation, rotation, scale);
+
+	Vec3 translation, rotation, scale;
+	const Mat4 newLocalTransform = Math::inverse(newParentTransform) * m_GlobalTransform;
+	Math::Decompose(newLocalTransform, translation, rotation, scale);
+	SetLocalPosition(translation);
+	SetLocalRotation(Math::degrees(rotation));
+	SetLocalScale(scale);
 }
 
 void Arg::Gameplay::Actor::SetLocalPosition(const Vec3& position)
@@ -137,7 +151,7 @@ void Arg::Gameplay::Actor::SetLocalScale(const Vec3& scale)
 	m_Transform.SetScale(scale);
 }
 
-auto Arg::Gameplay::Actor::GetPosition() const->Vec3
+auto Arg::Gameplay::Actor::GetPosition() const -> Vec3
 {
 	Vec3 translation;
 	Vec3 rotation;
@@ -169,7 +183,7 @@ void Arg::Gameplay::Actor::SetPosition(const Vec3& position)
 	m_Transform = Transform(dTranslation, dRotation, dScale);
 }
 
-auto Arg::Gameplay::Actor::GetRotation() const->Vec3
+auto Arg::Gameplay::Actor::GetRotation() const -> Vec3
 {
 	Vec3 translation;
 	Vec3 rotation;
@@ -201,7 +215,7 @@ void Arg::Gameplay::Actor::SetRotation(const Vec3& rotation)
 	m_Transform = Transform(dTranslation, dRotation, dScale);
 }
 
-auto Arg::Gameplay::Actor::GetScale() const->Vec3
+auto Arg::Gameplay::Actor::GetScale() const -> Vec3
 {
 	Vec3 translation;
 	Vec3 rotation;
@@ -235,7 +249,12 @@ void Arg::Gameplay::Actor::SetScale(const Vec3& scale)
 
 void Arg::Gameplay::Actor::Tick(const GameTime& gameTime)
 {
-	for (auto& component : m_Components)
+	if (m_bIsDestroyed)
+	{
+		return;
+	}
+
+	for (const auto& component : m_Components)
 	{
 		if (!component->CanEverTick())
 		{
@@ -248,7 +267,12 @@ void Arg::Gameplay::Actor::Tick(const GameTime& gameTime)
 
 void Arg::Gameplay::Actor::Render(Renderer::RenderContext& context)
 {
-	for (auto& component : m_Components)
+	if (m_bIsDestroyed)
+	{
+		return;
+	}
+
+	for (const auto& component : m_Components)
 	{
 		if (!component->CanEverRender())
 		{
@@ -256,6 +280,21 @@ void Arg::Gameplay::Actor::Render(Renderer::RenderContext& context)
 		}
 
 		component->VRender(context);
+	}
+}
+
+void Arg::Gameplay::Actor::Destroy()
+{
+	std::vector<GUID> componentsToRemove;
+	componentsToRemove.reserve(m_Components.size());
+	for (const auto& component : m_Components)
+	{
+		componentsToRemove.push_back(component->VGetID());
+	}
+
+	for (const auto& componentID : componentsToRemove)
+	{
+		RemoveComponent(componentID);
 	}
 }
 
@@ -273,7 +312,7 @@ auto Arg::Gameplay::Actor::VOnSerialize(YAML::Node& node) const -> bool
 auto Arg::Gameplay::Actor::VOnDeserialize(const YAML::Node& node) -> bool
 {
 	m_ID = ValueOr<GUID>(node["ID"], GUID::Empty);
-	m_Name = ValueOr < std::string >(node["Name"], "Actor");
+	m_Name = ValueOr<std::string>(node["Name"], "Actor");
 	if (node["Transform"])
 	{
 		const Vec3 localPosition = ValueOr<Vec3>(node["Transform"]["Position"], Vec3(0.0f));
@@ -313,21 +352,21 @@ auto Arg::Gameplay::Actor::VOnDeserialize(const YAML::Node& node) -> bool
 void Arg::Gameplay::Actor::RefreshTransform(const Mat4& parentTransform)
 {
 	m_bRefreshTransform = false;
-	Mat4 localTransform = m_Transform.FindTransform();
+	const Mat4 localTransform = m_Transform.FindTransform();
 	m_GlobalTransform = parentTransform * localTransform;
 	for (size_t i = 0; i < GetChildActorsCount(); i++)
 	{
-		auto& childActor = GetChildActor(i);
+		const auto childActor = GetChildActor(i);
 		childActor->RefreshTransform(m_GlobalTransform);
 	}
 }
 
-auto Arg::Gameplay::Actor::GetResourceCache() const->Content::ResourceCache*
+auto Arg::Gameplay::Actor::GetResourceCache() const -> Content::ResourceCache*
 {
 	return GetWorld()->GetResourceCache();
 }
 
-auto Arg::Gameplay::Actor::GetComponentRegistry() const->ComponentRegistry*
+auto Arg::Gameplay::Actor::GetComponentRegistry() const -> ComponentRegistry*
 {
 	return GetWorld()->GetComponentRegistry();
 }

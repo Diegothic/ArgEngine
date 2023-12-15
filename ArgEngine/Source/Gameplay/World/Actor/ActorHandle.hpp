@@ -23,7 +23,7 @@ namespace Arg
 			auto operator==(const ActorHandle& other) const -> bool;
 
 			auto IsValid() const -> bool;
-			auto Get() const->std::shared_ptr<Actor>;
+			auto Get() const-> Actor&;
 
 		private:
 			GUID m_ActorID = GUID::Empty;

@@ -32,7 +32,7 @@ void Arg::Renderer::RenderContext::DrawModel(
 }
 
 void Arg::Renderer::RenderContext::Render(
-	const std::shared_ptr<Renderer>& renderer
+	const Renderer& renderer
 ) const
 {
 	if (m_Spec.pCamera == nullptr)
@@ -51,10 +51,10 @@ void Arg::Renderer::RenderContext::Render(
 		.ViewportSize = viewportSize,
 		.ClearColor = Vec4(0.5f, 0.5f, 0.5f, 1.0f) // TODO: Camera->Background()
 	};
-	renderer->BeginFrame(frameParams);
-	renderer->EndFrame();
+	renderer.BeginFrame(frameParams);
+	renderer.EndFrame();
 
-	renderer->BeginOpaque();
+	renderer.BeginOpaque();
 
 	auto shader = m_Spec.pBasicShader;
 

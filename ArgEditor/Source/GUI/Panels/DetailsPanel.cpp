@@ -7,7 +7,6 @@
 
 void Arg::Editor::GUI::DetailsPanel::OnInitialize(const EditorGUIContext& context)
 {
-
 }
 
 void Arg::Editor::GUI::DetailsPanel::OnDraw(const EditorGUIContext& context)
@@ -22,9 +21,10 @@ void Arg::Editor::GUI::DetailsPanel::OnDraw(const EditorGUIContext& context)
 	ImGui::PopStyleVar();
 	if (isOpen)
 	{
-		if (pEditor->HasSelectedActor())
+		Gameplay::Actor* pSelectedActor = nullptr;
+		if (pEditor->HasSelectedActor()
+			&& pEditor->GetSelectedActor(pSelectedActor))
 		{
-			auto pSelectedActor = pEditor->GetSelectedActor();
 			DrawActorDetails(context, pSelectedActor);
 		}
 	}
@@ -33,7 +33,7 @@ void Arg::Editor::GUI::DetailsPanel::OnDraw(const EditorGUIContext& context)
 
 void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 	const EditorGUIContext& context,
-	std::shared_ptr<Gameplay::Actor>& actor
+	Gameplay::Actor* actor
 )
 {
 	Vec2 windowSize = Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
@@ -252,17 +252,17 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 
 void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 	const EditorGUIContext& context,
-	std::shared_ptr<Gameplay::Actor>& actor,
-	std::shared_ptr<Gameplay::StaticModelComponent>& component)
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::StaticModelComponent>& pComponent)
 {
 	Editor* pEditor = context.pEditor;
 	const bool isProjectOpended = pEditor->IsProjectOpened();
 	auto& pResourceCache = isProjectOpended
-		? pEditor->GetProject()->GetResourceCache()
-		: pEditor->GetResourceCache();
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
 	auto& pContent = isProjectOpended
-		? pEditor->GetProject()->GetContent()
-		: pEditor->GetContent();
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
 
 	if (ImGui::BeginTable(
 		"##StaticModelComponentTable",
@@ -307,7 +307,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 				if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
 				{
 					auto newStaticModel = pResourceCache->CreateHandle<Content::StaticModelResource>(droppedResourceID);
-					component->SetStaticModel(newStaticModel);
+					pComponent->SetStaticModel(newStaticModel);
 				}
 			}
 		}
@@ -316,7 +316,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		cursorPos.y += 5.0f;
 		ImGui::SetCursorPos(cursorPos);
 
-		const auto staticModel = component->GetStaticModel();
+		const auto staticModel = pComponent->GetStaticModel();
 		if (staticModel.IsValid())
 		{
 			const auto& staticModelName = staticModel.Get()->GetName();
@@ -362,25 +362,10 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 				if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
 				{
 					auto newMaterial = pResourceCache->CreateHandle<Content::MaterialResource>(droppedResourceID);
-					component->SetMaterial(0, newMaterial);
+					pComponent->SetMaterial(0, newMaterial);
 				}
 			}
 		}
-
-		//cursorPos.x += 10.0f;
-		//cursorPos.y += 5.0f;
-		//ImGui::SetCursorPos(cursorPos);
-
-		//const auto staticModel = component->GetStaticModel();
-		//if (staticModel.IsValid())
-		//{
-		//	const auto& staticModelName = staticModel.Get()->GetName();
-		//	ImGui::Text(staticModelName.c_str());
-		//}
-		//else
-		//{
-		//	ImGui::TextDisabled("Null reference");
-		//}
 	}
 	ImGui::EndTable();
 }

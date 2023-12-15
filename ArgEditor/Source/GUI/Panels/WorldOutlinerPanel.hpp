@@ -20,7 +20,7 @@ namespace Arg
 				void OnDraw(const EditorGUIContext& context) override;
 				void DrawActorTree(
 					const EditorGUIContext& context,
-					const std::shared_ptr<Gameplay::Actor>& actor,
+					Gameplay::Actor* pActor,
 					const int32_t treeLevel
 				);
 
