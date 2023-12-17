@@ -3,25 +3,25 @@
 
 #include "Debug/Assert.hpp"
 
-auto Arg::Renderer::StaticModel::GetMesh(const size_t meshIndex) const->const std::shared_ptr<StaticMesh>&
+auto Arg::Renderer::StaticModel::GetMesh(size_t meshIndex) const->const std::shared_ptr<StaticMesh>&
 {
 	ARG_ASSERT(meshIndex >= 0 && meshIndex < m_Meshes.size(), "Index out of range!");
 	return m_Meshes[meshIndex];
 }
 
-auto Arg::Renderer::StaticModel::GetMaterialIndex(const size_t meshIndex) const->int32_t
+auto Arg::Renderer::StaticModel::GetMaterialIndex(size_t meshIndex) const->int32_t
 {
 	ARG_ASSERT(meshIndex >= 0 && meshIndex < m_Meshes.size(), "Index out of range!");
 	return m_Spec.MaterialIndices[meshIndex];
 }
 
-auto Arg::Renderer::StaticModel::GetVertexCount(const size_t meshIndex) const->size_t
+auto Arg::Renderer::StaticModel::GetVertexCount(size_t meshIndex) const->size_t
 {
 	ARG_ASSERT(meshIndex >= 0 && meshIndex < m_Meshes.size(), "Index out of range!");
 	return m_Spec.VertexCounts[meshIndex];
 }
 
-auto Arg::Renderer::StaticModel::GetIndexCount(const size_t meshIndex) const->size_t
+auto Arg::Renderer::StaticModel::GetIndexCount(size_t meshIndex) const->size_t
 {
 	ARG_ASSERT(meshIndex >= 0 && meshIndex < m_Meshes.size(), "Index out of range!");
 	return m_Spec.IndexCounts[meshIndex];

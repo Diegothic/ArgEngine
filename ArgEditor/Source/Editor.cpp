@@ -218,8 +218,11 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	DeselectActor();
 	DeselectResource();
 
+	m_pCamera->Reset();
+
 	if (m_pProject != nullptr)
 	{
+		m_pGameEngine->Deinitialize();
 		m_pProject->Close();
 	}
 

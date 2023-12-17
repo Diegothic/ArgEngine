@@ -31,7 +31,7 @@ namespace Arg
 		};
 
 		template <typename TValueType>
-		auto Arg::Content::YamlSerializable::ValueOr(
+		auto YamlSerializable::ValueOr(
 			const YAML::Node& node,
 			const TValueType& alternative
 		) const -> TValueType

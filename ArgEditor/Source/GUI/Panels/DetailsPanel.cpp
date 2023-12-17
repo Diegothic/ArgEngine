@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 
 #include "Editor.hpp"
+#include "GUI/Elements/Properties.hpp"
 
 void Arg::Editor::GUI::DetailsPanel::OnInitialize(const EditorGUIContext& context)
 {
@@ -36,6 +37,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 	Gameplay::Actor* actor
 )
 {
+	Gameplay::GameWorld* pWorld = actor->GetWorld();
+	Gameplay::ComponentRegistry* pComponentsRegistry = pWorld->GetComponentRegistry();
 	Vec2 windowSize = Vec2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 
 	ImGui::PushID(static_cast<int>(actor->GetID()));
@@ -247,6 +250,56 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 		}
 	}
 
+	ImGui::Dummy(ImVec2(windowSize.x, 50.0f));
+	if (ImGui::Button("+ Add Component", ImVec2(windowSize.x, 40.0f)))
+	{
+		ImGui::OpenPopup("##AddComponent");
+	}
+
+	if (ImGui::BeginPopup("##AddComponent"))
+	{
+		ImGui::PushStyleColor(ImGuiCol_Header, ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered]);
+		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyle().Colors[ImGuiCol_HeaderHovered]);
+		const bool bIsHeaderOpen = ImGui::CollapsingHeader("Select a component...",
+		                                                   ImGuiTreeNodeFlags_Leaf
+		                                                   | ImGuiTreeNodeFlags_DefaultOpen
+		                                                   | ImGuiTreeNodeFlags_NoTreePushOnOpen
+		);
+		ImGui::PopStyleColor(2);
+
+		if (bIsHeaderOpen)
+		{
+			if (actor->HasComponent(Gameplay::StaticModelComponent::COMPONENT_ID))
+			{
+				ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+				ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+
+				ImGui::TreeNodeEx("Static Model", ImGuiTreeNodeFlags_Leaf);
+
+				ImGui::PopStyleColor(3);
+			}
+			else
+			{
+				ImGui::TreeNodeEx("Static Model", ImGuiTreeNodeFlags_Leaf);
+
+				if (ImGui::IsItemClicked())
+				{
+					const auto pActorComponent = pComponentsRegistry->CreateComponent(
+						Gameplay::StaticModelComponent::COMPONENT_ID
+					);
+					actor->AddComponent(pActorComponent);
+
+					ImGui::CloseCurrentPopup();
+				}
+			}
+
+			ImGui::TreePop();
+		}
+
+		ImGui::EndPopup();
+	}
+
 	ImGui::PopID();
 }
 
@@ -334,38 +387,74 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 		ImGui::TableNextColumn();
 
-		ImGui::Text("0");
-		ImGui::SameLine();
-		ImGui::Button(
-			"##Material",
-			ImVec2(ImGui::GetWindowWidth() - 100.0f - ImGui::CalcTextSize("1").x, 25.0f)
-		);
-
+		for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
 		{
-			static bool droppedResource = false;
-			static GUID droppedResourceID;
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource"))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(GUID));
-					droppedResourceID = *((GUID*)payload->Data);
-					droppedResource = true;
-				}
-				ImGui::EndDragDropTarget();
-			}
+			ImGui::PushID(i);
 
-			if (droppedResource)
-			{
-				droppedResource = false;
-				const auto& resource = pResourceCache->GetResource(droppedResourceID);
-				if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+			ImGui::Text(std::to_string(i).c_str());
+			ImGui::SameLine();
+
+			const auto material = pComponent->GetMaterial(i);
+			ResourceHandleProperty(
+				"##MaterialHandle",
+				Vec2(ImGui::GetWindowWidth() - 120.0f, 25.0f),
+				material.IsValid() ? material.Get()->GetName().c_str() : nullptr,
+				[&](GUID droppedResourceID)
 				{
-					auto newMaterial = pResourceCache->CreateHandle<Content::MaterialResource>(droppedResourceID);
-					pComponent->SetMaterial(0, newMaterial);
+					const auto& resource = pResourceCache->GetResource(droppedResourceID);
+					if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+					{
+						pComponent->SetMaterial(
+							i,
+							pResourceCache->CreateHandle<Content::MaterialResource>(
+								droppedResourceID
+							));
+					}
+				},
+				[&]
+				{
+					pComponent->SetMaterial(
+						i,
+						pResourceCache->CreateHandle<Content::MaterialResource>(GUID::Empty)
+					);
 				}
-			}
+			);
+
+			ImGui::PopID();
 		}
+
+		// ImGui::Text("0");
+		// ImGui::SameLine();
+		// ImGui::Button(
+		// 	"##Material",
+		// 	ImVec2(ImGui::GetWindowWidth() - 100.0f - ImGui::CalcTextSize("1").x, 25.0f)
+		// );
+		//
+		// {
+		// 	static bool droppedResource = false;
+		// 	static GUID droppedResourceID;
+		// 	if (ImGui::BeginDragDropTarget())
+		// 	{
+		// 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource"))
+		// 		{
+		// 			IM_ASSERT(payload->DataSize == sizeof(GUID));
+		// 			droppedResourceID = *((GUID*)payload->Data);
+		// 			droppedResource = true;
+		// 		}
+		// 		ImGui::EndDragDropTarget();
+		// 	}
+		//
+		// 	if (droppedResource)
+		// 	{
+		// 		droppedResource = false;
+		// 		const auto& resource = pResourceCache->GetResource(droppedResourceID);
+		// 		if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+		// 		{
+		// 			auto newMaterial = pResourceCache->CreateHandle<Content::MaterialResource>(droppedResourceID);
+		// 			pComponent->SetMaterial(0, newMaterial);
+		// 		}
+		// 	}
+		// }
 	}
 	ImGui::EndTable();
 }

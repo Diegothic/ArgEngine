@@ -27,7 +27,7 @@ namespace Arg
 			void DrawModel(
 				const std::shared_ptr<StaticModel>& model,
 				const Mat4& transform,
-				const std::shared_ptr<Material>& material,
+				const std::vector<Material*>& materials,
 				bool bReceiveShadows,
 				bool bCastShadows
 			);
@@ -39,11 +39,14 @@ namespace Arg
 		private:
 			RenderContextSpec m_Spec;
 			
+			std::vector<StaticMesh*> m_StaticMeshes;
 			std::vector<Mat4> m_Transforms;
-
-			std::vector<std::shared_ptr<StaticMesh>> m_StaticMeshes;
-			std::vector<std::shared_ptr<Material>> m_StaticMeshMaterials;
 			std::vector<size_t> m_StaticMeshTransformIndices;
+			std::unordered_map<GUID, Material*> m_Materials;
+			std::unordered_map<GUID, std::vector<size_t>> m_MaterialStaticMeshIndices;
+			
+			//std::vector<std::shared_ptr<Material>> m_StaticMeshMaterials;
+
 		};
 	}
 }

@@ -19,6 +19,7 @@ namespace Arg
 		~GameEngine() = default;
 
 		void Initialize(const std::shared_ptr<Content::ResourceCache>& pResourceCache);
+		void Deinitialize();
 
 		void LoadWorld(const std::string& worldName);
 

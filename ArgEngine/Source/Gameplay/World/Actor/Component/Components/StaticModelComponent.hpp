@@ -9,6 +9,7 @@
 namespace Arg
 {
 	using MaterialHandle = Content::ResourceHandle<Content::MaterialResource>;
+	using StaticModelHandle = Content::ResourceHandle<Content::StaticModelResource>;
 
 	namespace Gameplay
 	{
@@ -34,20 +35,22 @@ namespace Arg
 			auto GetStaticModel() const ->Content::ResourceHandle<Content::StaticModelResource> { return m_StaticModel; }
 			void SetStaticModel(const Content::ResourceHandle<Content::StaticModelResource>& staticModel);
 
-			void SetMaterial(const size_t index, const MaterialHandle& material);
+			auto GetMaterialCount() const -> size_t {return m_Materials.size();}
+			auto GetMaterial(size_t index) const -> const MaterialHandle&;
+			void SetMaterial(size_t index, const MaterialHandle& material);
 
 			auto GetReceiveShadows() const -> bool { return m_bReceiveShadows; }
-			void SetReceiveShadows(const bool bReceiveShadows);
+			void SetReceiveShadows(bool bReceiveShadows);
 
 			auto GetCastShadows() const -> bool { return m_bCastShadows; }
-			void SetCastShadows(const bool bCastShadows);
+			void SetCastShadows(bool bCastShadows);
 
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;
 
 		private:
-			Content::ResourceHandle<Content::StaticModelResource> m_StaticModel;
+			StaticModelHandle m_StaticModel;
 			std::vector<MaterialHandle> m_Materials;
 
 			bool m_bReceiveShadows = true;

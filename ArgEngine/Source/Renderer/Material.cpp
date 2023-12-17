@@ -1,12 +1,12 @@
 #include <arg_pch.hpp>
 #include "Material.hpp"
 
-Arg::Renderer::Material::Material(Content::ResourceCache* pResourceCache)
-	: m_pResourceCache(pResourceCache)
+Arg::Renderer::Material::Material(Content::Resource* pResource)
+	: m_pResource(pResource)
 {
 }
 
-void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader)
+void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader) const
 {
 	if (m_DiffuseMap.IsValid())
 	{
@@ -48,7 +48,7 @@ void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader
 	shader->SetUniform("u_Material.reflection", m_Reflectivity);
 }
 
-void Arg::Renderer::Material::SetDiffuseMap(const TextureHandle diffuseMap)
+void Arg::Renderer::Material::SetDiffuseMap(const Arg::TextureHandle& diffuseMap)
 {
 	if (m_DiffuseMap.IsValid())
 	{
@@ -63,7 +63,7 @@ void Arg::Renderer::Material::SetDiffuseMap(const TextureHandle diffuseMap)
 	}
 }
 
-void Arg::Renderer::Material::SetSpecularMap(const TextureHandle specularMap)
+void Arg::Renderer::Material::SetSpecularMap(const Arg::TextureHandle& specularMap)
 {
 	if (m_SpecularMap.IsValid())
 	{
@@ -78,7 +78,7 @@ void Arg::Renderer::Material::SetSpecularMap(const TextureHandle specularMap)
 	}
 }
 
-void Arg::Renderer::Material::SetReflectivityMap(const TextureHandle reflectivityMap)
+void Arg::Renderer::Material::SetReflectivityMap(const Arg::TextureHandle& reflectivityMap)
 {
 	if (m_ReflectivityMap.IsValid())
 	{
@@ -153,12 +153,14 @@ auto Arg::Renderer::Material::VOnDeserialize(const YAML::Node& node) -> bool
 		return false;
 	}
 
+	Content::ResourceCache* pResourceCache = m_pResource->GetResourceCache();
+
 	const GUID diffuseMapID = ValueOr<GUID>(header["DiffuseMapID"], GUID::Empty);
-	m_DiffuseMap = m_pResourceCache->CreateHandle<Content::TextureResource>(diffuseMapID);
+	m_DiffuseMap = pResourceCache->CreateHandle<Content::TextureResource>(diffuseMapID);
 	m_DiffuseColor = ValueOr<Vec4>(header["DiffuseColor"], Vec4(1.0f));
 
 	const GUID specularMapID = ValueOr<GUID>(header["SpecularMapID"], GUID::Empty);
-	m_SpecularMap = m_pResourceCache->CreateHandle<Content::TextureResource>(specularMapID);
+	m_SpecularMap = pResourceCache->CreateHandle<Content::TextureResource>(specularMapID);
 	m_Specular = ValueOr<float>(header["Specular"], 0.5f);
 	m_Shininess = ValueOr<float>(header["Shininess"], 0.1f);
 

@@ -13,7 +13,7 @@
 			ARG_CONSOLE_LOG_ERR(\
 			"Assertion \"" #Check "\" failed:\n%s",\
 			##Message)\
-			std::exit(EXIT_FAILURE); \
+			__debugbreak();\
 		}\
 	}
 

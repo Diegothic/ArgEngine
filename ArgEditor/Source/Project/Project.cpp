@@ -25,18 +25,11 @@ auto Arg::Editor::ProjectSettings::VOnDeserialize(const YAML::Node& node) -> boo
 	return true;
 }
 
-auto Arg::Editor::Project::Create(
-	const std::filesystem::path& projectFile
-) -> bool
-{
-	return true;
-}
-
 auto Arg::Editor::Project::Open(
 	const std::filesystem::path& projectFile
 ) -> bool
 {
-	bool isSuccess = m_Settings.Deserialize(projectFile);
+	const bool isSuccess = m_Settings.Deserialize(projectFile);
 	if (!isSuccess)
 	{
 		return false;
@@ -63,12 +56,13 @@ auto Arg::Editor::Project::Open(
 
 void Arg::Editor::Project::Close()
 {
-
+	m_pContent = nullptr;
+	m_pResourceCache = nullptr;
 }
 
 void Arg::Editor::Project::Save() const
 {
-	ProjectSettings settings = m_Settings;
+	const ProjectSettings settings = m_Settings;
 	settings.Serialize(m_SettingsFile);
 
 	m_pContent->Save();

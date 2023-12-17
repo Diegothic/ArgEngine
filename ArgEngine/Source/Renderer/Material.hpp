@@ -20,21 +20,24 @@ namespace Arg
 		class Material : public Content::YamlSerializable
 		{
 		public:
-			Material(Content::ResourceCache* pResourceCache);
+			Material(Content::Resource* pResource);
 			Material(const Material&) = delete;
 
 		public:
-			void Apply(const std::shared_ptr<ShaderProgram>& shader);
+			auto GetID() const -> GUID { return m_pResource->GetID(); }
 
 		public:
-			auto GetDiffuseMap() const-> const TextureHandle& { return m_DiffuseMap; };
-			void SetDiffuseMap(const TextureHandle diffuseMap);
+			void Apply(const std::shared_ptr<ShaderProgram>& shader) const;
+
+		public:
+			auto GetDiffuseMap() const -> const TextureHandle& { return m_DiffuseMap; }
+			void SetDiffuseMap(const TextureHandle& diffuseMap);
 
 			auto GetDiffuseColor() const -> const Vec4& { return m_DiffuseColor; }
 			void SetDiffuseColor(const Vec4& color) { m_DiffuseColor = color; }
 
-			auto GetSpecularMap() const-> const TextureHandle& { return m_SpecularMap; };
-			void SetSpecularMap(const TextureHandle specularMap);
+			auto GetSpecularMap() const -> const TextureHandle& { return m_SpecularMap; }
+			void SetSpecularMap(const TextureHandle& specularMap);
 
 			auto GetSpecular() const -> const float& { return m_Specular; }
 			void SetSpecular(const float& specular) { m_Specular = specular; }
@@ -42,8 +45,8 @@ namespace Arg
 			auto GetShininess() const -> const float& { return m_Shininess; }
 			void SetShininess(const float& shininess) { m_Shininess = shininess; }
 
-			auto GetReflectivityMap() const-> const TextureHandle& { return m_ReflectivityMap; };
-			void SetReflectivityMap(const TextureHandle reflectivityMap);
+			auto GetReflectivityMap() const -> const TextureHandle& { return m_ReflectivityMap; }
+			void SetReflectivityMap(const TextureHandle& reflectivityMap);
 
 			auto GetReflectivity() const -> const float& { return m_Reflectivity; }
 			void SetReflectivity(const float& reflectivity) { m_Reflectivity = reflectivity; }
@@ -57,7 +60,8 @@ namespace Arg
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;
 
 		private:
-			Content::ResourceCache* m_pResourceCache = nullptr;
+			Content::Resource* m_pResource = nullptr;
+			//Content::ResourceCache* m_pResourceCache = nullptr;
 
 			TextureHandle m_DiffuseMap;
 			Vec4 m_DiffuseColor = Vec4(1.0f);

@@ -27,16 +27,19 @@ void Arg::Gameplay::StaticModelComponent::VRender(
 	{
 		const auto& staticModel = m_StaticModel.Get()->GetStaticModel();
 		const auto& transform = GetOwner()->GetTransform();
-		std::shared_ptr<Renderer::Material> material = nullptr;
-		if (!m_Materials.empty() && m_Materials[0].IsValid())
+
+		std::vector<Renderer::Material*> materials(m_Materials.size());
+		for (size_t i = 0; i < m_Materials.size(); i++)
 		{
-			material = m_Materials[0].Get()->GetMaterial();
+			materials[i] = m_Materials[i].IsValid()
+				               ? m_Materials[i].Get()->GetMaterial().get()
+				               : nullptr;
 		}
 
 		context.DrawModel(
 			staticModel,
 			transform,
-			material,
+			materials,
 			m_bReceiveShadows,
 			m_bCastShadows
 		);
@@ -105,7 +108,13 @@ void Arg::Gameplay::StaticModelComponent::SetStaticModel(
 	}
 }
 
-void Arg::Gameplay::StaticModelComponent::SetMaterial(const size_t index, const MaterialHandle& material)
+auto Arg::Gameplay::StaticModelComponent::GetMaterial(size_t index) const -> const MaterialHandle&
+{
+	ARG_ASSERT(index < m_Materials.size(), "Index out of range!");
+	return m_Materials[index];
+}
+
+void Arg::Gameplay::StaticModelComponent::SetMaterial(size_t index, const MaterialHandle& material)
 {
 	if (m_Materials[index].IsValid())
 	{
@@ -120,12 +129,12 @@ void Arg::Gameplay::StaticModelComponent::SetMaterial(const size_t index, const 
 	}
 }
 
-void Arg::Gameplay::StaticModelComponent::SetReceiveShadows(const bool bReceiveShadows)
+void Arg::Gameplay::StaticModelComponent::SetReceiveShadows(bool bReceiveShadows)
 {
 	m_bReceiveShadows = bReceiveShadows;
 }
 
-void Arg::Gameplay::StaticModelComponent::SetCastShadows(const bool bCastShadows)
+void Arg::Gameplay::StaticModelComponent::SetCastShadows(bool bCastShadows)
 {
 	m_bCastShadows = bCastShadows;
 }
@@ -169,6 +178,11 @@ auto Arg::Gameplay::StaticModelComponent::VOnDeserialize(
 			const GUID materialID = ValueOr<GUID>(materialsNode[i]["ID"], GUID::Empty);
 			m_Materials[i] = GetResourceCache()->CreateHandle<Content::MaterialResource>(materialID);
 		}
+	}
+	else
+	{
+		m_Materials = std::vector<MaterialHandle>(1);
+		m_Materials[0] = GetResourceCache()->CreateHandle<Content::MaterialResource>(GUID::Empty);
 	}
 
 	return true;

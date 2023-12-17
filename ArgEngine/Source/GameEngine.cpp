@@ -11,6 +11,24 @@ void Arg::GameEngine::Initialize(const std::shared_ptr<Content::ResourceCache>& 
 	Gameplay::GameWorld::SetGameEngine(this);
 }
 
+void Arg::GameEngine::Deinitialize()
+{
+	if (IsWorldLoaded())
+	{
+		if (m_WorldHandle.IsValid())
+		{
+			m_WorldHandle.FreeRef();
+		}
+
+		m_pLoadedWorld = nullptr;
+	}
+
+	m_ComponentRegistry.Clear();
+	m_pResourceCache = nullptr;
+	m_bIsPlaying = false;
+	m_GameTime = Gameplay::GameTime();
+}
+
 void Arg::GameEngine::LoadWorld(const std::string& worldName)
 {
 	if (IsWorldLoaded())

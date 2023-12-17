@@ -27,9 +27,6 @@ namespace Arg
 			auto GetName() const -> const std::string& { return m_Name; }
 			auto GetEditorMap() const -> const std::string& { return m_EditorMap; }
 
-			auto Create(
-				const std::filesystem::path& projectFile
-			) -> bool;
 			auto Open(
 				const std::filesystem::path& projectFile
 			) -> bool;

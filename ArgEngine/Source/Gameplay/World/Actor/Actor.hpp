@@ -37,6 +37,7 @@ namespace Arg
 			auto RemoveComponent() -> bool;
 
 			auto GetComponentCount() const -> size_t;
+			auto HasComponent(const GUID& componentID) const -> bool;
 			auto GetComponent(const GUID& componentID) -> std::shared_ptr<ActorComponent>&;
 			auto GetComponentByIndex(const size_t index) -> std::shared_ptr<ActorComponent>&;
 			auto AddComponent(const std::shared_ptr<ActorComponent>& component) -> bool;
@@ -103,21 +104,21 @@ namespace Arg
 		};
 
 		template <typename TComponentType>
-		auto Arg::Gameplay::Actor::GetComponent() -> std::shared_ptr<TComponentType>&
+		auto Actor::GetComponent() -> std::shared_ptr<TComponentType>&
 		{
 			const GUID componentID = TComponentType::GetID();
 			return GetComponent(componentID);
 		}
 
 		template <typename TComponentType>
-		auto Arg::Gameplay::Actor::AddComponent() -> bool
+		auto Actor::AddComponent() -> bool
 		{
 			const std::shared_ptr<ActorComponent> component = TComponentType::CreateDefault();
 			return AddComponent(component);
 		}
 
 		template <typename TComponentType>
-		auto Arg::Gameplay::Actor::RemoveComponent() -> bool
+		auto Actor::RemoveComponent() -> bool
 		{
 			const GUID componentID = TComponentType::COMPONENT_ID;
 			return RemoveComponent(componentID);

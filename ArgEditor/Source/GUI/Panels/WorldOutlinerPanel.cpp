@@ -28,6 +28,14 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 	auto& pResourceCache = pEditor->GetResourceCache();
 	auto& pGameEngine = pEditor->GetGameEngine();
 
+	if (!pGameEngine->IsWorldLoaded())
+	{
+		ImGui::Text("No world opened!");
+		return;
+	}
+
+	auto& pWorld = pGameEngine->GetLoadedWorld();
+
 	const auto& worldTexture = m_WorldTexture.Get()->GetTexture();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -65,6 +73,19 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 			if (isHeaderOpen)
 			{
 				DrawActorTree(context, pRootActor, 0);
+			}
+		}
+	}
+
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+	{
+		if (const ImGuiPayload* payload = ImGui::GetDragDropPayload())
+		{
+			if (payload->IsDataType("Actor"))
+			{
+				const GUID droppedActorID = *((GUID*)payload->Data);
+				Gameplay::Actor& actor = pWorld->GetActor(droppedActorID);
+				pWorld->ReparentActor(actor, pWorld->GetRootActor());
 			}
 		}
 	}

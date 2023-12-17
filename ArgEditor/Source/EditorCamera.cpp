@@ -101,6 +101,13 @@ void Arg::Editor::EditorCamera::Update(
 	}
 }
 
+void Arg::Editor::EditorCamera::Reset()
+{
+	Cancel();
+	m_pCamera = std::make_shared<Renderer::PerspectiveCamera>();
+	m_pCamera->SetPosition(Vec3(-10.0f, 0.0f, 0.0f));
+}
+
 void Arg::Editor::EditorCamera::Cancel()
 {
 	m_bLookWithMouse = false;

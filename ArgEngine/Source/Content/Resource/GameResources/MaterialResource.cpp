@@ -14,7 +14,7 @@ auto Arg::Content::MaterialResource::GetResourceFileExtension() const -> const s
 
 void Arg::Content::MaterialResource::VPreLoad()
 {
-	m_pMaterial = std::make_shared<Renderer::Material>(GetResourceCache());
+	m_pMaterial = std::make_shared<Renderer::Material>(GetResource().get());
 }
 
 auto Arg::Content::MaterialResource::VGetSerializableData() const->ISerializable*

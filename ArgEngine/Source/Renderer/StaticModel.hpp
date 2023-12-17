@@ -32,14 +32,15 @@ namespace Arg
 		public:
 			StaticModel() = default;
 			StaticModel(const StaticModel&) = delete;
+			~StaticModel() = default;
 
 			auto GetMeshCount() const -> size_t { return m_Meshes.size(); }
-			auto GetMesh(const size_t meshIndex)const -> const std::shared_ptr<StaticMesh>&;
+			auto GetMesh(size_t meshIndex) const -> const std::shared_ptr<StaticMesh>&;
 
 			auto GetMaterialCount() const -> size_t { return m_Spec.MaterialIndices.size(); }
-			auto GetMaterialIndex(const size_t meshIndex) const->int32_t;
-			auto GetVertexCount(const size_t meshIndex) const->size_t;
-			auto GetIndexCount(const size_t meshIndex) const->size_t;
+			auto GetMaterialIndex(size_t meshIndex) const -> int32_t;
+			auto GetVertexCount(size_t meshIndex) const -> size_t;
+			auto GetIndexCount(size_t meshIndex) const -> size_t;
 
 			void SetData(const StaticModelData& data);
 

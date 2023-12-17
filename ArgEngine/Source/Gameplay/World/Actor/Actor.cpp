@@ -20,14 +20,20 @@ auto Arg::Gameplay::Actor::GetComponentCount() const -> size_t
 	return m_Components.size();
 }
 
+auto Arg::Gameplay::Actor::HasComponent(const GUID& componentID) const -> bool
+{
+	return m_ComponentsRegistry.contains(componentID);
+}
+
 auto Arg::Gameplay::Actor::GetComponent(const GUID& componentID) -> std::shared_ptr<ActorComponent>&
 {
+	ARG_ASSERT(m_ComponentsRegistry.contains(componentID), "Actor does not have a component of type specified!");
 	return m_ComponentsRegistry.at(componentID);
 }
 
 auto Arg::Gameplay::Actor::GetComponentByIndex(const size_t index) -> std::shared_ptr<ActorComponent>&
 {
-	ARG_ASSERT(index >= 0 && index < m_Components.size(), "Index out of range!");
+	ARG_ASSERT(index < m_Components.size(), "Index out of range!");
 	return m_Components[index];
 }
 
@@ -121,10 +127,6 @@ void Arg::Gameplay::Actor::UpdateTransform(const Mat4& parentTransform)
 void Arg::Gameplay::Actor::ReparentTransform(const Actor& newParentActor)
 {
 	const Mat4 newParentTransform = newParentActor.m_GlobalTransform;
-	// Vec3 newParentTranslation, newParentRotation, newParentScale;
-	// Math::Decompose(newParentTransform, newParentTranslation, newParentRotation, newParentScale);
-	// Math::Decompose(m_GlobalTransform, translation, rotation, scale);
-
 	Vec3 translation, rotation, scale;
 	const Mat4 newLocalTransform = Math::inverse(newParentTransform) * m_GlobalTransform;
 	Math::Decompose(newLocalTransform, translation, rotation, scale);

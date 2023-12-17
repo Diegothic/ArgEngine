@@ -28,6 +28,7 @@ namespace Arg
 				const Input::Input& input
 			);
 
+			void Reset();
 			void Cancel();
 
 		private:

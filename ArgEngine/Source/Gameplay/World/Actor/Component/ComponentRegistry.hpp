@@ -2,6 +2,7 @@
 
 #include <arg_pch.hpp>
 
+#include "Core/GUID.hpp"
 #include "ActorComponent.hpp"
 
 namespace Arg
@@ -15,7 +16,11 @@ namespace Arg
 			auto CreateComponent(
 				const std::string& componentID
 			) const->std::shared_ptr<ActorComponent>;
+			auto CreateComponent(
+				const GUID& componentID
+			) const->std::shared_ptr<ActorComponent>;
 
+			void Clear();
 			void RegisterComponents();
 
 		private:
