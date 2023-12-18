@@ -49,7 +49,7 @@ auto Arg::Gameplay::GameWorld::CreateActor(Actor& parentActor) -> GUID
 	const GUID newActorID = GenerateID();
 	const auto& newActor = m_Actors.emplace_back(std::make_unique<Actor>(newActorID, this));
 	m_ActorsRegistry[newActorID] = newActor.get();
-	
+
 	newActor->SetParentActor(&parentActor);
 	parentActor.AddChildActor(newActor.get());
 
@@ -58,24 +58,24 @@ auto Arg::Gameplay::GameWorld::CreateActor(Actor& parentActor) -> GUID
 
 void Arg::Gameplay::GameWorld::DestroyActor(Actor& actor)
 {
-	 Actor* parentActor = actor.GetParentActor();
-	 for (size_t i = actor.GetChildActorsCount(); i > 0; i--)
-	 {
-	 	ReparentActor(*actor.GetChildActor(i - 1), *parentActor);
-	 }
-	
-	 parentActor->RemoveChildActor(&actor);
-	 actor.Destroy();
-	
-	 const GUID actorID = actor.GetID();
-	 ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
-	 m_ActorsRegistry.erase(actorID);
-	
-	 const auto it = std::ranges::find_if(m_Actors, [&](const std::unique_ptr<Actor>& pActor)
-	 {
-	 	return pActor->GetID() == actorID;
-	 });
-	 ARG_ASSERT(it != m_Actors.end(), "Invalid Actor!");
+	Actor* parentActor = actor.GetParentActor();
+	for (size_t i = actor.GetChildActorsCount(); i > 0; i--)
+	{
+		ReparentActor(*actor.GetChildActor(i - 1), *parentActor);
+	}
+
+	parentActor->RemoveChildActor(&actor);
+	actor.Destroy();
+
+	const GUID actorID = actor.GetID();
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	m_ActorsRegistry.erase(actorID);
+
+	const auto it = std::ranges::find_if(m_Actors, [&](const std::unique_ptr<Actor>& pActor)
+	{
+		return pActor->GetID() == actorID;
+	});
+	ARG_ASSERT(it != m_Actors.end(), "Invalid Actor!");
 	m_Actors.erase(it);
 }
 
@@ -117,13 +117,13 @@ void Arg::Gameplay::GameWorld::ClearGarbage()
 	actorsToDestroy.reserve(m_Actors.size());
 	for (const auto& actor : m_Actors)
 	{
-		if(actor->IsMarkedForDestruction())
+		if (actor->IsMarkedForDestruction())
 		{
 			actorsToDestroy.push_back(actor->GetID());
 		}
 	}
 
-	for(const auto& actorID : actorsToDestroy)
+	for (const auto& actorID : actorsToDestroy)
 	{
 		Actor& actor = GetActor(actorID);
 		DestroyActor(actor);
@@ -132,6 +132,47 @@ void Arg::Gameplay::GameWorld::ClearGarbage()
 
 auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 {
+	auto header = node["World"];
+
+	header["Name"] = m_Name;
+	header["LastGeneratedID"] = m_IDGenerator.GetSeed();
+
+	auto actorsNode = header["Actors"];
+	actorsNode.reset();
+	for (const auto& actor : m_Actors)
+	{
+		YAML::Node actorNode;
+		if (actor->Serialize(actorNode))
+		{
+			actorsNode.push_back(actorNode);
+		}
+	}
+
+	header["Actors"] = actorsNode;
+
+	auto actorRelationsNode = header["ActorRelations"];
+	actorRelationsNode.reset();
+	for (size_t i = 0; i < m_pRootActor->GetChildActorsCount(); i++)
+	{
+		YAML::Node relationNode;
+		relationNode["ParentID"] = m_pRootActor->GetID();
+		relationNode["ChildID"] = m_pRootActor->GetChildActor(i)->GetID();
+		actorRelationsNode.push_back(relationNode);
+	}
+
+	for (const auto& actor : m_Actors)
+	{
+		for (size_t i = 0; i < actor->GetChildActorsCount(); i++)
+		{
+			YAML::Node relationNode;
+			relationNode["ParentID"] = actor->GetID();
+			relationNode["ChildID"] = actor->GetChildActor(i)->GetID();
+			actorRelationsNode.push_back(relationNode);
+		}
+	}
+
+	header["ActorRelations"] = actorRelationsNode;
+
 	return true;
 }
 
@@ -149,13 +190,14 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 	m_IDGenerator.SetSeed(lastGeneratedID);
 
 	m_ActorsRegistry.clear();
+	m_Actors.clear();
 	m_pRootActor->ClearChildActors();
-	const auto& actors = header["Actors"];
-	if (actors)
+	const auto& actorsNode = header["Actors"];
+	if (actorsNode)
 	{
-		for (size_t i = 0; i < actors.size(); i++)
+		for (size_t i = 0; i < actorsNode.size(); i++)
 		{
-			const auto& actorNode = actors[i];
+			const auto& actorNode = actorsNode[i];
 			auto& actor = m_Actors.emplace_back(std::make_unique<Actor>(GUID::Empty, this));
 			actor->Deserialize(actorNode);
 
@@ -170,15 +212,15 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 		}
 	}
 
-	const auto& actorsRelations = header["ActorRelations"];
-	if (actorsRelations)
+	const auto& actorsRelationsNode = header["ActorRelations"];
+	if (actorsRelationsNode)
 	{
-		for (size_t i = 0; i < actorsRelations.size(); i++)
+		for (size_t i = 0; i < actorsRelationsNode.size(); i++)
 		{
-			const auto& relationNode = actorsRelations[i];
+			const auto& relationNode = actorsRelationsNode[i];
 			const GUID parentID = ValueOr<GUID>(relationNode["ParentID"], GUID::Empty);
 			const GUID childID = ValueOr<GUID>(relationNode["ChildID"], GUID::Empty);
-			if(childID == GUID::Empty)
+			if (childID == GUID::Empty)
 			{
 				ARG_CONSOLE_LOG_WARN("Invalid actor relation [%llu] for map %s", i, m_Name.c_str());
 				continue;

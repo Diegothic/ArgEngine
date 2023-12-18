@@ -18,7 +18,7 @@ namespace Arg
 		class Actor : public Content::YamlSerializable
 		{
 		public:
-			Actor(const GUID ID, GameWorld* world);
+			Actor(GUID ID, GameWorld* world);
 			virtual ~Actor() = default;
 
 			auto operator==(const Actor& other) const { return m_ID == other.m_ID; }

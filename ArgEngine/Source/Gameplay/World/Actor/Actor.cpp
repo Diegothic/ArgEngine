@@ -5,7 +5,7 @@
 
 #include "Gameplay/World/GameWorld.hpp"
 
-Arg::Gameplay::Actor::Actor(const GUID ID, GameWorld* world)
+Arg::Gameplay::Actor::Actor(GUID ID, GameWorld* world)
 	: m_ID(ID), m_pWorld(world)
 {
 }
@@ -304,9 +304,24 @@ auto Arg::Gameplay::Actor::VOnSerialize(YAML::Node& node) const -> bool
 {
 	node["ID"] = m_ID;
 	node["Name"] = m_Name;
+
 	node["Transform"]["Position"] = GetLocalPosition();
 	node["Transform"]["Rotation"] = GetLocalRotation();
 	node["Transform"]["Scale"] = GetLocalScale();
+
+	auto componentsNode = node["Components"];
+	componentsNode.reset();
+	for (const auto& component : m_Components)
+	{
+		YAML::Node componentNode;
+		componentNode["ID"] = component->VGetName();
+		if (component->Serialize(componentNode))
+		{
+			componentsNode.push_back(componentNode);
+		}
+	}
+
+	node["Components"] = componentsNode;
 
 	return true;
 }

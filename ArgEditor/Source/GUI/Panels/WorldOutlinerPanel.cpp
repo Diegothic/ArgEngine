@@ -43,37 +43,39 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 	ImGui::PopStyleVar();
 	if (isOpen)
 	{
-		if (pGameEngine->IsWorldLoaded())
+		Gameplay::Actor* pRootActor = &pWorld->GetRootActor();
+		const bool isHeaderOpen = ImGui::CollapsingHeader(
+			"##WorldHeader",
+			ImGuiTreeNodeFlags_DefaultOpen
+			| ImGuiTreeNodeFlags_OpenOnArrow
+			| ImGuiTreeNodeFlags_OpenOnDoubleClick
+			| ImGuiTreeNodeFlags_FramePadding
+			| ImGuiTreeNodeFlags_AllowOverlap
+		);
+
+		ImGui::SameLine(28.0f);
+		ImGui::SetCursorPosY(28.0f);
+		const uint32_t imageID = worldTexture->GetRendererID();
+		ImGui::Image(
+			(void*)(intptr_t)imageID,
+			ImVec2(16.0f, 16.0f),
+			ImVec2(0.0f, 1.0f),
+			ImVec2(1.0f, 0.0f)
+		);
+		ImGui::SameLine(50.0f);
+		ImGui::Text(pWorld->GetName().c_str());
+
+		ImGui::SameLine(ImGui::GetWindowSize().x - 100.0f);
+		if (ImGui::Button("New Actor", ImVec2(80.0f, 24.0f)))
 		{
-			const auto& world = pGameEngine->GetLoadedWorld();
-			Gameplay::Actor* pRootActor = &world->GetRootActor();
-			const bool isHeaderOpen = ImGui::CollapsingHeader("##WorldHeader",
-			                                                  ImGuiTreeNodeFlags_DefaultOpen
-			                                                  | ImGuiTreeNodeFlags_OpenOnArrow
-			                                                  | ImGuiTreeNodeFlags_OpenOnDoubleClick
-			                                                  | ImGuiTreeNodeFlags_FramePadding
-			                                                  | ImGuiTreeNodeFlags_AllowOverlap
-			);
+			const GUID newActorID = pWorld->CreateActor();
+			Gameplay::Actor& newActor = pWorld->GetActor(newActorID);
+			newActor.SetName("New Actor");
+		}
 
-			ImGui::SameLine(28.0f);
-			ImGui::SetCursorPosY(28.0f);
-			const uint32_t imageID = worldTexture->GetRendererID();
-			ImGui::Image((void*)(intptr_t)imageID, ImVec2(16.0f, 16.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f));
-			ImGui::SameLine(50.0f);
-			ImGui::Text(world->GetName().c_str());
-
-			ImGui::SameLine(ImGui::GetWindowSize().x - 100.0f);
-			if (ImGui::Button("New Actor", ImVec2(80.0f, 24.0f)))
-			{
-				const GUID newActorID = world->CreateActor();
-				Gameplay::Actor& newActor = world->GetActor(newActorID);
-				newActor.SetName("New Actor");
-			}
-
-			if (isHeaderOpen)
-			{
-				DrawActorTree(context, pRootActor, 0);
-			}
+		if (isHeaderOpen)
+		{
+			DrawActorTree(context, pRootActor, 0);
 		}
 	}
 

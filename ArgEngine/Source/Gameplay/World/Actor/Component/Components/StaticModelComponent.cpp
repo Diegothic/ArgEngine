@@ -150,6 +150,16 @@ auto Arg::Gameplay::StaticModelComponent::VOnSerialize(
 	}
 
 	node["ModelID"] = m_StaticModel.GetID();
+	auto materialsNode = node["Materials"];
+	materialsNode.reset();
+	for (const auto& material : m_Materials)
+	{
+		YAML::Node materialNode;
+		materialNode["ID"] = material.GetID();
+		materialsNode.push_back(materialNode);
+	}
+
+	node["Materials"] = materialsNode;
 
 	return true;
 }
