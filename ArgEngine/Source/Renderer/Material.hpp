@@ -61,7 +61,6 @@ namespace Arg
 
 		private:
 			Content::Resource* m_pResource = nullptr;
-			//Content::ResourceCache* m_pResourceCache = nullptr;
 
 			TextureHandle m_DiffuseMap;
 			Vec4 m_DiffuseColor = Vec4(1.0f);

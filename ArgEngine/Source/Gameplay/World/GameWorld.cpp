@@ -6,8 +6,9 @@
 
 Arg::GameEngine* Arg::Gameplay::GameWorld::s_pEngine = nullptr;
 
-Arg::Gameplay::GameWorld::GameWorld()
+Arg::Gameplay::GameWorld::GameWorld(Content::Resource* pResource)
 {
+	m_pResource = pResource;
 	m_pRootActor = std::make_unique<Actor>(GUID::Empty, this);
 }
 
@@ -18,7 +19,6 @@ void Arg::Gameplay::GameWorld::Create()
 
 void Arg::Gameplay::GameWorld::Initialize(const GameContext& context)
 {
-	m_pResources = context.Resources;
 	m_pComponents = context.Components;
 }
 
@@ -134,7 +134,6 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 {
 	auto header = node["World"];
 
-	header["Name"] = m_Name;
 	header["LastGeneratedID"] = m_IDGenerator.GetSeed();
 
 	auto actorsNode = header["Actors"];
@@ -184,8 +183,6 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 		return false;
 	}
 
-	m_Name = ValueOr<std::string>(header["Name"], "Default");
-
 	const auto lastGeneratedID = ValueOr<uint64_t>(header["LastGeneratedID"], 0);
 	m_IDGenerator.SetSeed(lastGeneratedID);
 
@@ -222,7 +219,7 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 			const GUID childID = ValueOr<GUID>(relationNode["ChildID"], GUID::Empty);
 			if (childID == GUID::Empty)
 			{
-				ARG_CONSOLE_LOG_WARN("Invalid actor relation [%llu] for map %s", i, m_Name.c_str());
+				ARG_CONSOLE_LOG_WARN("Invalid actor relation [%llu] for map %s", i, GetName().c_str());
 				continue;
 			}
 

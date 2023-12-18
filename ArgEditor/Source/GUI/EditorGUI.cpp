@@ -12,7 +12,6 @@
 Arg::Editor::GUI::EditorGUI::EditorGUI(const EditorGUISpec& spec)
 	: m_ConfigFile(spec.ConfigFile.string())
 {
-
 }
 
 void Arg::Editor::GUI::EditorGUI::Initialize(
@@ -139,21 +138,75 @@ void Arg::Editor::GUI::EditorGUI::StyleColors()
 void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 {
 	Editor* pEditor = context.pEditor;
-	auto& pProject = pEditor->GetProject();
-	auto& pGameEngine = pEditor->GetGameEngine();
-	std::shared_ptr<Window>& pWindow = pEditor->GetWindow();
 
+	std::shared_ptr<Window>& pWindow = pEditor->GetWindow();
 	const Vec2i viewportSize = Vec2i(pWindow->GetWidth(), pWindow->GetHeight());
 
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	if (ImGui::BeginMainMenuBar())
+	if (!pEditor->IsProjectOpened())
 	{
-		if (ImGui::BeginMenu("Project"))
+		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+		ImGui::SetNextWindowSize(ImVec2(
+			static_cast<float>(viewportSize.x),
+			static_cast<float>(viewportSize.y)
+		));
+		const bool isWelcomeOpen = ImGui::Begin(
+			"Welcome",
+			nullptr,
+			ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoCollapse
+			| ImGuiWindowFlags_NoBringToFrontOnFocus
+			| ImGuiWindowFlags_NoTitleBar
+			| ImGuiWindowFlags_NoSavedSettings
+		);
+
+		if (isWelcomeOpen)
 		{
-			if (ImGui::MenuItem("Open"))
+			ImVec2 center = ImVec2(pWindow->GetWidth() / 2.0f, pWindow->GetHeight() / 2.0f);
+
+			std::string text("Open or Create a Project to continue");
+			ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+			ImGui::SetCursorPos(ImVec2(center.x, center.y - 150.0f));
+			ImGui::Text(text.c_str());
+
+			ImGui::SetCursorPos(ImVec2(center.x - 125.0f, center.y - 100.0f));
+			if (ImGui::Button("Create Project", ImVec2(200.0f, 200.0f)))
+			{
+				std::filesystem::path path;
+				const bool isSuccess = Dialog::FileOpenDialog::GetDirectory(path);
+				if (isSuccess
+					&& std::filesystem::is_directory(path)
+					&& std::filesystem::is_empty(path))
+				{
+					pEditor->CreateProject(path);
+
+					std::string directoryName = path.filename().string();
+					std::filesystem::path settingsFile = path / directoryName;
+					settingsFile.replace_extension(".aproj");
+					pEditor->OpenProject(settingsFile);
+				}
+				else if (!std::filesystem::is_empty(path))
+				{
+					Dialog::MessageBoxDialog::ShowError(
+						"Directory is not empty!",
+						"Failed to create a project!"
+					);
+				}
+				else
+				{
+					Dialog::MessageBoxDialog::ShowError(
+						"Invalid project directory.",
+						"Failed to create a project!"
+					);
+				}
+			}
+
+			ImGui::SetCursorPos(ImVec2(center.x + 125.0f, center.y - 100.0f));
+			if (ImGui::Button("Open Project", ImVec2(200.0f, 200.0f)))
 			{
 				std::filesystem::path path;
 				const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
@@ -173,213 +226,280 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					);
 				}
 			}
-
-			if (ImGui::MenuItem("Save"))
-			{
-				pProject->Save();
-			}
-
-			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Window"))
-		{
-			if (ImGui::MenuItem("Editor View"))
-			{
-
-			}
-
-			if (ImGui::MenuItem("Game View"))
-			{
-
-			}
-
-			if (ImGui::MenuItem("Content Browser"))
-			{
-				m_ContentBrowser.Open();
-			}
-
-			if (ImGui::MenuItem("World Outliner"))
-			{
-				m_WorldOutliner.Open();
-			}
-
-			if (ImGui::MenuItem("Details"))
-			{
-				m_Details.Open();
-			}
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMainMenuBar();
+		ImGui::End();
 	}
-
-	ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
-	ImGui::SetNextWindowSize(ImVec2(
-		static_cast<float>(viewportSize.x),
-		static_cast<float>(viewportSize.y) - ImGui::GetFrameHeight()
-	));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	const bool isOpen = ImGui::Begin(
-		"Viewport",
-		nullptr,
-		ImGuiWindowFlags_NoResize
-		| ImGuiWindowFlags_NoMove
-		| ImGuiWindowFlags_NoCollapse
-		| ImGuiWindowFlags_NoBringToFrontOnFocus
-		| ImGuiWindowFlags_NoTitleBar
-	);
-	ImGui::PopStyleVar();
-	if (isOpen)
+	else
 	{
-		static const ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
-		ImGuiID dockSpace = ImGui::GetID("EditorDockspace");
-		ImGui::DockSpace(dockSpace, ImVec2(0.0f, 0.0f), dockspaceFlags);
+		auto& pProject = pEditor->GetProject();
+		auto& pGameEngine = pEditor->GetGameEngine();
 
+		if (ImGui::BeginMainMenuBar())
 		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			const bool isOpen = ImGui::Begin("Editor");
-			ImGui::PopStyleVar();
-			if (isOpen)
+			if (ImGui::BeginMenu("Project"))
 			{
-
-				if (ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows))
+				if (ImGui::MenuItem("Open"))
 				{
-					if (!pEditor->IsCameraActive())
+					std::filesystem::path path;
+					const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
+					if (isSuccess
+						&& path.has_extension()
+						&& path.extension() == PROJECT_FILE_EXTENSION)
 					{
-						pEditor->SetCameraActive(true);
+						pEditor->DeselectActor();
+						pEditor->OpenProject(path);
+						m_ContentBrowser.Initialize(context);
+					}
+					else
+					{
+						Dialog::MessageBoxDialog::ShowError(
+							"Invalid project file.",
+							"Failed to open project!"
+						);
 					}
 				}
-				else
+
+				if (ImGui::MenuItem("Create"))
 				{
-					if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)
-						&& pEditor->IsCameraActive())
+					std::filesystem::path path;
+					const bool isSuccess = Dialog::FileOpenDialog::GetDirectory(path);
+					if (isSuccess
+						&& std::filesystem::is_directory(path)
+						&& std::filesystem::is_empty(path))
 					{
-						pEditor->SetCameraActive(false);
-						pEditor->GetCamera()->Cancel();
+						pEditor->CreateProject(path);
+
+						std::string directoryName = path.filename().string();
+						std::filesystem::path settingsFile = path / directoryName;
+						settingsFile.replace_extension(".aproj");
+						pEditor->OpenProject(settingsFile);
+					}
+					else if (!std::filesystem::is_empty(path))
+					{
+						Dialog::MessageBoxDialog::ShowError(
+							"Directory is not empty!",
+							"Failed to create a project!"
+						);
+					}
+					else
+					{
+						Dialog::MessageBoxDialog::ShowError(
+							"Invalid project directory.",
+							"Failed to create a project!"
+						);
 					}
 				}
 
-				const Vec2i windowViewportSize = Vec2i(
-					ImGui::GetWindowSize().x,
-					ImGui::GetWindowSize().y - ImGui::GetFrameHeight()
-				);
+				ImGui::Separator();
 
-				if (pEditor->GetEditorViewSize() != windowViewportSize)
+				if (ImGui::MenuItem("Save"))
 				{
-					pEditor->SetEditorViewSize(windowViewportSize);
+					pProject->Save();
 				}
 
-				ImGui::Image(
-					(void*)(intptr_t)pEditor->GetEditorViewRendererID(),
-					ImVec2(
-						static_cast<float>(windowViewportSize.x),
-						static_cast<float>(windowViewportSize.y)
-					),
-					ImVec2(0.0f, 1.0f),
-					ImVec2(1.0f, 0.0f)
-				);
-
-				const auto& pCamera = pEditor->GetCamera();
-
-				const float aspectRatio = (float)windowViewportSize.x / windowViewportSize.y;
-				const Mat4 view = pCamera->GetView();
-				const Mat4 proj = pCamera->GetProjection(1.0f);
-
-				const auto& camera = pCamera->GetCamera();
-
-				const Vec3 zPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(0.0f, 0.0f, 1.0f);
-				const Vec3 yPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(0.0f, 1.0f, 0.0f);
-				const Vec3 xPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(1.0f, 0.0f, 0.0f);
-
-				const Vec4 zPointT = proj * view * Vec4(zPoint, 1.0f);
-				const Vec2 zPointClip = Vec2(zPointT.x / zPointT.w, zPointT.y / zPointT.w);
-
-				const Vec4 yPointT = proj * view * Vec4(yPoint, 1.0f);
-				const Vec2 yPointClip = Vec2(yPointT.x / yPointT.w, yPointT.y / yPointT.w);
-
-				const Vec4 xPointT = proj * view * Vec4(xPoint, 1.0f);
-				const Vec2 xPointClip = Vec2(xPointT.x / xPointT.w, xPointT.y / xPointT.w);
-
-				ImVec2 orientationCenter = ImVec2(
-					ImGui::GetWindowPos().x + 40.0f,
-					ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40.0f
-				);
-
-				const ImVec2 xTextSize = ImGui::CalcTextSize("X");
-				ImGui::SetCursorScreenPos(ImVec2(
-					orientationCenter.x + 60.0f * xPointClip.x - xTextSize.x * 0.5f,
-					orientationCenter.y - 60.0f * xPointClip.y - xTextSize.y * 0.5f
-				));
-				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "X");
-
-				const ImVec2 yTextSize = ImGui::CalcTextSize("Y");
-				ImGui::SetCursorScreenPos(ImVec2(
-					orientationCenter.x + 60.0f * yPointClip.x - yTextSize.x * 0.5f,
-					orientationCenter.y - 60.0f * yPointClip.y - yTextSize.y * 0.5f
-				));
-				ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Y");
-
-				const ImVec2 zTextSize = ImGui::CalcTextSize("Z");
-				ImGui::SetCursorScreenPos(ImVec2(
-					orientationCenter.x + 60.0f * zPointClip.x - zTextSize.x * 0.5f,
-					orientationCenter.y - 60.0f * zPointClip.y - zTextSize.y * 0.5f
-				));
-				ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Z");
-
-				ImGui::GetForegroundDrawList()->AddLine(
-					orientationCenter,
-					ImVec2(
-						orientationCenter.x + 45.0f * xPointClip.x,
-						orientationCenter.y - 45.0f * xPointClip.y
-					),
-					0xFF0000FF,
-					2.0f
-				);
-
-
-				ImGui::GetForegroundDrawList()->AddLine(
-					orientationCenter,
-					ImVec2(
-						orientationCenter.x + 45.0f * yPointClip.x,
-						orientationCenter.y - 45.0f * yPointClip.y
-					),
-					0xFF00FF00,
-					2.0f
-				);
-
-				ImGui::GetForegroundDrawList()->AddLine(
-					orientationCenter,
-					ImVec2(
-						orientationCenter.x + 45.0f * zPointClip.x,
-						orientationCenter.y - 45.0f * zPointClip.y
-					),
-					0xFFFF0000,
-					2.0f
-				);
+				ImGui::EndMenu();
 			}
-			ImGui::End();
-		}
 
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-			const bool isOpen = ImGui::Begin("Game");
-			ImGui::PopStyleVar();
-			if (isOpen)
+			if (ImGui::BeginMenu("Window"))
 			{
+				if (ImGui::MenuItem("Editor View"))
+				{
+				}
 
+				if (ImGui::MenuItem("Game View"))
+				{
+				}
+
+				if (ImGui::MenuItem("Content Browser"))
+				{
+					m_ContentBrowser.Open();
+				}
+
+				if (ImGui::MenuItem("World Outliner"))
+				{
+					m_WorldOutliner.Open();
+				}
+
+				if (ImGui::MenuItem("Details"))
+				{
+					m_Details.Open();
+				}
+
+				ImGui::EndMenu();
 			}
-			ImGui::End();
+
+			ImGui::EndMainMenuBar();
 		}
 
-		m_ContentBrowser.Draw(context);
-		m_WorldOutliner.Draw(context);
-		m_Details.Draw(context);
-		m_ResourceDetails.Draw(context);
+		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
+		ImGui::SetNextWindowSize(ImVec2(
+			static_cast<float>(viewportSize.x),
+			static_cast<float>(viewportSize.y) - ImGui::GetFrameHeight()
+		));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		const bool isViewportOpen = ImGui::Begin(
+			"Viewport",
+			nullptr,
+			ImGuiWindowFlags_NoResize
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoCollapse
+			| ImGuiWindowFlags_NoBringToFrontOnFocus
+			| ImGuiWindowFlags_NoTitleBar
+			| ImGuiWindowFlags_NoSavedSettings
+		);
+		ImGui::PopStyleVar();
+		if (isViewportOpen)
+		{
+			static const ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
+			ImGuiID dockSpace = ImGui::GetID("EditorDockspace");
+			ImGui::DockSpace(dockSpace, ImVec2(0.0f, 0.0f), dockspaceFlags);
+
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+				const bool isEditorViewOpen = ImGui::Begin("Editor");
+				ImGui::PopStyleVar();
+				if (isEditorViewOpen)
+				{
+					if (ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows))
+					{
+						if (!pEditor->IsCameraActive())
+						{
+							pEditor->SetCameraActive(true);
+						}
+					}
+					else
+					{
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)
+							&& pEditor->IsCameraActive())
+						{
+							pEditor->SetCameraActive(false);
+							pEditor->GetCamera()->Cancel();
+						}
+					}
+
+					const Vec2i windowViewportSize = Vec2i(
+						ImGui::GetWindowSize().x,
+						ImGui::GetWindowSize().y - ImGui::GetFrameHeight()
+					);
+
+					if (pEditor->GetEditorViewSize() != windowViewportSize)
+					{
+						pEditor->SetEditorViewSize(windowViewportSize);
+					}
+
+					ImGui::Image(
+						(void*)(intptr_t)pEditor->GetEditorViewRendererID(),
+						ImVec2(
+							static_cast<float>(windowViewportSize.x),
+							static_cast<float>(windowViewportSize.y)
+						),
+						ImVec2(0.0f, 1.0f),
+						ImVec2(1.0f, 0.0f)
+					);
+
+					const auto& pCamera = pEditor->GetCamera();
+
+					const float aspectRatio = (float)windowViewportSize.x / windowViewportSize.y;
+					const Mat4 view = pCamera->GetView();
+					const Mat4 proj = pCamera->GetProjection(1.0f);
+
+					const auto& camera = pCamera->GetCamera();
+
+					const Vec3 zPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+						0.0f, 0.0f, 1.0f);
+					const Vec3 yPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+						0.0f, 1.0f, 0.0f);
+					const Vec3 xPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+						1.0f, 0.0f, 0.0f);
+
+					const Vec4 zPointT = proj * view * Vec4(zPoint, 1.0f);
+					const Vec2 zPointClip = Vec2(zPointT.x / zPointT.w, zPointT.y / zPointT.w);
+
+					const Vec4 yPointT = proj * view * Vec4(yPoint, 1.0f);
+					const Vec2 yPointClip = Vec2(yPointT.x / yPointT.w, yPointT.y / yPointT.w);
+
+					const Vec4 xPointT = proj * view * Vec4(xPoint, 1.0f);
+					const Vec2 xPointClip = Vec2(xPointT.x / xPointT.w, xPointT.y / xPointT.w);
+
+					ImVec2 orientationCenter = ImVec2(
+						ImGui::GetWindowPos().x + 40.0f,
+						ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40.0f
+					);
+
+					const ImVec2 xTextSize = ImGui::CalcTextSize("X");
+					ImGui::SetCursorScreenPos(ImVec2(
+						orientationCenter.x + 60.0f * xPointClip.x - xTextSize.x * 0.5f,
+						orientationCenter.y - 60.0f * xPointClip.y - xTextSize.y * 0.5f
+					));
+					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "X");
+
+					const ImVec2 yTextSize = ImGui::CalcTextSize("Y");
+					ImGui::SetCursorScreenPos(ImVec2(
+						orientationCenter.x + 60.0f * yPointClip.x - yTextSize.x * 0.5f,
+						orientationCenter.y - 60.0f * yPointClip.y - yTextSize.y * 0.5f
+					));
+					ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Y");
+
+					const ImVec2 zTextSize = ImGui::CalcTextSize("Z");
+					ImGui::SetCursorScreenPos(ImVec2(
+						orientationCenter.x + 60.0f * zPointClip.x - zTextSize.x * 0.5f,
+						orientationCenter.y - 60.0f * zPointClip.y - zTextSize.y * 0.5f
+					));
+					ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Z");
+
+					ImGui::GetForegroundDrawList()->AddLine(
+						orientationCenter,
+						ImVec2(
+							orientationCenter.x + 45.0f * xPointClip.x,
+							orientationCenter.y - 45.0f * xPointClip.y
+						),
+						0xFF0000FF,
+						2.0f
+					);
+
+
+					ImGui::GetForegroundDrawList()->AddLine(
+						orientationCenter,
+						ImVec2(
+							orientationCenter.x + 45.0f * yPointClip.x,
+							orientationCenter.y - 45.0f * yPointClip.y
+						),
+						0xFF00FF00,
+						2.0f
+					);
+
+					ImGui::GetForegroundDrawList()->AddLine(
+						orientationCenter,
+						ImVec2(
+							orientationCenter.x + 45.0f * zPointClip.x,
+							orientationCenter.y - 45.0f * zPointClip.y
+						),
+						0xFFFF0000,
+						2.0f
+					);
+				}
+				ImGui::End();
+			}
+
+			{
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+				const bool isGameViewOpen = ImGui::Begin("Game");
+				ImGui::PopStyleVar();
+				if (isGameViewOpen)
+				{
+				}
+				ImGui::End();
+			}
+
+			m_ContentBrowser.Draw(context);
+			m_WorldOutliner.Draw(context);
+			m_Details.Draw(context);
+			m_ResourceDetails.Draw(context);
+		}
+
+		ImGui::End();
 	}
-
-	ImGui::End();
 
 	ImGui::Render();
 }

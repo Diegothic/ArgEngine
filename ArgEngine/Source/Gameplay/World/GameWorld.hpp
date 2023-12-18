@@ -19,12 +19,14 @@ namespace Arg
 			static void SetGameEngine(GameEngine* pEngine) { s_pEngine = pEngine; }
 
 		public:
-			GameWorld();
+			GameWorld(Content::Resource* pResource);
+			GameWorld(const GameWorld&) = delete;
+			virtual ~GameWorld() = default;
 
 			void Create();
 			void Initialize(const GameContext& context);
 
-			auto GetName() const -> const std::string& { return m_Name; }
+			auto GetName() const -> const std::string& { return m_pResource->GetName(); }
 
 		public:
 			auto GetRootActor() const -> Actor&;
@@ -41,7 +43,7 @@ namespace Arg
 			void Render(Renderer::RenderContext& context);
 			void ClearGarbage();
 
-			auto GetResourceCache() const -> Content::ResourceCache* { return m_pResources; }
+			auto GetResourceCache() const -> Content::ResourceCache* { return m_pResource->GetResourceCache(); }
 			auto GetComponentRegistry() const -> ComponentRegistry* { return m_pComponents; }
 
 		protected:
@@ -55,13 +57,12 @@ namespace Arg
 			static GameEngine* s_pEngine;
 
 		private:
-			std::string m_Name = "Default";
+			Content::Resource* m_pResource = nullptr;
 
 			std::unique_ptr<Actor> m_pRootActor = nullptr;
 			std::vector<std::unique_ptr<Actor>> m_Actors;
 			std::unordered_map<GUID, Actor*> m_ActorsRegistry;
 
-			Content::ResourceCache* m_pResources = nullptr;
 			ComponentRegistry* m_pComponents = nullptr;
 
 			Random::Random m_IDGenerator;

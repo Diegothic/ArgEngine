@@ -31,26 +31,12 @@ void Arg::GameEngine::Deinitialize()
 
 void Arg::GameEngine::LoadWorld(const std::string& worldName)
 {
-	if (IsWorldLoaded())
-	{
-		if (m_WorldHandle.IsValid())
-		{
-			m_WorldHandle.FreeRef();
-		}
+	LoadWorld(m_pResourceCache->CreateHandle<Content::WorldResource>(worldName));
+}
 
-		m_pLoadedWorld = nullptr;
-	}
-
-	m_WorldHandle = m_pResourceCache->CreateHandle<Content::WorldResource>(worldName);
-	if (!m_WorldHandle.IsValid())
-	{
-		ARG_CONSOLE_LOG_ERR("Tried to load world that does not exist!");
-		m_pLoadedWorld = nullptr;
-		return;
-	}
-
-	m_WorldHandle.AddRef();
-	m_pLoadedWorld = m_WorldHandle.Get()->GetWorld();
+void Arg::GameEngine::LoadWorld(const GUID& worldID)
+{
+	LoadWorld(m_pResourceCache->CreateHandle<Content::WorldResource>(worldID));
 }
 
 void Arg::GameEngine::InitializeWorld(Gameplay::GameWorld* pWorld)
@@ -87,4 +73,28 @@ void Arg::GameEngine::ClearGarbage()
 	{
 		m_pLoadedWorld->ClearGarbage();
 	}
+}
+
+void Arg::GameEngine::LoadWorld(const WorldHandle& worldHandle)
+{
+	if (IsWorldLoaded())
+	{
+		if (m_WorldHandle.IsValid())
+		{
+			m_WorldHandle.FreeRef();
+		}
+
+		m_pLoadedWorld = nullptr;
+	}
+
+	m_WorldHandle = worldHandle;
+	if (!m_WorldHandle.IsValid())
+	{
+		ARG_CONSOLE_LOG_ERR("Tried to load world that does not exist!");
+		m_pLoadedWorld = nullptr;
+		return;
+	}
+
+	m_WorldHandle.AddRef();
+	m_pLoadedWorld = m_WorldHandle.Get()->GetWorld();
 }

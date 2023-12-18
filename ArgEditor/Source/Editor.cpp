@@ -242,6 +242,17 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	m_pProject->Save();
 }
 
+void Arg::Editor::Editor::CreateProject(const std::filesystem::path& destination)
+{
+	const std::string directoryName = destination.filename().string();
+	ProjectSettings projectSettings;
+	projectSettings.Name = directoryName;
+
+	std::filesystem::path settingsFile = destination / directoryName;
+	settingsFile.replace_extension(".aproj");
+	projectSettings.Serialize(settingsFile);
+}
+
 auto Arg::Editor::Editor::GetSelectedActor(Gameplay::Actor*& pOutActor) const -> bool
 {
 	if (m_pGameEngine->IsWorldLoaded())

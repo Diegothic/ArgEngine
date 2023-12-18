@@ -57,6 +57,7 @@ namespace Arg
 			void SetEditorViewSize(const Vec2i& size) const;
 
 			void OpenProject(const std::filesystem::path& projectFile);
+			void CreateProject(const std::filesystem::path& destination);
 
 			auto HasSelectedActor() const -> bool { return m_SelectedActorID != GUID::Empty; }
 			auto GetSelectedActor(Arg::Gameplay::Actor*& pOutActor) const -> bool;

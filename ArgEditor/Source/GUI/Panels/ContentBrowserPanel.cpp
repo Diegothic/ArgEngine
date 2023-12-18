@@ -62,29 +62,31 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 )
 {
 	Editor* pEditor = context.pEditor;
+	GameEngine* pGameEngine = pEditor->GetGameEngine().get();
 	const bool isProjectOpended = pEditor->IsProjectOpened();
 	auto& pResourceCache = isProjectOpended
-		? pEditor->GetProject()->GetResourceCache()
-		: pEditor->GetResourceCache();
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
 	auto& pContent = isProjectOpended
-		? pEditor->GetProject()->GetContent()
-		: pEditor->GetContent();
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
 
 	const auto& folderOpenTexture = m_FolderOpenTexture.Get()->GetTexture();
 	const auto& fileTexture = m_FileTexture.Get()->GetTexture();
 
 	if (ImGui::BeginTable(
-		"Content",
-		2,
-		ImGuiTableFlags_BordersInnerV
-		| ImGuiTableFlags_Resizable,
-		ImVec2(0.0f, ImGui::GetWindowSize().y - ImGui::GetFrameHeight()))
-		)
+			"Content",
+			2,
+			ImGuiTableFlags_BordersInnerV
+			| ImGuiTableFlags_Resizable,
+			ImVec2(0.0f, ImGui::GetWindowSize().y - ImGui::GetFrameHeight()))
+	)
 	{
 		if (ImGui::TableNextColumn())
 		{
 			const auto rootFolder = pContent->GetRootFolder();
-			const bool isOpen = ImGui::CollapsingHeader(rootFolder->GetName().c_str(),
+			const bool isOpen = ImGui::CollapsingHeader(
+				rootFolder->GetName().c_str(),
 				ImGuiTreeNodeFlags_DefaultOpen
 				| ImGuiTreeNodeFlags_OpenOnArrow
 				| ImGuiTreeNodeFlags_OpenOnDoubleClick
@@ -121,18 +123,21 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 				ImGuiCol_HeaderActive,
 				ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
 			);
-			const bool isOpen = ImGui::CollapsingHeader("##FolderHeader", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_AllowOverlap);
+			const bool isOpen = ImGui::CollapsingHeader("##FolderHeader",
+			                                            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf |
+			                                            ImGuiTreeNodeFlags_AllowOverlap);
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine(5.0f);
 			const uint32_t imageID = folderOpenTexture->GetRendererID();
-			ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+			ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
+			             ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 			ImGui::SameLine(35.0f);
 			ImGui::Text(m_pOpenedFolder->GetName().c_str());
 
 			const ImVec2 cursorPos = ImGui::GetCursorPos();
 			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 450.0f, cursorPos.y - 29.0f));
-			if (ImGui::Button("Import", ImVec2(100.0f, 24.0f)))
+			if (ImGui::Button("+ Import", ImVec2(100.0f, 24.0f)))
 			{
 				ImGui::OpenPopup(ImGui::GetID("##ImportContextMenu"));
 			}
@@ -150,8 +155,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 								|| path.extension() == ".jpg"
 								|| path.extension() == ".tga"
 								|| path.extension() == ".bmp"
-								)
 							)
+						)
 						{
 							const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
 							auto pathNoExtension = path;
@@ -185,7 +190,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 								m_pOpenedFolder
 							);
 
-							// TODO: Log/Show on status bar: Success
 							if (pEditor->IsProjectOpened())
 							{
 								auto& project = pEditor->GetProject();
@@ -211,8 +215,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 							&& (path.extension() == ".fbx"
 								|| path.extension() == ".gltf"
 								|| path.extension() == ".glb"
-								)
 							)
+						)
 						{
 							const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
 							auto pathNoExtension = path;
@@ -236,7 +240,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 							if (!bImported)
 							{
 								Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
-								// TODO: Log/Show on status bar: Fail
 							}
 
 							importer.Save(resourceName, currentFolderPath);
@@ -247,7 +250,6 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 								m_pOpenedFolder
 							);
 
-							// TODO: Log/Show on status bar: Success
 							if (pEditor->IsProjectOpened())
 							{
 								auto& project = pEditor->GetProject();
@@ -257,8 +259,50 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 						else
 						{
 							Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
-							// TODO: Log/Show on status bar: Fail
 						}
+					}
+				}
+
+				ImGui::EndPopup();
+			}
+
+			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 340.0f, cursorPos.y - 29.0f));
+			if (ImGui::Button("+ Create", ImVec2(100.0f, 24.0f)))
+			{
+				ImGui::OpenPopup(ImGui::GetID("##CreateContextMenu"));
+			}
+
+			if (ImGui::BeginPopupContextItem("##CreateContextMenu"))
+			{
+				if (ImGui::MenuItem("Map"))
+				{
+					auto resource = pContent->CreateResource(
+						"New Map",
+						Content::ResourceType::ResourceTypeWorld,
+						m_pOpenedFolder
+					);
+
+					if (pEditor->IsProjectOpened())
+					{
+						auto& project = pEditor->GetProject();
+						project->Save();
+					}
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Material"))
+				{
+					auto resource = pContent->CreateResource(
+						"New Material",
+						Content::ResourceType::ResourceTypeMaterial,
+						m_pOpenedFolder
+					);
+
+					if (pEditor->IsProjectOpened())
+					{
+						auto& project = pEditor->GetProject();
+						project->Save();
 					}
 				}
 
@@ -344,6 +388,19 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 						static GUID renamedResource;
 						if (ImGui::BeginPopupContextItem("##ResourceContextMenu"))
 						{
+							if (resource->GetType() == Content::ResourceType::ResourceTypeWorld)
+							{
+								if (ImGui::MenuItem("Open"))
+								{
+									pEditor->DeselectActor();
+									pEditor->DeselectResource();
+									pGameEngine->LoadWorld(resource->GetID());
+									pEditor->GetCamera()->Reset();
+								}
+
+								ImGui::Separator();
+							}
+
 							if (ImGui::MenuItem("Rename"))
 							{
 								isRenameResource = true;
@@ -360,20 +417,27 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 							ImGui::EndPopup();
 						}
 
-						const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f, cursorPos.y + itemSize.x * 0.10f);
+						const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
+						                               cursorPos.y + itemSize.x * 0.10f);
 						ImGui::SetCursorPos(imagePos);
 						const uint32_t imageID = fileTexture->GetRendererID();
-						ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+						ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
+						             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 
 						const auto textSize = ImGui::CalcTextSize(resourceName);
-						const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f), cursorPos.y + itemSize.x * 0.85f);
+						const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
+						                              cursorPos.y + itemSize.x * 0.85f);
 						ImGui::SetCursorPos(textPos);
 						if (isRenameResource && renamedResource == ID)
 						{
 							ImGui::SetKeyboardFocusHere();
 							char buffer[1024];
 							strcpy_s(buffer, resourceName);
-							ImGui::InputText("##FolderNewName", buffer, 1024, ImGuiInputTextFlags_CallbackAlways,
+							ImGui::InputText(
+								"##FolderNewName",
+								buffer,
+								1024,
+								ImGuiInputTextFlags_CallbackAlways,
 								[](ImGuiInputTextCallbackData* data) -> int32_t
 								{
 									if (data->BufTextLen < 1)
@@ -389,7 +453,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 									if (ImGui::IsKeyDown(ImGuiKey_Enter))
 									{
-										Content::ResourceCache* resourceCache = (Content::ResourceCache*)data->UserData;
+										Content::ResourceCache* resourceCache = (Content::ResourceCache*)
+											data->UserData;
 										const auto& resource = resourceCache->GetResource(renamedResource);
 										const std::string newName(data->Buf);
 										if (!std::filesystem::exists(resource->GetPath() / newName))
@@ -430,11 +495,11 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 	Editor* pEditor = context.pEditor;
 	const bool isProjectOpended = pEditor->IsProjectOpened();
 	auto& pResourceCache = isProjectOpended
-		? pEditor->GetProject()->GetResourceCache()
-		: pEditor->GetResourceCache();
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
 	auto& pContent = isProjectOpended
-		? pEditor->GetProject()->GetContent()
-		: pEditor->GetContent();
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
 
 	const auto& folderOpenTexture = m_FolderOpenTexture.Get()->GetTexture();
 	const auto& folderClosedTexture = m_FolderClosedTexture.Get()->GetTexture();
@@ -557,8 +622,11 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 		}
 
 		ImGui::SameLine(treeLevel * 20.0f + 30.0f);
-		const uint32_t imageID = (isOpen && !isLeaf) ? folderOpenTexture->GetRendererID() : folderClosedTexture->GetRendererID();
-		ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(folderColor.r, folderColor.g, folderColor.b, 1.0f));
+		const uint32_t imageID = (isOpen && !isLeaf)
+			                         ? folderOpenTexture->GetRendererID()
+			                         : folderClosedTexture->GetRendererID();
+		ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
+		             ImVec4(folderColor.r, folderColor.g, folderColor.b, 1.0f));
 		ImGui::SameLine(treeLevel * 20.0f + 30.0f + 35.0f);
 		static bool doRename = false;
 		static std::string newFolderName;
@@ -568,29 +636,29 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 			char buffer[1024];
 			strcpy_s(buffer, subfolder->GetName().c_str());
 			ImGui::InputText("##FolderNewName", buffer, 1024, ImGuiInputTextFlags_CallbackAlways,
-				[](ImGuiInputTextCallbackData* data) -> int32_t
-				{
-					if (data->BufTextLen < 1)
-					{
-						return 0;
-					}
+			                 [](ImGuiInputTextCallbackData* data) -> int32_t
+			                 {
+				                 if (data->BufTextLen < 1)
+				                 {
+					                 return 0;
+				                 }
 
-					if (ImGui::IsKeyDown(ImGuiKey_Escape))
-					{
-						isRename = false;
-						return 1;
-					}
+				                 if (ImGui::IsKeyDown(ImGuiKey_Escape))
+				                 {
+					                 isRename = false;
+					                 return 1;
+				                 }
 
-					if (ImGui::IsKeyDown(ImGuiKey_Enter))
-					{
-						newFolderName = data->Buf;
-						doRename = true;
-						isRename = false;
-						return 1;
-					}
+				                 if (ImGui::IsKeyDown(ImGuiKey_Enter))
+				                 {
+					                 newFolderName = data->Buf;
+					                 doRename = true;
+					                 isRename = false;
+					                 return 1;
+				                 }
 
-					return 0;
-				}
+				                 return 0;
+			                 }
 			);
 		}
 		else

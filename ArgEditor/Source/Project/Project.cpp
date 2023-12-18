@@ -35,7 +35,6 @@ auto Arg::Editor::Project::Open(
 		return false;
 	}
 
-
 	m_SettingsFile = projectFile;
 	m_RootDirectory = m_SettingsFile.parent_path();
 	m_Name = m_Settings.Name;

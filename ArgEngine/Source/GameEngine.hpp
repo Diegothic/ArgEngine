@@ -11,6 +11,8 @@
 
 namespace Arg
 {
+	using WorldHandle = Content::ResourceHandle<Content::WorldResource>;
+	
 	class GameEngine
 	{
 	public:
@@ -22,6 +24,7 @@ namespace Arg
 		void Deinitialize();
 
 		void LoadWorld(const std::string& worldName);
+		void LoadWorld(const GUID& worldID);
 
 		auto IsWorldLoaded() const -> bool { return m_pLoadedWorld != nullptr; }
 		auto GetLoadedWorld() -> std::shared_ptr<Gameplay::GameWorld>& { return m_pLoadedWorld; }
@@ -34,12 +37,15 @@ namespace Arg
 		void ClearGarbage();
 
 	private:
+		void LoadWorld(const WorldHandle& worldHandle);
+
+	private:
 		Gameplay::GameTime m_GameTime;
 		bool m_bIsPlaying = false;
 
 		std::shared_ptr<Content::ResourceCache> m_pResourceCache = nullptr;
 
-		Content::ResourceHandle<Content::WorldResource> m_WorldHandle;
+		WorldHandle m_WorldHandle;
 		std::shared_ptr<Gameplay::GameWorld> m_pLoadedWorld = nullptr;
 
 		Gameplay::ComponentRegistry m_ComponentRegistry;

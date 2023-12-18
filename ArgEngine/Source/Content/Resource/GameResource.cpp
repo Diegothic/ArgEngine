@@ -7,7 +7,6 @@
 Arg::Content::GameResource::GameResource(const std::shared_ptr<Resource>& resource)
 	: m_pResource(resource)
 {
-
 }
 
 void Arg::Content::GameResource::AddRef()
@@ -29,7 +28,7 @@ void Arg::Content::GameResource::FreeRef()
 	}
 }
 
-auto Arg::Content::GameResource::GetName() const-> const std::string&
+auto Arg::Content::GameResource::GetName() const -> const std::string&
 {
 	return m_pResource->GetName();
 }
@@ -37,7 +36,10 @@ auto Arg::Content::GameResource::GetName() const-> const std::string&
 void Arg::Content::GameResource::VRemoveFiles()
 {
 	const auto resourceFile = GetResourceFilePath();
-	std::filesystem::remove(resourceFile);
+	if (std::filesystem::exists(resourceFile))
+	{
+		std::filesystem::remove(resourceFile);
+	}
 }
 
 void Arg::Content::GameResource::VSaveFiles() const
@@ -58,10 +60,13 @@ void Arg::Content::GameResource::VRenameFiles(const std::string& name)
 	auto newResourceFile = GetResource()->GetPath() / name;
 	newResourceFile.replace_extension(GetResourceFileExtension());
 
-	std::filesystem::rename(
-		resourceFile,
-		newResourceFile
-	);
+	if (std::filesystem::exists(resourceFile))
+	{
+		std::filesystem::rename(
+			resourceFile,
+			newResourceFile
+		);
+	}
 }
 
 void Arg::Content::GameResource::VMoveFiles(const std::filesystem::path& destination)
