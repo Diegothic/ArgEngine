@@ -170,10 +170,10 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 
 			std::string text("Open or Create a Project to continue");
 			ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-			ImGui::SetCursorPos(ImVec2(center.x, center.y - 150.0f));
+			ImGui::SetCursorPos(ImVec2(center.x - (textSize.x * 0.5f), center.y - 150.0f));
 			ImGui::Text(text.c_str());
 
-			ImGui::SetCursorPos(ImVec2(center.x - 125.0f, center.y - 100.0f));
+			ImGui::SetCursorPos(ImVec2(center.x - 225.0f, center.y - 100.0f));
 			if (ImGui::Button("Create Project", ImVec2(200.0f, 200.0f)))
 			{
 				std::filesystem::path path;
@@ -205,7 +205,7 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 				}
 			}
 
-			ImGui::SetCursorPos(ImVec2(center.x + 125.0f, center.y - 100.0f));
+			ImGui::SetCursorPos(ImVec2(center.x + 25.0f, center.y - 100.0f));
 			if (ImGui::Button("Open Project", ImVec2(200.0f, 200.0f)))
 			{
 				std::filesystem::path path;
@@ -303,14 +303,6 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 
 			if (ImGui::BeginMenu("Window"))
 			{
-				if (ImGui::MenuItem("Editor View"))
-				{
-				}
-
-				if (ImGui::MenuItem("Game View"))
-				{
-				}
-
 				if (ImGui::MenuItem("Content Browser"))
 				{
 					m_ContentBrowser.Open();
@@ -326,16 +318,93 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					m_Details.Open();
 				}
 
+				if (ImGui::MenuItem("Resource"))
+				{
+					m_ResourceDetails.Open();
+				}
+
 				ImGui::EndMenu();
 			}
 
 			ImGui::EndMainMenuBar();
 		}
 
-		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
+		{
+			ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight()));
+			ImGui::SetNextWindowSize(ImVec2(
+				static_cast<float>(viewportSize.x),
+				50.0f
+			));
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+			ImGui::Begin(
+				"ToolBar",
+				nullptr,
+				ImGuiWindowFlags_NoResize
+				| ImGuiWindowFlags_NoMove
+				| ImGuiWindowFlags_NoCollapse
+				| ImGuiWindowFlags_NoBringToFrontOnFocus
+				| ImGuiWindowFlags_NoTitleBar
+				| ImGuiWindowFlags_NoSavedSettings
+			);
+			ImGui::PopStyleVar();
+
+			{
+				ImGui::SetCursorPos(ImVec2(5.0f, 5.0f));
+				if (ImGui::Button("Save", ImVec2(40.0f, 40.0f)))
+				{
+					pProject->Save();
+				}
+
+				ImGui::SetCursorPos(ImVec2(50.0f, 5.0f));
+				if (ImGui::Button("ReloadScripts", ImVec2(40.0f, 40.0f)))
+				{
+					pEditor->ReloadScripts();
+				}
+
+				ImGui::SetCursorPos(ImVec2(125.0f, 5.0f));
+				if (ImGui::Button("Pan", ImVec2(40.0f, 40.0f)))
+				{
+				}
+
+				ImGui::SetCursorPos(ImVec2(170.0f, 5.0f));
+				if (ImGui::Button("Move", ImVec2(40.0f, 40.0f)))
+				{
+				}
+
+				ImGui::SetCursorPos(ImVec2(215.0f, 5.0f));
+				if (ImGui::Button("Rotate", ImVec2(40.0f, 40.0f)))
+				{
+				}
+
+				ImGui::SetCursorPos(ImVec2(260.0f, 5.0f));
+				if (ImGui::Button("Scale", ImVec2(40.0f, 40.0f)))
+				{
+				}
+
+				ImGui::SetCursorPos(ImVec2((viewportSize.x * 0.5f) - 20.0f, 5.0f));
+				if (!pGameEngine->IsPlaying())
+				{
+					if (ImGui::Button("Play", ImVec2(40.0f, 40.0f)))
+					{
+						pEditor->PlayGame();
+					}
+				}
+				else
+				{
+					if (ImGui::Button("Pause", ImVec2(40.0f, 40.0f)))
+					{
+						pEditor->StopGame();
+					}
+				}
+			}
+
+			ImGui::End();
+		}
+
+		ImGui::SetNextWindowPos(ImVec2(0.0f, ImGui::GetFrameHeight() + 50.0f));
 		ImGui::SetNextWindowSize(ImVec2(
 			static_cast<float>(viewportSize.x),
-			static_cast<float>(viewportSize.y) - ImGui::GetFrameHeight()
+			static_cast<float>(viewportSize.y) - ImGui::GetFrameHeight() - 50.0f
 		));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		const bool isViewportOpen = ImGui::Begin(
@@ -351,13 +420,16 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 		ImGui::PopStyleVar();
 		if (isViewportOpen)
 		{
-			static const ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
 			ImGuiID dockSpace = ImGui::GetID("EditorDockspace");
-			ImGui::DockSpace(dockSpace, ImVec2(0.0f, 0.0f), dockspaceFlags);
+			ImGui::DockSpace(dockSpace, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-				const bool isEditorViewOpen = ImGui::Begin("Editor");
+				const bool isEditorViewOpen = ImGui::Begin(
+					"Game View",
+					nullptr,
+					ImGuiWindowFlags_NoCollapse
+				);
 				ImGui::PopStyleVar();
 				if (isEditorViewOpen)
 				{
@@ -478,16 +550,6 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 						0xFFFF0000,
 						2.0f
 					);
-				}
-				ImGui::End();
-			}
-
-			{
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-				const bool isGameViewOpen = ImGui::Begin("Game");
-				ImGui::PopStyleVar();
-				if (isGameViewOpen)
-				{
 				}
 				ImGui::End();
 			}

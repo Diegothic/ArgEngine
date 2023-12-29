@@ -3,12 +3,23 @@
 
 #include "Gameplay/GameContext.hpp"
 
-void Arg::GameEngine::Initialize(const std::shared_ptr<Content::ResourceCache>& pResourceCache)
+void Arg::GameEngine::Initialize(
+	const std::filesystem::path& rootDirectory,
+	const std::shared_ptr<Content::ResourceCache>& pResourceCache
+)
 {
 	m_pResourceCache = pResourceCache;
 
 	m_ComponentRegistry.RegisterComponents();
 	Gameplay::GameWorld::SetGameEngine(this);
+
+	const Script::ScriptEngineSpec scriptEngineSpec{
+		.RootDirectory = rootDirectory / "Scripts",
+		.SourceFileName = "Game",
+		.ComponentRegistry = &m_ComponentRegistry
+	};
+	m_pScriptEngine = std::make_unique<Script::ScriptEngine>(scriptEngineSpec);
+	m_pScriptEngine->Initialize();
 }
 
 void Arg::GameEngine::Deinitialize()
@@ -27,6 +38,23 @@ void Arg::GameEngine::Deinitialize()
 	m_pResourceCache = nullptr;
 	m_bIsPlaying = false;
 	m_GameTime = Gameplay::GameTime();
+}
+
+void Arg::GameEngine::RebuildScripts()
+{
+	ARG_ASSERT(m_pScriptEngine != nullptr, "");
+	m_pScriptEngine->Rebuild();
+
+	m_ComponentRegistry.Clear();
+	m_ComponentRegistry.RegisterComponents();
+
+	m_pScriptEngine->Load();
+}
+
+void Arg::GameEngine::LoadScripts()
+{
+	ARG_ASSERT(m_pScriptEngine != nullptr, "");
+	m_pScriptEngine->Load();
 }
 
 void Arg::GameEngine::LoadWorld(const std::string& worldName)
@@ -48,11 +76,35 @@ void Arg::GameEngine::InitializeWorld(Gameplay::GameWorld* pWorld)
 	pWorld->Initialize(context);
 }
 
-void Arg::GameEngine::Update(const float deltaTime)
+void Arg::GameEngine::Play()
+{
+	m_bIsPlaying = false;
+	m_bPlayRequested = true;
+}
+
+void Arg::GameEngine::Stop()
+{
+	m_bIsPlaying = false;
+	m_bPlayRequested = false;
+}
+
+void Arg::GameEngine::Update(const float& deltaTime)
 {
 	m_GameTime.Tick(deltaTime);
 
-	if (IsWorldLoaded() && m_bIsPlaying)
+	if (!IsWorldLoaded())
+	{
+		return;
+	}
+
+	if (!m_bIsPlaying && m_bPlayRequested)
+	{
+		m_bPlayRequested = false;
+		m_bIsPlaying = true;
+		m_pLoadedWorld->BeginPlay();
+	}
+
+	if (m_bIsPlaying)
 	{
 		m_pLoadedWorld->Tick(m_GameTime);
 		m_pLoadedWorld->ClearGarbage();

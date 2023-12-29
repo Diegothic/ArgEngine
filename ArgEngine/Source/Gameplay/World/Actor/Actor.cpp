@@ -77,6 +77,7 @@ auto Arg::Gameplay::Actor::RemoveComponent(const GUID& componentID) -> bool
 	}
 	m_ComponentsRegistry[componentID]->SetOwner(nullptr);
 	m_ComponentsRegistry[componentID] = nullptr;
+	m_ComponentsRegistry.erase(componentID);
 	return true;
 }
 
@@ -167,22 +168,20 @@ void Arg::Gameplay::Actor::SetPosition(const Vec3& position)
 	m_bRefreshTransform = true;
 	Mat4 localTransform = m_Transform.FindTransform();
 	const Mat4 parentTransform = m_GlobalTransform * Math::inverse(localTransform);
-	Vec3 dTranslation;
-	Vec3 dRotation;
-	Vec3 dScale;
+	Vec3 dTranslation, dRotation, dScale;
 	Math::Decompose(m_GlobalTransform, dTranslation, dRotation, dScale);
 
 	m_GlobalTransform = Mat4(1.0f);
 	m_GlobalTransform = Math::translate(m_GlobalTransform, position);
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.z), Vec3(0.0f, 0.0f, 1.0f));
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.y), Vec3(0.0f, 1.0f, 0.0f));
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.x), Vec3(1.0f, 0.0f, 0.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.z, Vec3(0.0f, 0.0f, 1.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.y, Vec3(0.0f, 1.0f, 0.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.x, Vec3(1.0f, 0.0f, 0.0f));
 	m_GlobalTransform = Math::scale(m_GlobalTransform, dScale);
 
 	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
 	Math::Decompose(localTransform, dTranslation, dRotation, dScale);
 
-	m_Transform = Transform(dTranslation, dRotation, dScale);
+	SetLocalPosition(dTranslation);
 }
 
 auto Arg::Gameplay::Actor::GetRotation() const -> Vec3
@@ -199,9 +198,7 @@ void Arg::Gameplay::Actor::SetRotation(const Vec3& rotation)
 	m_bRefreshTransform = true;
 	Mat4 localTransform = m_Transform.FindTransform();
 	const Mat4 parentTransform = m_GlobalTransform * Math::inverse(localTransform);
-	Vec3 dTranslation;
-	Vec3 dRotation;
-	Vec3 dScale;
+	Vec3 dTranslation, dRotation, dScale;
 	Math::Decompose(m_GlobalTransform, dTranslation, dRotation, dScale);
 
 	m_GlobalTransform = Mat4(1.0f);
@@ -214,7 +211,7 @@ void Arg::Gameplay::Actor::SetRotation(const Vec3& rotation)
 	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
 	Math::Decompose(localTransform, dTranslation, dRotation, dScale);
 
-	m_Transform = Transform(dTranslation, dRotation, dScale);
+	SetLocalRotation(Math::degrees(dRotation));
 }
 
 auto Arg::Gameplay::Actor::GetScale() const -> Vec3
@@ -228,25 +225,35 @@ auto Arg::Gameplay::Actor::GetScale() const -> Vec3
 
 void Arg::Gameplay::Actor::SetScale(const Vec3& scale)
 {
-	m_bRefreshTransform = true;
 	Mat4 localTransform = m_Transform.FindTransform();
 	const Mat4 parentTransform = m_GlobalTransform * Math::inverse(localTransform);
-	Vec3 dTranslation;
-	Vec3 dRotation;
-	Vec3 dScale;
+	Vec3 dTranslation, dRotation, dScale;
 	Math::Decompose(m_GlobalTransform, dTranslation, dRotation, dScale);
 
 	m_GlobalTransform = Mat4(1.0f);
 	m_GlobalTransform = Math::translate(m_GlobalTransform, dTranslation);
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.z), Vec3(0.0f, 0.0f, 1.0f));
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.y), Vec3(0.0f, 1.0f, 0.0f));
-	m_GlobalTransform = Math::rotate(m_GlobalTransform, Math::radians(dRotation.x), Vec3(1.0f, 0.0f, 0.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.z, Vec3(0.0f, 0.0f, 1.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.y, Vec3(0.0f, 1.0f, 0.0f));
+	m_GlobalTransform = Math::rotate(m_GlobalTransform, dRotation.x, Vec3(1.0f, 0.0f, 0.0f));
 	m_GlobalTransform = Math::scale(m_GlobalTransform, scale);
 
 	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
 	Math::Decompose(localTransform, dTranslation, dRotation, dScale);
 
-	m_Transform = Transform(dTranslation, dRotation, dScale);
+	SetLocalScale(dScale);
+}
+
+void Arg::Gameplay::Actor::BeginPlay()
+{
+	if (m_bIsDestroyed)
+	{
+		return;
+	}
+
+	for (const auto& component : m_Components)
+	{
+		component->VBeginPlay();
+	}
 }
 
 void Arg::Gameplay::Actor::Tick(const GameTime& gameTime)

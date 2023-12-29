@@ -29,6 +29,7 @@ namespace Arg
 			auto GetName() const -> const std::string& { return m_pResource->GetName(); }
 
 		public:
+			auto HasActor(const GUID& actorID) const -> bool;
 			auto GetRootActor() const -> Actor&;
 			auto GetActor(const GUID& actorID) const -> const Actor&;
 			auto GetActor(const GUID& actorID) -> Actor&;
@@ -39,6 +40,7 @@ namespace Arg
 			void ReparentActor(Actor& actor, Actor& newParentActor);
 
 		public:
+			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
 			void ClearGarbage();

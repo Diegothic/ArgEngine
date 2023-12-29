@@ -22,7 +22,7 @@ namespace Arg
 		public:
 			StaticModelComponent();
 
-			auto VCreateDefault() const->std::shared_ptr<ActorComponent> override;
+			auto VCreateDefault() ->std::shared_ptr<ActorComponent> override;
 
 			auto VGetID() const->GUID override { return COMPONENT_ID; };
 			auto VGetName() const-> const std::string& override { return COMPONENT_NAME; };

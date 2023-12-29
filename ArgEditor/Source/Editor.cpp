@@ -39,7 +39,7 @@ auto Arg::Editor::EditorConfig::VOnDeserialize(const YAML::Node& node) -> bool
 	if (window)
 	{
 		WindowWidth = ValueOr<int32_t>(window["Width"], 1920);
-		WindowHeight = ValueOr<int32_t>(window["Height"], 1920);
+		WindowHeight = ValueOr<int32_t>(window["Height"], 1080);
 		bIsWindwoVSync = ValueOr<bool>(window["IsVSync"], true);
 	}
 
@@ -117,6 +117,60 @@ void Arg::Editor::Editor::Initialize()
 void Arg::Editor::Editor::CleanUp()
 {
 	m_pGUI->CleanUp();
+}
+
+void Arg::Editor::Editor::PlayGame()
+{
+	ARG_ASSERT(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
+	if (m_pGameEngine->IsPlaying())
+	{
+		return;
+	}
+
+	DeselectActor();
+	DeselectResource();
+
+	m_pWorldCacheNode = std::make_unique<YAML::Node>();
+	m_pGameEngine->GetLoadedWorld()->Serialize(*m_pWorldCacheNode);
+	m_pGameEngine->Play();
+}
+
+void Arg::Editor::Editor::StopGame()
+{
+	ARG_ASSERT(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
+	if (!m_pGameEngine->IsPlaying())
+	{
+		return;
+	}
+
+	DeselectActor();
+	DeselectResource();
+
+	m_pGameEngine->Stop();
+	m_pGameEngine->GetLoadedWorld()->Deserialize(*m_pWorldCacheNode);
+	m_pWorldCacheNode = nullptr;
+}
+
+void Arg::Editor::Editor::ReloadScripts()
+{
+	DeselectActor();
+	DeselectResource();
+
+	bool bReloadWorld = false;
+	if (m_pGameEngine->IsWorldLoaded())
+	{
+		bReloadWorld = true;
+		m_pWorldCacheNode = std::make_unique<YAML::Node>();
+		m_pGameEngine->GetLoadedWorld()->Serialize(*m_pWorldCacheNode);
+	}
+
+	m_pGameEngine->RebuildScripts();
+
+	if (bReloadWorld)
+	{
+		m_pGameEngine->GetLoadedWorld()->Deserialize(*m_pWorldCacheNode);
+		m_pWorldCacheNode = nullptr;
+	}
 }
 
 void Arg::Editor::Editor::Update(const float deltaTime)
@@ -231,7 +285,12 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 
 	m_pWindow->SetTitle(std::format("ArgEngine - {}", m_pProject->GetName()));
 
-	m_pGameEngine->Initialize(m_pProject->GetResourceCache());
+	m_pGameEngine->Initialize(
+		projectFile.parent_path(),
+		m_pProject->GetResourceCache()
+	);
+
+	m_pGameEngine->RebuildScripts();
 
 	const auto editorMapPath = m_pProject->GetEditorMap();
 	if (!editorMapPath.empty())

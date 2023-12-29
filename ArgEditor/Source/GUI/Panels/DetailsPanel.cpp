@@ -235,19 +235,51 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 		ImGui::EndTable();
 	}
 
-
+	GUID componentToRemove = GUID::Empty;
 	for (size_t i = 0; i < actor->GetComponentCount(); i++)
 	{
+		ImGui::PushID(i);
+
 		auto& component = actor->GetComponentByIndex(i);
 		const auto& componentName = component->VGetName();
-		if (ImGui::CollapsingHeader(componentName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		const bool bComponentHeaderOpen =
+			ImGui::CollapsingHeader(componentName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+		if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup(ImGui::GetID("##ComponentContextMenu"));
+		}
+
+		if (ImGui::BeginPopupContextItem("##ComponentContextMenu"))
+		{
+			if (ImGui::MenuItem("Remove"))
+			{
+				componentToRemove = component->VGetID();
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (bComponentHeaderOpen)
 		{
 			if (component->VGetID() == Gameplay::StaticModelComponent::COMPONENT_ID)
 			{
 				auto staticModelComponent = dynamic_pointer_cast<Gameplay::StaticModelComponent>(component);
 				DrawActorComponentProperties(context, actor, staticModelComponent);
 			}
+			else
+			{
+				auto scriptComponent = dynamic_pointer_cast<Script::ScriptComponent>(component);
+				DrawActorComponentProperties(context, actor, scriptComponent);
+			}
 		}
+
+		ImGui::PopID();
+	}
+
+	if (componentToRemove != GUID::Empty)
+	{
+		actor->RemoveComponent(componentToRemove);
+		componentToRemove = GUID::Empty;
 	}
 
 	ImGui::Dummy(ImVec2(windowSize.x, 50.0f));
@@ -269,32 +301,37 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 
 		if (bIsHeaderOpen)
 		{
-			if (actor->HasComponent(Gameplay::StaticModelComponent::COMPONENT_ID))
+			for (size_t i = 0; i < pComponentsRegistry->GetComponentCount(); i++)
 			{
-				ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
-				ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
-
-				ImGui::TreeNodeEx("Static Model", ImGuiTreeNodeFlags_Leaf);
-
-				ImGui::PopStyleColor(3);
-			}
-			else
-			{
-				ImGui::TreeNodeEx("Static Model", ImGuiTreeNodeFlags_Leaf);
-
-				if (ImGui::IsItemClicked())
+				const GUID componentID = pComponentsRegistry->GetComponentID(i);
+				const char* componentName = pComponentsRegistry->GetComponentName(i).c_str();
+				if (actor->HasComponent(componentID))
 				{
-					const auto pActorComponent = pComponentsRegistry->CreateComponent(
-						Gameplay::StaticModelComponent::COMPONENT_ID
-					);
-					actor->AddComponent(pActorComponent);
+					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImGui::GetStyle().Colors[ImGuiCol_Header]);
+					ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
 
-					ImGui::CloseCurrentPopup();
+					ImGui::TreeNodeEx(componentName, ImGuiTreeNodeFlags_Leaf);
+
+					ImGui::PopStyleColor(3);
 				}
-			}
+				else
+				{
+					ImGui::TreeNodeEx(componentName, ImGuiTreeNodeFlags_Leaf);
 
-			ImGui::TreePop();
+					if (ImGui::IsItemClicked())
+					{
+						const auto pActorComponent = pComponentsRegistry->CreateComponent(
+							componentID
+						);
+						actor->AddComponent(pActorComponent);
+
+						ImGui::CloseCurrentPopup();
+					}
+				}
+
+				ImGui::TreePop();
+			}
 		}
 
 		ImGui::EndPopup();
@@ -333,53 +370,28 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 		ImGui::TableNextColumn();
 
-		auto cursorPos = ImGui::GetCursorPos();
-		ImGui::Button(
+		const auto staticModel = pComponent->GetStaticModel();
+		ResourceHandleProperty(
 			"##StaticModelHandle",
-			ImVec2(ImGui::GetWindowWidth() - 100.0f, 25.0f)
-		);
-
-		{
-			static bool droppedResource = false;
-			static GUID droppedResourceID;
-			if (ImGui::BeginDragDropTarget())
+			Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+			staticModel.IsValid() ? staticModel.Get()->GetName().c_str() : nullptr,
+			[&](GUID droppedResourceID)
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource"))
-				{
-					IM_ASSERT(payload->DataSize == sizeof(GUID));
-					droppedResourceID = *((GUID*)payload->Data);
-					droppedResource = true;
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			if (droppedResource)
-			{
-				droppedResource = false;
 				const auto& resource = pResourceCache->GetResource(droppedResourceID);
 				if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
 				{
-					auto newStaticModel = pResourceCache->CreateHandle<Content::StaticModelResource>(droppedResourceID);
-					pComponent->SetStaticModel(newStaticModel);
+					pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
+						droppedResourceID
+					));
 				}
+			},
+			[&]
+			{
+				pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
+					GUID::Empty
+				));
 			}
-		}
-
-		cursorPos.x += 10.0f;
-		cursorPos.y += 5.0f;
-		ImGui::SetCursorPos(cursorPos);
-
-		const auto staticModel = pComponent->GetStaticModel();
-		if (staticModel.IsValid())
-		{
-			const auto& staticModelName = staticModel.Get()->GetName();
-			ImGui::Text(staticModelName.c_str());
-		}
-		else
-		{
-			ImGui::TextDisabled("Null reference");
-		}
-
+		);
 
 		ImGui::TableNextColumn();
 
@@ -397,7 +409,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			const auto material = pComponent->GetMaterial(i);
 			ResourceHandleProperty(
 				"##MaterialHandle",
-				Vec2(ImGui::GetWindowWidth() - 120.0f, 25.0f),
+				Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
 				material.IsValid() ? material.Get()->GetName().c_str() : nullptr,
 				[&](GUID droppedResourceID)
 				{
@@ -422,39 +434,80 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 			ImGui::PopID();
 		}
-
-		// ImGui::Text("0");
-		// ImGui::SameLine();
-		// ImGui::Button(
-		// 	"##Material",
-		// 	ImVec2(ImGui::GetWindowWidth() - 100.0f - ImGui::CalcTextSize("1").x, 25.0f)
-		// );
-		//
-		// {
-		// 	static bool droppedResource = false;
-		// 	static GUID droppedResourceID;
-		// 	if (ImGui::BeginDragDropTarget())
-		// 	{
-		// 		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Resource"))
-		// 		{
-		// 			IM_ASSERT(payload->DataSize == sizeof(GUID));
-		// 			droppedResourceID = *((GUID*)payload->Data);
-		// 			droppedResource = true;
-		// 		}
-		// 		ImGui::EndDragDropTarget();
-		// 	}
-		//
-		// 	if (droppedResource)
-		// 	{
-		// 		droppedResource = false;
-		// 		const auto& resource = pResourceCache->GetResource(droppedResourceID);
-		// 		if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
-		// 		{
-		// 			auto newMaterial = pResourceCache->CreateHandle<Content::MaterialResource>(droppedResourceID);
-		// 			pComponent->SetMaterial(0, newMaterial);
-		// 		}
-		// 	}
-		// }
 	}
 	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpended = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpended
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpended
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##StaticModelComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		for (size_t i = 0; i < pComponent->GetFieldsCount(); i++)
+		{
+			const auto field = pComponent->GetField(i);
+			switch (field.Type)
+			{
+			case Script::ScriptComponent::Float:
+				{
+					float fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			}
+		}
+	}
+	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const float& propertyValue
+)
+{
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::Text(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	float inputValue = propertyValue;
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f * 0.12f);
+	ImGui::InputFloat("##FloatProperty", &inputValue);
+	if (inputValue != propertyValue)
+	{
+		pComponent->SetFieldValue(propertyName, inputValue);
+	}
+
+	ImGui::TableNextColumn();
 }

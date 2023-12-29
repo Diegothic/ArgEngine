@@ -160,6 +160,10 @@
     <ClCompile Include="Source\Renderer\StaticMesh.cpp" />
     <ClCompile Include="Source\Renderer\StaticModel.cpp" />
     <ClCompile Include="Source\Renderer\Texture.cpp" />
+    <ClCompile Include="Source\Script\ScriptComponent.cpp" />
+    <ClCompile Include="Source\Script\ScriptEngine.cpp" />
+    <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueCore.cpp" />
+    <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueGameplay.cpp" />
     <ClInclude Include="Source\Content\Content.hpp" />
     <ClInclude Include="Source\Content\Import\ImporterDataConversion.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletalAnimationImporter.hpp" />
@@ -202,8 +206,9 @@
     <ClInclude Include="Source\Gameplay\GameContext.hpp" />
     <ClInclude Include="Source\Gameplay\GameTime.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Actor.hpp" />
-    <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\ActorHandle.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponentHandle.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
@@ -229,6 +234,10 @@
     <ClInclude Include="Source\Renderer\StaticModel.hpp" />
     <ClInclude Include="Source\Renderer\Texture.hpp" />
     <ClInclude Include="Source\Renderer\Vertex.hpp" />
+    <ClInclude Include="Source\Script\ScriptComponent.hpp" />
+    <ClInclude Include="Source\Script\ScriptEngine.hpp" />
+    <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueCore.hpp" />
+    <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueGameplay.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Application.hpp" />

@@ -24,8 +24,8 @@ void Arg::Content::StaticModelResource::VOnLoad()
 	GameDataResource::VOnLoad();
 	const auto data = GetData()->data();
 	Renderer::StaticModelData modelData{
-		.Spec = *(m_pModelSpec.get()),
-		.Meshes = std::vector<Renderer::StaticMeshData>(modelData.Spec.MeshCount),
+		.Spec = *m_pModelSpec,
+		.Meshes = std::vector<Renderer::StaticMeshData>(m_pModelSpec->MeshCount),
 	};
 
 	std::stringstream stream;

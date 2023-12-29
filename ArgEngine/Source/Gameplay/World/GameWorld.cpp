@@ -22,6 +22,11 @@ void Arg::Gameplay::GameWorld::Initialize(const GameContext& context)
 	m_pComponents = context.Components;
 }
 
+auto Arg::Gameplay::GameWorld::HasActor(const GUID& actorID) const -> bool
+{
+	return m_ActorsRegistry.contains(actorID);
+}
+
 auto Arg::Gameplay::GameWorld::GetRootActor() const -> Actor&
 {
 	return *m_pRootActor;
@@ -85,6 +90,14 @@ void Arg::Gameplay::GameWorld::ReparentActor(Actor& actor, Actor& newParentActor
 	actor.SetParentActor(&newParentActor);
 	actor.ReparentTransform(newParentActor);
 	newParentActor.AddChildActor(&actor);
+}
+
+void Arg::Gameplay::GameWorld::BeginPlay()
+{
+	for (const auto& actor : m_Actors)
+	{
+		actor->BeginPlay();
+	}
 }
 
 void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime)

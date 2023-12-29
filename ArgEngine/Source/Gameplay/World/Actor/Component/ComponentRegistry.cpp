@@ -24,11 +24,44 @@ auto Arg::Gameplay::ComponentRegistry::CreateComponent(const GUID& componentID) 
 void Arg::Gameplay::ComponentRegistry::Clear()
 {
 	m_ComponentRegistry.clear();
+	m_ComponentIDs.clear();
+}
+
+auto Arg::Gameplay::ComponentRegistry::GetComponent(const GUID& componentID) const -> ActorComponent*
+{
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "");
+	return m_ComponentRegistry.at(componentID).get();
+}
+
+auto Arg::Gameplay::ComponentRegistry::GetComponentCount() const -> size_t
+{
+	return m_ComponentIDs.size();
+}
+
+auto Arg::Gameplay::ComponentRegistry::GetComponentID(size_t index) const -> GUID
+{
+	ARG_ASSERT(index < m_ComponentIDs.size(), "Index out of range!");
+	return m_ComponentIDs[index];
+}
+
+auto Arg::Gameplay::ComponentRegistry::GetComponentName(size_t index) const -> const std::string&
+{
+	const GUID componentID = GetComponentID(index);
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "Invalid component ID!");
+	return m_ComponentRegistry.at(componentID)->VGetName();
 }
 
 void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 {
-	m_ComponentRegistry.clear();
+	Clear();
 
-	m_ComponentRegistry[StaticModelComponent::COMPONENT_ID] = std::make_unique<StaticModelComponent>();
+	RegisterComponent(new StaticModelComponent());
+}
+
+void Arg::Gameplay::ComponentRegistry::RegisterComponent(ActorComponent* prototype)
+{
+	const GUID componentID = prototype->VGetID();
+	ARG_ASSERT(!m_ComponentRegistry.contains(componentID), "Component already registered!");
+	m_ComponentRegistry[componentID] = std::unique_ptr<ActorComponent>(prototype);
+	m_ComponentIDs.push_back(componentID);
 }

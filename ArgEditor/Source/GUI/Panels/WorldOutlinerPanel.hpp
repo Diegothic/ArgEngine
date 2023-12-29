@@ -27,6 +27,7 @@ namespace Arg
 			private:
 				Content::ResourceHandle<Content::TextureResource> m_WorldTexture;
 				Content::ResourceHandle<Content::TextureResource> m_ActorTexture;
+				bool m_bHasClickedActor;
 			};
 		}
 	}

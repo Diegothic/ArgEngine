@@ -13,7 +13,7 @@ Arg::Gameplay::StaticModelComponent::StaticModelComponent()
 	m_bCanEverTick = false;
 }
 
-auto Arg::Gameplay::StaticModelComponent::VCreateDefault() const
+auto Arg::Gameplay::StaticModelComponent::VCreateDefault()
 	-> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<StaticModelComponent>();

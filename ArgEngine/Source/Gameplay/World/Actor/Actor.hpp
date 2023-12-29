@@ -69,6 +69,7 @@ namespace Arg
 			auto GetScale() const -> Vec3;
 			void SetScale(const Vec3& scale);
 
+			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
 
@@ -106,8 +107,8 @@ namespace Arg
 		template <typename TComponentType>
 		auto Actor::GetComponent() -> std::shared_ptr<TComponentType>&
 		{
-			const GUID componentID = TComponentType::GetID();
-			return GetComponent(componentID);
+			const GUID componentID = TComponentType::COMPONENT_ID;
+			return *(std::dynamic_pointer_cast<TComponentType>(GetComponent(componentID)));
 		}
 
 		template <typename TComponentType>

@@ -14,6 +14,7 @@ namespace Arg
 	{
 		class Actor;
 		class ComponentRegistry;
+		class ActorComponent;
 
 		class ActorComponent : public Content::YamlSerializable
 		{
@@ -21,7 +22,7 @@ namespace Arg
 			ActorComponent() = default;
 			virtual ~ActorComponent() = default;
 
-			virtual auto VCreateDefault() const -> std::shared_ptr<ActorComponent> = 0;
+			virtual auto VCreateDefault() -> std::shared_ptr<ActorComponent> = 0;
 
 			auto GetOwner() const -> Actor* { return m_pOwner; }
 			void SetOwner(Actor* actor) { m_pOwner = actor; }
@@ -29,7 +30,11 @@ namespace Arg
 			virtual auto VGetID() const -> GUID = 0;
 			virtual auto VGetName() const -> const std::string& = 0;
 
-			virtual void VTick(const GameTime& deltaTime)
+			virtual void VBeginPlay()
+			{
+			}
+
+			virtual void VTick(const GameTime& gameTime)
 			{
 			}
 

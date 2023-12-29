@@ -42,6 +42,10 @@ namespace Arg
 			void Initialize();
 			void CleanUp();
 
+			void PlayGame();
+			void StopGame();
+			void ReloadScripts();
+			
 			void Update(const float deltaTime);
 			void Render();
 
@@ -80,6 +84,7 @@ namespace Arg
 			std::unique_ptr<EditorCamera> m_pCamera = nullptr;
 			bool m_bIsCameraActive = false;
 			std::shared_ptr<GameEngine> m_pGameEngine = nullptr;
+			std::unique_ptr<YAML::Node> m_pWorldCacheNode = nullptr;
 
 			std::shared_ptr<Window> m_pWindow = nullptr;
 			std::shared_ptr<Content::ResourceCache> m_pResourceCache = nullptr;

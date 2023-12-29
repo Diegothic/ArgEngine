@@ -109,377 +109,384 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 		if (ImGui::TableNextColumn())
 		{
-			const float columnWidth = ImGui::GetColumnWidth();
-			const Vec3 folderColor = m_pOpenedFolder->GetColor();
-			ImGui::PushStyleColor(
-				ImGuiCol_Header,
-				ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
-			);
-			ImGui::PushStyleColor(
-				ImGuiCol_HeaderHovered,
-				ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
-			);
-			ImGui::PushStyleColor(
-				ImGuiCol_HeaderActive,
-				ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
-			);
-			const bool isOpen = ImGui::CollapsingHeader("##FolderHeader",
-			                                            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf |
-			                                            ImGuiTreeNodeFlags_AllowOverlap);
-			ImGui::PopStyleColor(3);
-
-			ImGui::SameLine(5.0f);
-			const uint32_t imageID = folderOpenTexture->GetRendererID();
-			ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
-			             ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-			ImGui::SameLine(35.0f);
-			ImGui::Text(m_pOpenedFolder->GetName().c_str());
-
-			const ImVec2 cursorPos = ImGui::GetCursorPos();
-			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 450.0f, cursorPos.y - 29.0f));
-			if (ImGui::Button("+ Import", ImVec2(100.0f, 24.0f)))
+			if (m_pOpenedFolder != nullptr && m_pOpenedFolder->GetID() != GUID::Empty)
 			{
-				ImGui::OpenPopup(ImGui::GetID("##ImportContextMenu"));
-			}
+				const float columnWidth = ImGui::GetColumnWidth();
+				const Vec3 folderColor = m_pOpenedFolder->GetColor();
+				ImGui::PushStyleColor(
+					ImGuiCol_Header,
+					ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
+				);
+				ImGui::PushStyleColor(
+					ImGuiCol_HeaderHovered,
+					ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
+				);
+				ImGui::PushStyleColor(
+					ImGuiCol_HeaderActive,
+					ImVec4(folderColor.r, folderColor.g, folderColor.b, 0.5f)
+				);
+				const bool isOpen = ImGui::CollapsingHeader("##FolderHeader",
+				                                            ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Leaf |
+				                                            ImGuiTreeNodeFlags_AllowOverlap);
+				ImGui::PopStyleColor(3);
 
-			if (ImGui::BeginPopupContextItem("##ImportContextMenu"))
-			{
-				if (ImGui::MenuItem("Texture"))
+				ImGui::SameLine(5.0f);
+				const uint32_t imageID = folderOpenTexture->GetRendererID();
+				ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
+				             ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+				ImGui::SameLine(35.0f);
+				ImGui::Text(m_pOpenedFolder->GetName().c_str());
+
+				const ImVec2 cursorPos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 450.0f, cursorPos.y - 29.0f));
+				if (ImGui::Button("+ Import", ImVec2(100.0f, 24.0f)))
 				{
-					std::filesystem::path path;
-					const bool bIsSuccess = Dialog::FileOpenDialog::GetFile(path);
-					if (bIsSuccess)
+					ImGui::OpenPopup(ImGui::GetID("##ImportContextMenu"));
+				}
+
+				if (ImGui::BeginPopupContextItem("##ImportContextMenu"))
+				{
+					if (ImGui::MenuItem("Texture"))
 					{
-						if (path.has_extension()
-							&& (path.extension() == ".png"
-								|| path.extension() == ".jpg"
-								|| path.extension() == ".tga"
-								|| path.extension() == ".bmp"
-							)
-						)
+						std::filesystem::path path;
+						const bool bIsSuccess = Dialog::FileOpenDialog::GetFile(path);
+						if (bIsSuccess)
 						{
-							const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
-							auto pathNoExtension = path;
-							pathNoExtension.replace_extension("");
-							const auto fileName = pathNoExtension.filename().string();
-							auto resourceName = fileName;
-							if (std::filesystem::exists(currentFolderPath / resourceName))
+							if (path.has_extension()
+								&& (path.extension() == ".png"
+									|| path.extension() == ".jpg"
+									|| path.extension() == ".tga"
+									|| path.extension() == ".bmp"
+								)
+							)
 							{
-								for (size_t i = 0; i < 999; i++)
+								const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
+								auto pathNoExtension = path;
+								pathNoExtension.replace_extension("");
+								const auto fileName = pathNoExtension.filename().string();
+								auto resourceName = fileName;
+								if (std::filesystem::exists(currentFolderPath / resourceName))
 								{
-									resourceName = std::format("{} ({})", fileName, i);
-									if (!std::filesystem::exists(currentFolderPath / resourceName))
+									for (size_t i = 0; i < 999; i++)
 									{
-										break;
+										resourceName = std::format("{} ({})", fileName, i);
+										if (!std::filesystem::exists(currentFolderPath / resourceName))
+										{
+											break;
+										}
 									}
 								}
-							}
 
-							Import::TextureImporter importer;
-							bool bImported = importer.ImportFile(path.string());
-							if (!bImported)
-							{
-								Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
-							}
-
-							importer.Save(resourceName, currentFolderPath);
-
-							auto resource = pContent->CreateResource(
-								resourceName,
-								Content::ResourceType::ResourceTypeTexture,
-								m_pOpenedFolder
-							);
-
-							if (pEditor->IsProjectOpened())
-							{
-								auto& project = pEditor->GetProject();
-								project->Save();
-							}
-						}
-						else
-						{
-							Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
-						}
-					}
-				}
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("Static Model"))
-				{
-					std::filesystem::path path;
-					const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
-					if (isSuccess)
-					{
-						if (path.has_extension()
-							&& (path.extension() == ".fbx"
-								|| path.extension() == ".gltf"
-								|| path.extension() == ".glb"
-							)
-						)
-						{
-							const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
-							auto pathNoExtension = path;
-							pathNoExtension.replace_extension("");
-							const auto fileName = pathNoExtension.filename().string();
-							auto resourceName = fileName;
-							if (std::filesystem::exists(currentFolderPath / resourceName))
-							{
-								for (size_t i = 0; i < 999; i++)
+								Import::TextureImporter importer;
+								bool bImported = importer.ImportFile(path.string());
+								if (!bImported)
 								{
-									resourceName = std::format("{} ({})", fileName, i);
-									if (!std::filesystem::exists(currentFolderPath / resourceName))
-									{
-										break;
-									}
+									Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
+								}
+
+								importer.Save(resourceName, currentFolderPath);
+
+								auto resource = pContent->CreateResource(
+									resourceName,
+									Content::ResourceType::ResourceTypeTexture,
+									m_pOpenedFolder
+								);
+
+								if (pEditor->IsProjectOpened())
+								{
+									auto& project = pEditor->GetProject();
+									project->Save();
 								}
 							}
-
-							Import::StaticModelImporter importer;
-							bool bImported = importer.ImportFile(path.string());
-							if (!bImported)
+							else
 							{
-								Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
-							}
-
-							importer.Save(resourceName, currentFolderPath);
-
-							auto resource = pContent->CreateResource(
-								resourceName,
-								Content::ResourceType::ResourceTypeStaticModel,
-								m_pOpenedFolder
-							);
-
-							if (pEditor->IsProjectOpened())
-							{
-								auto& project = pEditor->GetProject();
-								project->Save();
+								Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
 							}
 						}
-						else
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Static Model"))
+					{
+						std::filesystem::path path;
+						const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
+						if (isSuccess)
 						{
-							Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
+							if (path.has_extension()
+								&& (path.extension() == ".fbx"
+									|| path.extension() == ".gltf"
+									|| path.extension() == ".glb"
+								)
+							)
+							{
+								const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
+								auto pathNoExtension = path;
+								pathNoExtension.replace_extension("");
+								const auto fileName = pathNoExtension.filename().string();
+								auto resourceName = fileName;
+								if (std::filesystem::exists(currentFolderPath / resourceName))
+								{
+									for (size_t i = 0; i < 999; i++)
+									{
+										resourceName = std::format("{} ({})", fileName, i);
+										if (!std::filesystem::exists(currentFolderPath / resourceName))
+										{
+											break;
+										}
+									}
+								}
+
+								Import::StaticModelImporter importer;
+								bool bImported = importer.ImportFile(path.string());
+								if (!bImported)
+								{
+									Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
+								}
+
+								importer.Save(resourceName, currentFolderPath);
+
+								auto resource = pContent->CreateResource(
+									resourceName,
+									Content::ResourceType::ResourceTypeStaticModel,
+									m_pOpenedFolder
+								);
+
+								if (pEditor->IsProjectOpened())
+								{
+									auto& project = pEditor->GetProject();
+									project->Save();
+								}
+							}
+							else
+							{
+								Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
+							}
 						}
 					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
-			}
-
-			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 340.0f, cursorPos.y - 29.0f));
-			if (ImGui::Button("+ Create", ImVec2(100.0f, 24.0f)))
-			{
-				ImGui::OpenPopup(ImGui::GetID("##CreateContextMenu"));
-			}
-
-			if (ImGui::BeginPopupContextItem("##CreateContextMenu"))
-			{
-				if (ImGui::MenuItem("Map"))
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 340.0f, cursorPos.y - 29.0f));
+				if (ImGui::Button("+ Create", ImVec2(100.0f, 24.0f)))
 				{
-					auto resource = pContent->CreateResource(
-						"New Map",
-						Content::ResourceType::ResourceTypeWorld,
-						m_pOpenedFolder
-					);
-
-					if (pEditor->IsProjectOpened())
-					{
-						auto& project = pEditor->GetProject();
-						project->Save();
-					}
+					ImGui::OpenPopup(ImGui::GetID("##CreateContextMenu"));
 				}
 
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("Material"))
+				if (ImGui::BeginPopupContextItem("##CreateContextMenu"))
 				{
-					auto resource = pContent->CreateResource(
-						"New Material",
-						Content::ResourceType::ResourceTypeMaterial,
-						m_pOpenedFolder
-					);
-
-					if (pEditor->IsProjectOpened())
+					if (ImGui::MenuItem("Map"))
 					{
-						auto& project = pEditor->GetProject();
-						project->Save();
-					}
-				}
+						auto resource = pContent->CreateResource(
+							"New Map",
+							Content::ResourceType::ResourceTypeWorld,
+							m_pOpenedFolder
+						);
 
-				ImGui::EndPopup();
-			}
-
-			ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 200.0f, cursorPos.y - 29.0f));
-			static float zoom = 1.0f;
-			ImGui::PushItemWidth(200.0f);
-			ImGui::SliderFloat("##Zoom", &zoom, 0.0f, 1.0f);
-
-			const ImVec2 itemSize(150.0f * (zoom * 0.3f + 0.7f), 150.0f * (zoom * 0.3f + 0.7f));
-			const ImVec2 itemOffset(5.0f, 5.0f);
-
-			const int32_t itemsInRow = static_cast<int32_t>(columnWidth / (itemSize.x + itemOffset.x));
-
-			if (ImGui::BeginTable(
-				"Items",
-				itemsInRow,
-				ImGuiTableFlags_NoBordersInBody
-			))
-			{
-				for (size_t i = 0; i < m_pOpenedFolder->GetResourceCount(); i++)
-				{
-					ImGui::PushID(static_cast<int32_t>(i));
-
-					const auto& resource = m_pOpenedFolder->GetResource(i);
-					const auto& ID = resource->GetID();
-					const auto resourceName = resource->GetName().c_str();
-
-					const bool bIsSelected = pEditor->HasSelectedResource()
-						&& pEditor->GetSelectedResource() == resource;
-
-					if (ImGui::TableNextColumn())
-					{
-						auto cursorPos = ImGui::GetCursorPos();
-						cursorPos.x += itemOffset.x;
-						cursorPos.y += itemOffset.y;
-						ImGui::SetCursorPos(cursorPos);
-
-						if (bIsSelected)
+						if (pEditor->IsProjectOpened())
 						{
+							auto& project = pEditor->GetProject();
+							project->Save();
+						}
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Material"))
+					{
+						auto resource = pContent->CreateResource(
+							"New Material",
+							Content::ResourceType::ResourceTypeMaterial,
+							m_pOpenedFolder
+						);
+
+						if (pEditor->IsProjectOpened())
+						{
+							auto& project = pEditor->GetProject();
+							project->Save();
+						}
+					}
+
+					ImGui::EndPopup();
+				}
+
+				ImGui::SetCursorPos(ImVec2(cursorPos.x + columnWidth - 200.0f, cursorPos.y - 29.0f));
+				static float zoom = 1.0f;
+				ImGui::PushItemWidth(200.0f);
+				ImGui::SliderFloat("##Zoom", &zoom, 0.0f, 1.0f);
+
+				const ImVec2 itemSize(150.0f * (zoom * 0.3f + 0.7f), 150.0f * (zoom * 0.3f + 0.7f));
+				const ImVec2 itemOffset(5.0f, 5.0f);
+
+				const int32_t itemsInRow = static_cast<int32_t>(columnWidth / (itemSize.x + itemOffset.x));
+
+				if (ImGui::BeginTable(
+					"Items",
+					itemsInRow,
+					ImGuiTableFlags_NoBordersInBody
+				))
+				{
+					for (size_t i = 0; i < m_pOpenedFolder->GetResourceCount(); i++)
+					{
+						ImGui::PushID(static_cast<int32_t>(i));
+
+						const auto& resource = m_pOpenedFolder->GetResource(i);
+						const auto& ID = resource->GetID();
+						const auto resourceName = resource->GetName().c_str();
+
+						const bool bIsSelected = pEditor->HasSelectedResource()
+							&& pEditor->GetSelectedResource() == resource;
+
+						if (ImGui::TableNextColumn())
+						{
+							auto cursorPos = ImGui::GetCursorPos();
+							cursorPos.x += itemOffset.x;
+							cursorPos.y += itemOffset.y;
+							ImGui::SetCursorPos(cursorPos);
+
 							if (bIsSelected)
 							{
-								ImGui::PushStyleColor(
-									ImGuiCol_Button,
-									ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
-								);
-								ImGui::PushStyleColor(
-									ImGuiCol_ButtonHovered,
-									ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
-								);
-								ImGui::PushStyleColor(
-									ImGuiCol_ButtonActive,
-									ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
-								);
-							}
-						}
-						ImGui::Button("##ItemButton", itemSize);
-						if (bIsSelected)
-						{
-							ImGui::PopStyleColor(3);
-						}
-
-						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-						{
-							ImGui::OpenPopup(ImGui::GetID("##ResourceContextMenu"));
-						}
-
-						if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-						{
-							pEditor->SelectResource(ID);
-						}
-
-						if (ImGui::BeginDragDropSource())
-						{
-							ImGui::SetDragDropPayload("Resource", &ID, sizeof(GUID));
-							ImGui::Text(resourceName);
-							ImGui::EndDragDropSource();
-						}
-
-						static bool isRenameResource = false;
-						static GUID renamedResource;
-						if (ImGui::BeginPopupContextItem("##ResourceContextMenu"))
-						{
-							if (resource->GetType() == Content::ResourceType::ResourceTypeWorld)
-							{
-								if (ImGui::MenuItem("Open"))
+								if (bIsSelected)
 								{
-									pEditor->DeselectActor();
-									pEditor->DeselectResource();
-									pGameEngine->LoadWorld(resource->GetID());
-									pEditor->GetCamera()->Reset();
+									ImGui::PushStyleColor(
+										ImGuiCol_Button,
+										ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
+									);
+									ImGui::PushStyleColor(
+										ImGuiCol_ButtonHovered,
+										ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
+									);
+									ImGui::PushStyleColor(
+										ImGuiCol_ButtonActive,
+										ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
+									);
+								}
+							}
+							ImGui::Button("##ItemButton", itemSize);
+							if (bIsSelected)
+							{
+								ImGui::PopStyleColor(3);
+							}
+
+							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+							{
+								ImGui::OpenPopup(ImGui::GetID("##ResourceContextMenu"));
+							}
+
+							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+							{
+								pEditor->SelectResource(ID);
+							}
+
+							if (ImGui::BeginDragDropSource())
+							{
+								ImGui::SetDragDropPayload("Resource", &ID, sizeof(GUID));
+								ImGui::Text(resourceName);
+								ImGui::EndDragDropSource();
+							}
+
+							static bool isRenameResource = false;
+							static GUID renamedResource;
+							if (ImGui::BeginPopupContextItem("##ResourceContextMenu"))
+							{
+								if (resource->GetType() == Content::ResourceType::ResourceTypeWorld)
+								{
+									if (ImGui::MenuItem("Open"))
+									{
+										pEditor->DeselectActor();
+										pEditor->DeselectResource();
+										pGameEngine->LoadWorld(resource->GetID());
+										pEditor->GetCamera()->Reset();
+									}
+
+									ImGui::Separator();
+								}
+
+								if (ImGui::MenuItem("Rename"))
+								{
+									isRenameResource = true;
+									renamedResource = ID;
 								}
 
 								ImGui::Separator();
-							}
 
-							if (ImGui::MenuItem("Rename"))
-							{
-								isRenameResource = true;
-								renamedResource = ID;
-							}
-
-							ImGui::Separator();
-
-							if (ImGui::MenuItem("Remove"))
-							{
-								pContent->RemoveResource(resource, m_pOpenedFolder);
-							}
-
-							ImGui::EndPopup();
-						}
-
-						const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
-						                               cursorPos.y + itemSize.x * 0.10f);
-						ImGui::SetCursorPos(imagePos);
-						const uint32_t imageID = fileTexture->GetRendererID();
-						ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
-						             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-						const auto textSize = ImGui::CalcTextSize(resourceName);
-						const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
-						                              cursorPos.y + itemSize.x * 0.85f);
-						ImGui::SetCursorPos(textPos);
-						if (isRenameResource && renamedResource == ID)
-						{
-							ImGui::SetKeyboardFocusHere();
-							char buffer[1024];
-							strcpy_s(buffer, resourceName);
-							ImGui::InputText(
-								"##FolderNewName",
-								buffer,
-								1024,
-								ImGuiInputTextFlags_CallbackAlways,
-								[](ImGuiInputTextCallbackData* data) -> int32_t
+								if (ImGui::MenuItem("Remove"))
 								{
-									if (data->BufTextLen < 1)
-									{
-										return 0;
-									}
+									pContent->RemoveResource(resource, m_pOpenedFolder);
+								}
 
-									if (ImGui::IsKeyDown(ImGuiKey_Escape))
-									{
-										isRenameResource = false;
-										return 1;
-									}
+								ImGui::EndPopup();
+							}
 
-									if (ImGui::IsKeyDown(ImGuiKey_Enter))
+							const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
+							                               cursorPos.y + itemSize.x * 0.10f);
+							ImGui::SetCursorPos(imagePos);
+							const uint32_t imageID = fileTexture->GetRendererID();
+							ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
+							             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+							const auto textSize = ImGui::CalcTextSize(resourceName);
+							const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
+							                              cursorPos.y + itemSize.x * 0.85f);
+							ImGui::SetCursorPos(textPos);
+							if (isRenameResource && renamedResource == ID)
+							{
+								ImGui::SetKeyboardFocusHere();
+								char buffer[1024];
+								strcpy_s(buffer, resourceName);
+								ImGui::InputText(
+									"##FolderNewName",
+									buffer,
+									1024,
+									ImGuiInputTextFlags_CallbackAlways,
+									[](ImGuiInputTextCallbackData* data) -> int32_t
 									{
-										Content::ResourceCache* resourceCache = (Content::ResourceCache*)
-											data->UserData;
-										const auto& resource = resourceCache->GetResource(renamedResource);
-										const std::string newName(data->Buf);
-										if (!std::filesystem::exists(resource->GetPath() / newName))
+										if (data->BufTextLen < 1)
 										{
-											resourceCache->RenameResource(renamedResource, newName);
+											return 0;
 										}
-										isRenameResource = false;
-										return 1;
-									}
 
-									return 0;
-								},
-								pResourceCache.get());
+										if (ImGui::IsKeyDown(ImGuiKey_Escape))
+										{
+											isRenameResource = false;
+											return 1;
+										}
+
+										if (ImGui::IsKeyDown(ImGuiKey_Enter))
+										{
+											Content::ResourceCache* resourceCache = (Content::ResourceCache*)
+												data->UserData;
+											const auto& resource = resourceCache->GetResource(renamedResource);
+											const std::string newName(data->Buf);
+											if (!std::filesystem::exists(resource->GetPath() / newName))
+											{
+												resourceCache->RenameResource(renamedResource, newName);
+											}
+											isRenameResource = false;
+											return 1;
+										}
+
+										return 0;
+									},
+									pResourceCache.get());
+							}
+							else
+							{
+								ImGui::Text(resourceName);
+							}
 						}
-						else
-						{
-							ImGui::Text(resourceName);
-						}
+
+						ImGui::PopID();
 					}
-
-					ImGui::PopID();
 				}
-			}
 
-			ImGui::EndTable();
+				ImGui::EndTable();
+			}
+			else
+			{
+				ImGui::Text("No folder opened");
+			}
 		}
 	}
 

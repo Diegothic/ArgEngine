@@ -29,6 +29,7 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 	auto& pGameEngine = pEditor->GetGameEngine();
 
 	const auto& worldTexture = m_WorldTexture.Get()->GetTexture();
+	m_bHasClickedActor = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	const bool isOpen = ImGui::Begin("World Outliner", &GetIsOpened());
@@ -88,6 +89,10 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 					Gameplay::Actor& actor = pWorld->GetActor(droppedActorID);
 					pWorld->ReparentActor(actor, pWorld->GetRootActor());
 				}
+			}
+			else if (!m_bHasClickedActor)
+			{
+				pEditor->DeselectActor();
 			}
 		}
 	}
@@ -188,6 +193,7 @@ void Arg::Editor::GUI::WorldOutlinerPanel::DrawActorTree(
 		if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 		{
 			pEditor->SelectActor(childActor->GetID());
+			m_bHasClickedActor = true;
 		}
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
@@ -242,30 +248,34 @@ void Arg::Editor::GUI::WorldOutlinerPanel::DrawActorTree(
 			ImGui::SetKeyboardFocusHere();
 			static char buffer[1024];
 			strcpy_s(buffer, childActor->GetName().c_str());
-			ImGui::InputText("##ActorNewName", buffer, 1024, ImGuiInputTextFlags_CallbackAlways,
-			                 [](ImGuiInputTextCallbackData* data) -> int32_t
-			                 {
-				                 if (data->BufTextLen < 1)
-				                 {
-					                 return 0;
-				                 }
+			ImGui::InputText(
+				"##ActorNewName",
+				buffer,
+				1024,
+				ImGuiInputTextFlags_CallbackAlways,
+				[](ImGuiInputTextCallbackData* data) -> int32_t
+				{
+					if (data->BufTextLen < 1)
+					{
+						return 0;
+					}
 
-				                 if (ImGui::IsKeyDown(ImGuiKey_Escape))
-				                 {
-					                 isRename = false;
-					                 return 1;
-				                 }
+					if (ImGui::IsKeyDown(ImGuiKey_Escape))
+					{
+						isRename = false;
+						return 1;
+					}
 
-				                 if (ImGui::IsKeyDown(ImGuiKey_Enter))
-				                 {
-					                 newActorName = data->Buf;
-					                 doRename = true;
-					                 isRename = false;
-					                 return 1;
-				                 }
+					if (ImGui::IsKeyDown(ImGuiKey_Enter))
+					{
+						newActorName = data->Buf;
+						doRename = true;
+						isRename = false;
+						return 1;
+					}
 
-				                 return 0;
-			                 }
+					return 0;
+				}
 			);
 		}
 		else

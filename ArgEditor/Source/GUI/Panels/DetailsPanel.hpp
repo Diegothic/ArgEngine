@@ -6,6 +6,7 @@
 #include "Content/Content.hpp"
 #include "Gameplay/World/Actor/Actor.hpp"
 #include "Gameplay/World/Actor/Component/Components/StaticModelComponent.hpp"
+#include "Script/ScriptComponent.hpp"
 
 namespace Arg
 {
@@ -29,6 +30,21 @@ namespace Arg
 					const EditorGUIContext& context,
 					Gameplay::Actor* pActor,
 					std::shared_ptr<Gameplay::StaticModelComponent>& pComponent
+				);
+
+				void DrawActorComponentProperties(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent
+				);
+
+			private:
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const float& propertyValue
 				);
 			};
 		}
