@@ -37,11 +37,13 @@ void Arg::Editor::GUI::EditorGUI::Initialize(
 	m_WorldOutliner.Initialize(context);
 	m_Details.Initialize(context);
 	m_ResourceDetails.Initialize(context);
+	m_WorldSettings.Initialize(context);
 
 	m_ContentBrowser.Open();
 	m_WorldOutliner.Open();
 	m_Details.Open();
 	m_ResourceDetails.Open();
+	m_WorldSettings.Open();
 }
 
 void Arg::Editor::GUI::EditorGUI::CleanUp()
@@ -313,6 +315,11 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					m_WorldOutliner.Open();
 				}
 
+				if (ImGui::MenuItem("World Settings"))
+				{
+					m_WorldSettings.Open();
+				}
+
 				if (ImGui::MenuItem("Details"))
 				{
 					m_Details.Open();
@@ -558,6 +565,7 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 			m_WorldOutliner.Draw(context);
 			m_Details.Draw(context);
 			m_ResourceDetails.Draw(context);
+			m_WorldSettings.Draw(context);
 		}
 
 		ImGui::End();

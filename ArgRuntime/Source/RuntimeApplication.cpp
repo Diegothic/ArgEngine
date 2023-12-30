@@ -371,7 +371,7 @@ void Arg::RuntimeApplication::VOnRun()
 		.Color = Vec3(1.0f),
 		.Intensity = 1.0f,
 		.bCastShadows = true,
-		.ShadowMapShader = shadowMapShader
+		.pShadowMapShader = shadowMapShader
 	};
 	Renderer::DirectionalLight dirLight(dirLightSpec);
 

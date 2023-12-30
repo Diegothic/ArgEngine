@@ -19,23 +19,23 @@ namespace Arg
 		{
 		public:
 			ShadowMap(
-				const int32_t size,
-				const std::shared_ptr<ShaderProgram>& shadowMapShader
+				int32_t size,
+				ShaderProgram* pShadowMapShader
 			);
 			~ShadowMap() = default;
 
 			void Bind(int unit) const;
 
 			void Begin(
-				const std::shared_ptr<Renderer>& renderer,
+				Renderer* renderer,
 				const Mat4& lightSpaceTransform
 			);
 			void Draw(
-				const std::shared_ptr<const StaticMesh>& mesh,
+				const StaticMesh& mesh,
 				const Mat4& transform
 			);
 			void Draw(
-				const std::shared_ptr<const SkeletalMesh>& mesh,
+				const SkeletalMesh& mesh,
 				const Mat4& transform
 			);
 			void End();
@@ -44,12 +44,12 @@ namespace Arg
 			void InitializeBuffer(
 				Texture& map,
 				const FrameBuffer& buffer,
-				const int32_t size
+				int32_t size
 			) const;
 
 		private:
-			std::shared_ptr<Renderer> m_Renderer = nullptr;
-			std::shared_ptr<ShaderProgram> m_Shader = nullptr;
+			Renderer* m_pRenderer = nullptr;
+			ShaderProgram* m_pShader = nullptr;
 			FrameBuffer m_Buffer;
 			Texture m_Map;
 			int32_t m_Size;
@@ -61,7 +61,7 @@ namespace Arg
 			Vec3 Color = Vec3(1.0f);
 			float Intensity = 1.0f;
 			bool bCastShadows = true;
-			std::shared_ptr<ShaderProgram> ShadowMapShader = nullptr;
+			ShaderProgram* pShadowMapShader = nullptr;
 		};
 
 		class DirectionalLight
@@ -80,40 +80,43 @@ namespace Arg
 			void SetIntensity(const float intensity) { m_Intensity = intensity; }
 
 			auto IsCastingShadows() const -> const bool& { return m_bCastShadows; }
-			void SetCastingShadows(const bool bCastShadows);
+			void SetCastingShadows(bool bCastShadows);
+
+			auto GetShadowMapShader() const -> ShaderProgram* { return m_pShadowMapShader; }
+			void SetShadowMapShader(ShaderProgram* pShader);
 
 			void Apply(
-				const std::shared_ptr<ShaderProgram>& shader,
-				const std::shared_ptr<const Camera>& camera
+				ShaderProgram* shader,
+				const Camera* camera
 			) const;
 
 			void BeginShadowMap(
-				const std::shared_ptr<Renderer>& renderer,
-				const std::shared_ptr<Camera>& camera
+				Renderer* renderer,
+				const Camera* camera
 			);
 			void DrawToShadowMap(
-				const std::shared_ptr<const StaticMesh>& mesh,
+				const StaticMesh& mesh,
 				const Mat4& transform
 			) const;
 			void EndShadowMap();
 
 			void BeginShadowMapFar(
-				const std::shared_ptr<Renderer>& renderer,
-				const std::shared_ptr<Camera>& camera
+				Renderer* renderer,
+				const Camera* camera
 			) const;
 			void DrawToShadowMapFar(
-				const std::shared_ptr<const StaticMesh>& mesh,
+				const StaticMesh& mesh,
 				const Mat4& transform
 			) const;
 			void EndShadowMapFar();
 
 		private:
 			auto CalculateLightSpace(
-				const std::shared_ptr<const Camera>& camera
-			) const->Mat4;
+				const Camera* camera
+			) const -> Mat4;
 			auto CalculateLightSpaceFar(
-				const std::shared_ptr<const Camera>& camera
-			) const->Mat4;
+				const Camera* camera
+			) const -> Mat4;
 			void RefreshShadowMaps();
 
 		private:
@@ -121,9 +124,9 @@ namespace Arg
 			Vec3 m_Color;
 			float m_Intensity;
 			bool m_bCastShadows;
-			std::shared_ptr<ShaderProgram> m_ShadowMapShader = nullptr;
-			std::unique_ptr<ShadowMap> m_ShadowMap = nullptr;
-			std::unique_ptr<ShadowMap> m_ShadowMapFar = nullptr;
+			ShaderProgram* m_pShadowMapShader = nullptr;
+			std::unique_ptr<ShadowMap> m_pShadowMap = nullptr;
+			std::unique_ptr<ShadowMap> m_pShadowMapFar = nullptr;
 		};
 	}
 }

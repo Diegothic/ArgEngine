@@ -111,6 +111,10 @@ void Arg::Editor::Editor::Initialize()
 		auto basicShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\BasicStatic");
 		basicShaderHandle.AddRef();
+
+		auto shadowMapShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\ShadowMap");
+		shadowMapShaderHandle.AddRef();
 	}
 }
 
@@ -222,26 +226,33 @@ void Arg::Editor::Editor::Render()
 
 	// Render Editor view
 	{
-		auto camera = GetCamera()->GetCamera();
+		const auto camera = GetCamera()->GetCamera();
 		const auto& viewportSize = m_pEditorViewRenderTarget->GetSize();
 
-		auto basicShaderHandle = m_pResourceCache
+		const auto basicShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\BasicStatic");
-		auto basicShader = basicShaderHandle.IsValid()
+		const auto basicShader = basicShaderHandle.IsValid()
 			                   ? basicShaderHandle.Get()->GetShader()
 			                   : nullptr;
 
+		const auto shadowMapShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\ShadowMap");
+		const auto shadowMapShader = shadowMapShaderHandle.IsValid()
+							   ? shadowMapShaderHandle.Get()->GetShader()
+							   : nullptr;
+
 		const Renderer::RenderContextSpec renderContextSpec{
-			.pCamera = camera,
+			.pCamera = camera.get(),
 			.ViewportSize = viewportSize,
-			.pBasicShader = basicShader
+			.pBasicShader = basicShader.get(),
+			.pShadowMapShader = shadowMapShader.get()
 		};
 		Renderer::RenderContext renderContext(renderContextSpec);
 		m_pGameEngine->RenderEditor(renderContext);
 
 		m_pEditorViewRenderTarget->Begin();
 
-		renderContext.Render(*m_pRenderer);
+		renderContext.Render(*m_pRenderer, m_pEditorViewRenderTarget.get());
 
 		m_pEditorViewRenderTarget->End();
 	}

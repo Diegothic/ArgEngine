@@ -117,6 +117,7 @@
     <ClCompile Include="Source\GUI\Panels\DetailsPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\ResourceDetailsPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\WorldOutlinerPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\WorldSettingsPanel.cpp" />
     <ClCompile Include="Source\Project\Project.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +142,7 @@
     <ClInclude Include="Source\GUI\Panels\DetailsPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\ResourceDetailsPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\WorldOutlinerPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\WorldSettingsPanel.hpp" />
     <ClInclude Include="Source\Project\Project.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

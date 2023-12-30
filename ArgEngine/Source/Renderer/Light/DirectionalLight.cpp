@@ -2,17 +2,18 @@
 #include "DirectionalLight.hpp"
 
 #include "Debug/Assert.hpp"
+#include "Gameplay/World/Actor/Actor.hpp"
 
 Arg::Renderer::ShadowMap::ShadowMap(
-	const int32_t size,
-	const std::shared_ptr<ShaderProgram>& shadowMapShader
+	int32_t size,
+	ShaderProgram* pShadowMapShader
 )
-	: m_Size(size),
-	m_Shader(shadowMapShader)
+	: m_pShader(pShadowMapShader),
+	  m_Size(size)
 {
 	m_Map.Bind();
 	{
-		TextureData mapData{
+		const TextureData mapData{
 			.Data = nullptr,
 			.Width = m_Size,
 			.Height = m_Size,
@@ -37,29 +38,40 @@ void Arg::Renderer::ShadowMap::Bind(int unit) const
 }
 
 void Arg::Renderer::ShadowMap::Begin(
-	const std::shared_ptr<Renderer>& renderer,
+	Renderer* renderer,
 	const Mat4& lightSpaceTransform)
 {
-	m_Renderer = renderer;
+	m_pRenderer = renderer;
 	m_Buffer.Bind();
 	const FrameParams frameParams{
-				.ViewportSize = Vec2i(m_Size),
-				.ClearColor = Vec4(1.0f)
+		.ViewportSize = Vec2i(m_Size),
+		.ClearColor = Vec4(1.0f)
 	};
 	renderer->BeginFrame(frameParams);
 
-	m_Shader->Use();
-	m_Shader->SetUniform("u_LightSpace", lightSpaceTransform);
+	m_pShader->Use();
+	m_pShader->SetUniform("u_LightSpace", lightSpaceTransform);
 }
 
 void Arg::Renderer::ShadowMap::Draw(
-	const std::shared_ptr<const StaticMesh>& mesh,
+	const StaticMesh& mesh,
 	const Mat4& transform
 )
 {
-	m_Shader->SetUniform("u_IsSkeletal", false);
-	m_Shader->SetUniform("u_Model", transform);
-	mesh->Draw();
+	m_pShader->SetUniform("u_IsSkeletal", false);
+	m_pShader->SetUniform("u_Model", transform);
+	mesh.Draw();
+}
+
+void Arg::Renderer::ShadowMap::Draw(
+	const SkeletalMesh& mesh,
+	const Mat4& transform
+)
+{
+	m_pShader->SetUniform("u_IsSkeletal", true);
+	m_pShader->SetUniform("u_Model", transform);
+	// TODO :: Set bone transforms on the shader pose.Apply(shader)
+	mesh.Draw();
 }
 
 void Arg::Renderer::ShadowMap::End()
@@ -70,7 +82,7 @@ void Arg::Renderer::ShadowMap::End()
 void Arg::Renderer::ShadowMap::InitializeBuffer(
 	Texture& map,
 	const FrameBuffer& buffer,
-	const int32_t size
+	int32_t size
 ) const
 {
 	map.Bind();
@@ -94,17 +106,19 @@ void Arg::Renderer::ShadowMap::InitializeBuffer(
 	map.Unbind();
 }
 
-Arg::Renderer::DirectionalLight::DirectionalLight(const DirectionalLightSpec& spec)
+Arg::Renderer::DirectionalLight::DirectionalLight(
+	const DirectionalLightSpec& spec
+)
 	: m_Direction(Math::normalize(spec.Direction)),
-	m_Color(spec.Color),
-	m_Intensity(spec.Intensity),
-	m_bCastShadows(spec.bCastShadows),
-	m_ShadowMapShader(spec.ShadowMapShader)
+	  m_Color(spec.Color),
+	  m_Intensity(spec.Intensity),
+	  m_bCastShadows(spec.bCastShadows),
+	  m_pShadowMapShader(spec.pShadowMapShader)
 {
 	RefreshShadowMaps();
 }
 
-void Arg::Renderer::DirectionalLight::SetCastingShadows(const bool bCastShadows)
+void Arg::Renderer::DirectionalLight::SetCastingShadows(bool bCastShadows)
 {
 	if (m_bCastShadows == bCastShadows)
 	{
@@ -115,9 +129,15 @@ void Arg::Renderer::DirectionalLight::SetCastingShadows(const bool bCastShadows)
 	RefreshShadowMaps();
 }
 
+void Arg::Renderer::DirectionalLight::SetShadowMapShader(ShaderProgram* pShader)
+{
+	m_pShadowMapShader = pShader;
+	RefreshShadowMaps();
+}
+
 void Arg::Renderer::DirectionalLight::Apply(
-	const std::shared_ptr<ShaderProgram>& shader,
-	const std::shared_ptr<const Camera>& camera
+	ShaderProgram* shader,
+	const Camera* camera
 ) const
 {
 	shader->SetUniform("u_DirLightSpace.lightSpace", CalculateLightSpace(camera));
@@ -133,68 +153,68 @@ void Arg::Renderer::DirectionalLight::Apply(
 	shader->SetUniform("u_DirLights[0].castShadows", m_bCastShadows);
 	if (m_bCastShadows)
 	{
-		m_ShadowMap->Bind(10);
+		m_pShadowMap->Bind(10);
 		shader->SetUniform("u_DirLights[0].shadowMap", 10);
-		m_ShadowMapFar->Bind(11);
+		m_pShadowMapFar->Bind(11);
 		shader->SetUniform("u_DirLights[0].shadowMapFar", 11);
 	}
 }
 
 void Arg::Renderer::DirectionalLight::BeginShadowMap(
-	const std::shared_ptr<Renderer>& renderer,
-	const std::shared_ptr<Camera>& camera
+	Renderer* renderer,
+	const Camera* camera
 )
 {
-	ARG_ASSERT(m_ShadowMap != nullptr, "Shadow map missing!");
-	m_ShadowMap->Begin(
+	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	m_pShadowMap->Begin(
 		renderer,
 		CalculateLightSpace(camera)
 	);
 }
 
 void Arg::Renderer::DirectionalLight::DrawToShadowMap(
-	const std::shared_ptr<const StaticMesh>& mesh,
+	const StaticMesh& mesh,
 	const Mat4& transform
 ) const
 {
-	ARG_ASSERT(m_ShadowMap != nullptr, "Shadow map missing!");
-	m_ShadowMap->Draw(mesh, transform);
+	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	m_pShadowMap->Draw(mesh, transform);
 }
 
 void Arg::Renderer::DirectionalLight::EndShadowMap()
 {
-	ARG_ASSERT(m_ShadowMap != nullptr, "Shadow map missing!");
-	m_ShadowMap->End();
+	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	m_pShadowMap->End();
 }
 
 void Arg::Renderer::DirectionalLight::BeginShadowMapFar(
-	const std::shared_ptr<Renderer>& renderer,
-	const std::shared_ptr<Camera>& camera
+	Renderer* renderer,
+	const Camera* camera
 ) const
 {
-	ARG_ASSERT(m_ShadowMapFar != nullptr, "Shadow map missing!");
-	m_ShadowMapFar->Begin(
+	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	m_pShadowMapFar->Begin(
 		renderer,
 		CalculateLightSpaceFar(camera)
 	);
 }
 
 void Arg::Renderer::DirectionalLight::DrawToShadowMapFar(
-	const std::shared_ptr<const StaticMesh>& mesh,
+	const StaticMesh& mesh,
 	const Mat4& transform) const
 {
-	ARG_ASSERT(m_ShadowMapFar != nullptr, "Shadow map missing!");
-	m_ShadowMapFar->Draw(mesh, transform);
+	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	m_pShadowMapFar->Draw(mesh, transform);
 }
 
 void Arg::Renderer::DirectionalLight::EndShadowMapFar()
 {
-	ARG_ASSERT(m_ShadowMapFar != nullptr, "Shadow map missing!");
-	m_ShadowMapFar->End();
+	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	m_pShadowMapFar->End();
 }
 
 auto Arg::Renderer::DirectionalLight::CalculateLightSpace(
-	const std::shared_ptr<const Camera>& camera
+	const Camera* camera
 ) const -> Mat4
 {
 	const Mat4 lightProj = Math::ortho(
@@ -214,15 +234,15 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpace(
 }
 
 auto Arg::Renderer::DirectionalLight::CalculateLightSpaceFar(
-	const std::shared_ptr<const Camera>& camera
+	const Camera* camera
 ) const -> Mat4
 {
-	Mat4 lightProj = Math::ortho(
+	const Mat4 lightProj = Math::ortho(
 		-100.0f, 100.0f,
 		-100.0f, 100.0f,
 		0.1f, 500.0f
 	);
-	Mat4 lightView = Math::lookAt(
+	const Mat4 lightView = Math::lookAt(
 		-m_Direction * 200.0f
 		+ camera->GetPosition()
 		+ camera->GetForwardVector() * 5.0f,
@@ -237,12 +257,12 @@ void Arg::Renderer::DirectionalLight::RefreshShadowMaps()
 {
 	if (m_bCastShadows)
 	{
-		m_ShadowMap = std::unique_ptr<ShadowMap>(new ShadowMap(4096, m_ShadowMapShader));
-		m_ShadowMapFar = std::unique_ptr<ShadowMap>(new ShadowMap(2048, m_ShadowMapShader));
+		m_pShadowMap = std::make_unique<ShadowMap>(4096, m_pShadowMapShader);
+		m_pShadowMapFar = std::make_unique<ShadowMap>(2048, m_pShadowMapShader);
 	}
 	else
 	{
-		m_ShadowMap = nullptr;
-		m_ShadowMapFar = nullptr;
+		m_pShadowMap = nullptr;
+		m_pShadowMapFar = nullptr;
 	}
 }

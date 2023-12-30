@@ -1,9 +1,7 @@
 #include <arg_pch.hpp>
 #include "RenderContext.hpp"
 
-#include "Debug/Assert.hpp"
 #include "ShaderProgram.hpp"
-#include "Texture.hpp"
 #include "Light/DirectionalLight.hpp"
 
 Arg::Renderer::RenderContext::RenderContext(
@@ -29,7 +27,7 @@ void Arg::Renderer::RenderContext::DrawModel(
 		m_StaticMeshes.push_back(mesh);
 		const size_t staticMeshIndex = m_StaticMeshes.size() - 1;
 
-		m_StaticMeshTransformIndices.push_back(transformIndex);
+		m_StaticMeshesDetails.emplace_back(transformIndex, bReceiveShadows, bCastShadows);
 
 		const size_t materialIndex = model->GetMaterialIndex(i);
 		Material* material = materials[materialIndex];
@@ -48,8 +46,14 @@ void Arg::Renderer::RenderContext::DrawModel(
 	}
 }
 
+void Arg::Renderer::RenderContext::AddDirectionalLight(DirectionalLight& light)
+{
+	m_pDirectionalLight = &light;
+}
+
 void Arg::Renderer::RenderContext::Render(
-	const Renderer& renderer
+	Renderer& renderer,
+	RenderTarget* renderTarget
 ) const
 {
 	if (m_Spec.pCamera == nullptr)
@@ -64,14 +68,6 @@ void Arg::Renderer::RenderContext::Render(
 	const Mat4 proj = m_Spec.pCamera->VGetProjection(aspectRatio);
 	const Mat4 view = m_Spec.pCamera->GetView();
 
-	const FrameParams frameParams{
-		.ViewportSize = viewportSize,
-		.ClearColor = Vec4(0.5f, 0.5f, 0.5f, 1.0f) // TODO: Camera->Background()
-	};
-	renderer.BeginFrame(frameParams);
-	renderer.EndFrame();
-
-	renderer.BeginOpaque();
 
 	auto shader = m_Spec.pBasicShader;
 
@@ -80,31 +76,77 @@ void Arg::Renderer::RenderContext::Render(
 		return;
 	}
 
+	renderTarget->End();
+
+	if (m_pDirectionalLight != nullptr && m_pDirectionalLight->IsCastingShadows())
+	{
+		if (m_pDirectionalLight->GetShadowMapShader() == nullptr)
+		{
+			m_pDirectionalLight->SetShadowMapShader(m_Spec.pShadowMapShader);
+		}
+
+		{
+			m_pDirectionalLight->BeginShadowMap(&renderer, m_Spec.pCamera);
+
+			for (size_t i = 0; i < m_StaticMeshes.size(); i++)
+			{
+				const StaticMesh* mesh = m_StaticMeshes[i];
+				const MeshDetails& meshDetails = m_StaticMeshesDetails[i];
+				if (!meshDetails.bCastShadows)
+				{
+					continue;
+				}
+
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				m_pDirectionalLight->DrawToShadowMap(*mesh, transform);
+			}
+
+			m_pDirectionalLight->EndShadowMap();
+		}
+
+		{
+			m_pDirectionalLight->BeginShadowMapFar(&renderer, m_Spec.pCamera);
+
+			for (size_t i = 0; i < m_StaticMeshes.size(); i++)
+			{
+				const StaticMesh* mesh = m_StaticMeshes[i];
+				const MeshDetails& meshDetails = m_StaticMeshesDetails[i];
+				if (!meshDetails.bCastShadows)
+				{
+					continue;
+				}
+
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				m_pDirectionalLight->DrawToShadowMapFar(*mesh, transform);
+			}
+
+			m_pDirectionalLight->EndShadowMapFar();
+		}
+	}
+
+	renderTarget->Begin();
+
 	shader->Use();
 	shader->SetUniform("u_Proj", proj);
 	shader->SetUniform("u_View", view);
 
-	// TEMP: Sunlight
-	const DirectionalLightSpec dirLightSpec
-	{
-		.Direction = Vec3(-0.3f, -0.4f, -1.0f),
-		.Color = Vec3(1.0f),
-		.Intensity = 1.0f,
-		.bCastShadows = false,
-		.ShadowMapShader = nullptr
-	};
-	DirectionalLight dirLight(dirLightSpec);
-
 	shader->SetUniform("u_SkyBox", 0);
 
+	shader->SetUniform("u_DirLightsCount", m_pDirectionalLight != nullptr ? 1 : 0);
+	if (m_pDirectionalLight != nullptr)
+	{
+		m_pDirectionalLight->Apply(shader, m_Spec.pCamera);
+	}
 	shader->SetUniform("u_PointLightsCount", 0);
 	shader->SetUniform("u_SpotLightsCount", 0);
-	shader->SetUniform("u_DirLightsCount", 1);
 
-	dirLight.Apply(shader, m_Spec.pCamera);
+	const FrameParams frameParams{
+		.ViewportSize = viewportSize,
+		.ClearColor = Vec4(0.5f, 0.5f, 0.5f, 1.0f) // TODO: Camera->Background()
+	};
+	renderer.BeginFrame(frameParams);
 
-	// TODO: Per mesh
-	shader->SetUniform("u_ReceiveShadows", false);
+	renderer.BeginOpaque();
 
 	for (const GUID& materialID : m_Materials | std::ranges::views::keys)
 	{
@@ -113,11 +155,15 @@ void Arg::Renderer::RenderContext::Render(
 		for (const size_t& meshIndex : meshIndices)
 		{
 			const StaticMesh* mesh = m_StaticMeshes[meshIndex];
-			const Mat4& transform = m_Transforms[m_StaticMeshTransformIndices[meshIndex]];
+			const MeshDetails& meshDetails = m_StaticMeshesDetails[meshIndex];
+
+			const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
 			const Mat3 normal(Math::transpose(Math::inverse(view * transform)));
 
 			shader->SetUniform("u_Model", transform);
 			shader->SetUniform("u_Normal", normal);
+
+			shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
 
 			if (materialID != GUID::Empty)
 			{
@@ -140,37 +186,5 @@ void Arg::Renderer::RenderContext::Render(
 		}
 	}
 
-	// for (size_t i = 0; i < m_StaticMeshes.size(); i++)
-	// {
-	// 	const auto& staticMesh = m_StaticMeshes[i];
-	// 	const auto& transform = m_Transforms[m_StaticMeshTransformIndices[i]];
-	//
-	// 	const Mat4& model = transform;
-	// 	const Mat3 normal(Math::transpose(Math::inverse(view * model)));
-	//
-	// 	shader->SetUniform("u_Model", model);
-	// 	shader->SetUniform("u_Normal", normal);
-	//
-	// 	shader->SetUniform("u_ReceiveShadows", false);
-	//
-	//
-	// 	if (m_StaticMeshMaterials[i] != nullptr)
-	// 	{
-	// 		m_StaticMeshMaterials[i]->Apply(shader);
-	// 	}
-	// 	else
-	// 	{
-	// 		shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
-	// 		shader->SetUniform("u_Material.diffuseMap", 0);
-	//
-	// 		shader->SetUniform("u_Material.specular", 0.4f);
-	// 		shader->SetUniform("u_Material.specularMap", 0);
-	// 		shader->SetUniform("u_Material.shininess", 0.2f);
-	//
-	// 		shader->SetUniform("u_Material.reflection", 0.0f);
-	// 		shader->SetUniform("u_Material.reflectionMap", 0);
-	// 	}
-	//
-	// 	staticMesh->Draw();
-	// }
+	renderer.EndFrame();
 }

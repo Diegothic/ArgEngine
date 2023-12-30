@@ -27,7 +27,7 @@ namespace Arg
 			auto GetID() const -> GUID { return m_pResource->GetID(); }
 
 		public:
-			void Apply(const std::shared_ptr<ShaderProgram>& shader) const;
+			void Apply(ShaderProgram* shader) const;
 
 		public:
 			auto GetDiffuseMap() const -> const TextureHandle& { return m_DiffuseMap; }

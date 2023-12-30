@@ -40,6 +40,16 @@ namespace Arg
 			void ReparentActor(Actor& actor, Actor& newParentActor);
 
 		public:
+			auto GetSunlightColor() const -> Vec3;
+			void SetSunlightColor(const Vec3& color);
+			auto GetSunlightDirection() const -> Vec3;
+			void SetSunlightDirection(const Vec3& direction);
+			auto GetSunlightIntensity() const -> float;
+			void SetSunlightIntensity(float intensity);
+			auto GetSunlightCastsShadows() const -> bool;
+			void SetSunlightCastsShadows(bool bCastShadows);
+
+		public:
 			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
@@ -64,6 +74,8 @@ namespace Arg
 			std::unique_ptr<Actor> m_pRootActor = nullptr;
 			std::vector<std::unique_ptr<Actor>> m_Actors;
 			std::unordered_map<GUID, Actor*> m_ActorsRegistry;
+
+			std::unique_ptr<Renderer::DirectionalLight> m_pSunlight = nullptr;
 
 			ComponentRegistry* m_pComponents = nullptr;
 

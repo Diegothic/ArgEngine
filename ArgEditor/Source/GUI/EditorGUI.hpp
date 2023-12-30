@@ -6,6 +6,7 @@
 #include "Panels/WorldOutlinerPanel.hpp"
 #include "Panels/DetailsPanel.hpp"
 #include "Panels/ResourceDetailsPanel.hpp"
+#include "Panels/WorldSettingsPanel.hpp"
 
 namespace Arg
 {
@@ -55,6 +56,7 @@ namespace Arg
 				WorldOutlinerPanel m_WorldOutliner;
 				DetailsPanel m_Details;
 				ResourceDetailsPanel m_ResourceDetails;
+				WorldSettingsPanel m_WorldSettings;
 			};
 		}
 	}

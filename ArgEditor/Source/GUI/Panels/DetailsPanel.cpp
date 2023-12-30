@@ -363,78 +363,116 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		| ImGuiTableFlags_SizingFixedFit
 	))
 	{
-		ImGui::TableNextColumn();
-		ImGui::Dummy(ImVec2(100.0f, 0.0f));
-
-		ImGui::Text("Static Model");
-
-		ImGui::TableNextColumn();
-
-		const auto staticModel = pComponent->GetStaticModel();
-		ResourceHandleProperty(
-			"##StaticModelHandle",
-			Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
-			staticModel.IsValid() ? staticModel.Get()->GetName().c_str() : nullptr,
-			[&](GUID droppedResourceID)
-			{
-				const auto& resource = pResourceCache->GetResource(droppedResourceID);
-				if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
-				{
-					pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
-						droppedResourceID
-					));
-				}
-			},
-			[&]
-			{
-				pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
-					GUID::Empty
-				));
-			}
-		);
-
-		ImGui::TableNextColumn();
-
-		ImGui::Text("Materials");
-
-		ImGui::TableNextColumn();
-
-		for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
 		{
-			ImGui::PushID(i);
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text(std::to_string(i).c_str());
-			ImGui::SameLine();
+			ImGui::Text("Static Model");
 
-			const auto material = pComponent->GetMaterial(i);
+			ImGui::TableNextColumn();
+
+			const auto staticModel = pComponent->GetStaticModel();
 			ResourceHandleProperty(
-				"##MaterialHandle",
-				Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
-				material.IsValid() ? material.Get()->GetName().c_str() : nullptr,
+				"##StaticModelHandle",
+				Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+				staticModel.IsValid() ? staticModel.Get()->GetName().c_str() : nullptr,
 				[&](GUID droppedResourceID)
 				{
 					const auto& resource = pResourceCache->GetResource(droppedResourceID);
-					if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+					if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
 					{
-						pComponent->SetMaterial(
-							i,
-							pResourceCache->CreateHandle<Content::MaterialResource>(
-								droppedResourceID
-							));
+						pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
+							droppedResourceID
+						));
 					}
 				},
 				[&]
 				{
-					pComponent->SetMaterial(
-						i,
-						pResourceCache->CreateHandle<Content::MaterialResource>(GUID::Empty)
-					);
+					pComponent->SetStaticModel(pResourceCache->CreateHandle<Content::StaticModelResource>(
+						GUID::Empty
+					));
 				}
 			);
+		}
 
-			ImGui::PopID();
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Materials");
+
+			ImGui::TableNextColumn();
+
+			for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
+			{
+				ImGui::PushID(i);
+
+				ImGui::Text(std::to_string(i).c_str());
+				ImGui::SameLine();
+
+				const auto material = pComponent->GetMaterial(i);
+				ResourceHandleProperty(
+					"##MaterialHandle",
+					Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
+					material.IsValid() ? material.Get()->GetName().c_str() : nullptr,
+					[&](GUID droppedResourceID)
+					{
+						const auto& resource = pResourceCache->GetResource(droppedResourceID);
+						if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+						{
+							pComponent->SetMaterial(
+								i,
+								pResourceCache->CreateHandle<Content::MaterialResource>(
+									droppedResourceID
+								));
+						}
+					},
+					[&]
+					{
+						pComponent->SetMaterial(
+							i,
+							pResourceCache->CreateHandle<Content::MaterialResource>(GUID::Empty)
+						);
+					}
+				);
+
+				ImGui::PopID();
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Cast Shadows");
+
+			ImGui::TableNextColumn();
+
+			bool bCastShadows = pComponent->GetCastShadows();
+			ImGui::Checkbox("##CastShadows", &bCastShadows);
+			if (bCastShadows != pComponent->GetCastShadows())
+			{
+				pComponent->SetCastShadows(bCastShadows);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Receive Shadows");
+
+			ImGui::TableNextColumn();
+
+			bool bReceiveShadows = pComponent->GetReceiveShadows();
+			ImGui::Checkbox("##ReceiveShadows", &bReceiveShadows);
+			if (bReceiveShadows != pComponent->GetReceiveShadows())
+			{
+				pComponent->SetReceiveShadows(bReceiveShadows);
+			}
 		}
 	}
+
 	ImGui::EndTable();
 }
 

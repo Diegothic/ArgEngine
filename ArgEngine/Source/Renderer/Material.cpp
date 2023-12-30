@@ -6,7 +6,7 @@ Arg::Renderer::Material::Material(Content::Resource* pResource)
 {
 }
 
-void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader) const
+void Arg::Renderer::Material::Apply(ShaderProgram* shader) const
 {
 	if (m_DiffuseMap.IsValid())
 	{
@@ -48,7 +48,7 @@ void Arg::Renderer::Material::Apply(const std::shared_ptr<ShaderProgram>& shader
 	shader->SetUniform("u_Material.reflection", m_Reflectivity);
 }
 
-void Arg::Renderer::Material::SetDiffuseMap(const Arg::TextureHandle& diffuseMap)
+void Arg::Renderer::Material::SetDiffuseMap(const TextureHandle& diffuseMap)
 {
 	if (m_DiffuseMap.IsValid())
 	{
@@ -63,7 +63,7 @@ void Arg::Renderer::Material::SetDiffuseMap(const Arg::TextureHandle& diffuseMap
 	}
 }
 
-void Arg::Renderer::Material::SetSpecularMap(const Arg::TextureHandle& specularMap)
+void Arg::Renderer::Material::SetSpecularMap(const TextureHandle& specularMap)
 {
 	if (m_SpecularMap.IsValid())
 	{
@@ -78,7 +78,7 @@ void Arg::Renderer::Material::SetSpecularMap(const Arg::TextureHandle& specularM
 	}
 }
 
-void Arg::Renderer::Material::SetReflectivityMap(const Arg::TextureHandle& reflectivityMap)
+void Arg::Renderer::Material::SetReflectivityMap(const TextureHandle& reflectivityMap)
 {
 	if (m_ReflectivityMap.IsValid())
 	{

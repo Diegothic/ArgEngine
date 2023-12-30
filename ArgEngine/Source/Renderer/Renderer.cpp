@@ -42,6 +42,9 @@ void Arg::Renderer::Renderer::BeginFrame(const FrameParams& params) const
 
 	m_pWhiteTexture->Bind(0);
 	m_pBlackTexture->Bind(1);
+	
+	m_pWhiteTexture->Unbind();
+	m_pBlackTexture->Unbind();
 }
 
 void Arg::Renderer::Renderer::EndFrame() const

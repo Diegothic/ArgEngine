@@ -20,6 +20,16 @@ void Arg::Gameplay::GameWorld::Create()
 void Arg::Gameplay::GameWorld::Initialize(const GameContext& context)
 {
 	m_pComponents = context.Components;
+
+	const Renderer::DirectionalLightSpec sunlightSpec
+	{
+		.Direction = Vec3(-0.3f, -0.4f, -1.0f),
+		.Color = Vec3(1.0f),
+		.Intensity = 1.0f,
+		.bCastShadows = true,
+		.pShadowMapShader = nullptr
+	};
+	m_pSunlight = std::make_unique<Renderer::DirectionalLight>(sunlightSpec);
 }
 
 auto Arg::Gameplay::GameWorld::HasActor(const GUID& actorID) const -> bool
@@ -92,6 +102,46 @@ void Arg::Gameplay::GameWorld::ReparentActor(Actor& actor, Actor& newParentActor
 	newParentActor.AddChildActor(&actor);
 }
 
+auto Arg::Gameplay::GameWorld::GetSunlightColor() const -> Vec3
+{
+	return m_pSunlight->GetColor();
+}
+
+void Arg::Gameplay::GameWorld::SetSunlightColor(const Vec3& color)
+{
+	m_pSunlight->SetColor(color);
+}
+
+auto Arg::Gameplay::GameWorld::GetSunlightDirection() const -> Vec3
+{
+	return m_pSunlight->GetDirection();
+}
+
+void Arg::Gameplay::GameWorld::SetSunlightDirection(const Vec3& direction)
+{
+	m_pSunlight->SetDirection(direction);
+}
+
+auto Arg::Gameplay::GameWorld::GetSunlightIntensity() const -> float
+{
+	return m_pSunlight->GetIntensity();
+}
+
+void Arg::Gameplay::GameWorld::SetSunlightIntensity(float intensity)
+{
+	m_pSunlight->SetIntensity(intensity);
+}
+
+auto Arg::Gameplay::GameWorld::GetSunlightCastsShadows() const -> bool
+{
+	return m_pSunlight->IsCastingShadows();
+}
+
+void Arg::Gameplay::GameWorld::SetSunlightCastsShadows(bool bCastShadows)
+{
+	m_pSunlight->SetCastingShadows(bCastShadows);
+}
+
 void Arg::Gameplay::GameWorld::BeginPlay()
 {
 	for (const auto& actor : m_Actors)
@@ -117,6 +167,8 @@ void Arg::Gameplay::GameWorld::Render(Renderer::RenderContext& context)
 		Actor* childActor = rootActor.GetChildActor(i);
 		childActor->UpdateTransform(rootActorTransform);
 	}
+
+	context.AddDirectionalLight(*m_pSunlight);
 
 	for (const auto& actor : m_Actors)
 	{
@@ -148,6 +200,14 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 	auto header = node["World"];
 
 	header["LastGeneratedID"] = m_IDGenerator.GetSeed();
+
+	auto sunlightNode = header["Sunlight"];
+	sunlightNode["Color"] = m_pSunlight->GetColor();
+	sunlightNode["Direction"] = m_pSunlight->GetDirection();
+	sunlightNode["Intensity"] = m_pSunlight->GetIntensity();
+	sunlightNode["CastShadows"] = m_pSunlight->IsCastingShadows();
+
+	header["Sunlight"] = sunlightNode;
 
 	auto actorsNode = header["Actors"];
 	actorsNode.reset();
@@ -198,6 +258,15 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 
 	const auto lastGeneratedID = ValueOr<uint64_t>(header["LastGeneratedID"], 0);
 	m_IDGenerator.SetSeed(lastGeneratedID);
+
+	const auto& sunlightNode = header["Sunlight"];
+	if (sunlightNode)
+	{
+		m_pSunlight->SetColor(ValueOr<Vec3>(sunlightNode["Color"], Vec3(1.0f)));
+		m_pSunlight->SetDirection(ValueOr<Vec3>(sunlightNode["Direction"], Vec3(0.0f, 0.0f, -1.0f)));
+		m_pSunlight->SetIntensity(ValueOr<float>(sunlightNode["Intensity"], 1.0f));
+		m_pSunlight->SetCastingShadows(ValueOr<bool>(sunlightNode["CastShadows"], true));
+	}
 
 	m_ActorsRegistry.clear();
 	m_Actors.clear();

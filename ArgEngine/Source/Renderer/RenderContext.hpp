@@ -6,7 +6,11 @@
 #include "StaticModel.hpp"
 #include "Material.hpp"
 #include "Renderer.hpp"
+#include "RenderTarget.hpp"
 #include "Camera/Camera.hpp"
+#include "Light/DirectionalLight.hpp"
+#include "Light/PointLight.hpp"
+#include "Light/SpotLight.hpp"
 
 namespace Arg
 {
@@ -14,13 +18,22 @@ namespace Arg
 	{
 		struct RenderContextSpec
 		{
-			std::shared_ptr<Camera> pCamera = nullptr;
+			Camera* pCamera = nullptr;
 			Vec2i ViewportSize = Vec2i(1920, 1080);
-			std::shared_ptr<ShaderProgram> pBasicShader = nullptr;
+			ShaderProgram* pBasicShader = nullptr;
+			ShaderProgram* pShadowMapShader = nullptr;
 		};
 
 		class RenderContext
 		{
+		public:
+			struct MeshDetails
+			{
+				size_t TransformIndex;
+				bool bReceiveShadows;
+				bool bCastShadows;
+			};
+
 		public:
 			RenderContext(const RenderContextSpec& spec);
 
@@ -32,21 +45,28 @@ namespace Arg
 				bool bCastShadows
 			);
 
+			void AddDirectionalLight(DirectionalLight& light);
+			void AddPointLight(PointLight& light);
+			void AddSpotLight(SpotLight& light);
+
 			void Render(
-				const Renderer& renderer
+				Renderer& renderer,
+				RenderTarget* renderTarget
 			) const;
 
 		private:
 			RenderContextSpec m_Spec;
-			
+
+			DirectionalLight* m_pDirectionalLight = nullptr;
+			std::vector<PointLight*> m_PointLights;
+			std::vector<SpotLight> m_SpotLights;
+
 			std::vector<StaticMesh*> m_StaticMeshes;
+			std::vector<MeshDetails> m_StaticMeshesDetails;
+
 			std::vector<Mat4> m_Transforms;
-			std::vector<size_t> m_StaticMeshTransformIndices;
 			std::unordered_map<GUID, Material*> m_Materials;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialStaticMeshIndices;
-			
-			//std::vector<std::shared_ptr<Material>> m_StaticMeshMaterials;
-
 		};
 	}
 }
