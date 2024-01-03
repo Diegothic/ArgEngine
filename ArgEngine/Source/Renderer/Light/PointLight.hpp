@@ -39,6 +39,7 @@ namespace Arg
 		class PointLight
 		{
 		public:
+			PointLight() = default;
 			PointLight(const PointLightSpec& spec);
 			~PointLight() = default;
 
@@ -55,16 +56,16 @@ namespace Arg
 			void SetIntensity(const float intensity) { m_Intensity = intensity; }
 
 			void Apply(
-				const std::shared_ptr<ShaderProgram>& shader,
-				const std::shared_ptr<const Camera>& camera,
-				const int32_t lightIndex
+				ShaderProgram* shader,
+				const Camera* camera,
+				int32_t lightIndex
 			) const;
 
 		private:
-			Vec3 m_Position;
-			Vec3 m_Color;
-			float m_Range;
-			float m_Intensity;
+			Vec3 m_Position = Vec3(0.0f);
+			Vec3 m_Color = Vec3(1.0f);
+			float m_Range = 8.0f;
+			float m_Intensity = 1.0f;
 		};
 	}
 }

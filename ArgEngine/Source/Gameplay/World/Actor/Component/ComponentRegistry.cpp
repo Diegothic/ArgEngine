@@ -2,6 +2,8 @@
 #include "ComponentRegistry.hpp"
 
 #include "Debug/Assert.hpp"
+#include "Components/PointLightComponent.hpp"
+#include "Components/SpotLightComponent.hpp"
 #include "Components/StaticModelComponent.hpp"
 
 auto Arg::Gameplay::ComponentRegistry::CreateComponent(
@@ -56,6 +58,8 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 	Clear();
 
 	RegisterComponent(new StaticModelComponent());
+	RegisterComponent(new PointLightComponent());
+	RegisterComponent(new SpotLightComponent());
 }
 
 void Arg::Gameplay::ComponentRegistry::RegisterComponent(ActorComponent* prototype)

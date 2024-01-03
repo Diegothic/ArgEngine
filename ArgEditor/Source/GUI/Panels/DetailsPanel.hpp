@@ -5,6 +5,8 @@
 #include "GUI/EditorGUIPanel.hpp"
 #include "Content/Content.hpp"
 #include "Gameplay/World/Actor/Actor.hpp"
+#include "Gameplay/World/Actor/Component/Components/PointLightComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/SpotLightComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/StaticModelComponent.hpp"
 #include "Script/ScriptComponent.hpp"
 
@@ -30,6 +32,18 @@ namespace Arg
 					const EditorGUIContext& context,
 					Gameplay::Actor* pActor,
 					std::shared_ptr<Gameplay::StaticModelComponent>& pComponent
+				);
+
+				void DrawActorComponentProperties(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Gameplay::PointLightComponent>& pComponent
+				);
+
+				void DrawActorComponentProperties(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Gameplay::SpotLightComponent>& pComponent
 				);
 
 				void DrawActorComponentProperties(

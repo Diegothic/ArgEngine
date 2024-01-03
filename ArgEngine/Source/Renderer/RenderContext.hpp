@@ -59,7 +59,7 @@ namespace Arg
 
 			DirectionalLight* m_pDirectionalLight = nullptr;
 			std::vector<PointLight*> m_PointLights;
-			std::vector<SpotLight> m_SpotLights;
+			std::vector<SpotLight*> m_SpotLights;
 
 			std::vector<StaticMesh*> m_StaticMeshes;
 			std::vector<MeshDetails> m_StaticMeshesDetails;

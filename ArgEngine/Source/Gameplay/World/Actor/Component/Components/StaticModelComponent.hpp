@@ -1,6 +1,7 @@
 #pragma once
 
 #include <arg_pch.hpp>
+
 #include "Gameplay/World/Actor/Component/ActorComponent.hpp"
 #include "Content/ResourceCache.hpp"
 #include "Content/Resource/GameResources/StaticModelResource.hpp"
@@ -22,20 +23,24 @@ namespace Arg
 		public:
 			StaticModelComponent();
 
-			auto VCreateDefault() ->std::shared_ptr<ActorComponent> override;
+			auto VCreateDefault() -> std::shared_ptr<ActorComponent> override;
 
-			auto VGetID() const->GUID override { return COMPONENT_ID; };
-			auto VGetName() const-> const std::string& override { return COMPONENT_NAME; };
+			auto VGetID() const -> GUID override { return COMPONENT_ID; }
+			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VRender(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
-			auto GetStaticModel() const ->Content::ResourceHandle<Content::StaticModelResource> { return m_StaticModel; }
+			auto GetStaticModel() const -> Content::ResourceHandle<Content::StaticModelResource>
+			{
+				return m_StaticModel;
+			}
+
 			void SetStaticModel(const Content::ResourceHandle<Content::StaticModelResource>& staticModel);
 
-			auto GetMaterialCount() const -> size_t {return m_Materials.size();}
+			auto GetMaterialCount() const -> size_t { return m_Materials.size(); }
 			auto GetMaterial(size_t index) const -> const MaterialHandle&;
 			void SetMaterial(size_t index, const MaterialHandle& material);
 

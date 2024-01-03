@@ -139,6 +139,8 @@
     <ClCompile Include="Source\Gameplay\World\Actor\ActorHandle.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\ActorComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\PointLightComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\SpotLightComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
     <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
@@ -210,6 +212,8 @@
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponentHandle.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\PointLightComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\SpotLightComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
     <ClInclude Include="Source\Gameplay\World\GameWorld.hpp" />

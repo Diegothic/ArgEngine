@@ -4,16 +4,16 @@
 
 Arg::Renderer::PointLight::PointLight(const PointLightSpec& spec)
 	: m_Position(spec.Position),
-	m_Color(spec.Color),
-	m_Range(Math::clamp(spec.Range, 0.0f, 1000.0f)),
-	m_Intensity(spec.Intensity)
+	  m_Color(spec.Color),
+	  m_Range(Math::clamp(spec.Range, 0.0f, 1000.0f)),
+	  m_Intensity(spec.Intensity)
 {
 }
 
 void Arg::Renderer::PointLight::Apply(
-	const std::shared_ptr<ShaderProgram>& shader,
-	const std::shared_ptr<const Camera>& camera,
-	const int32_t lightIndex
+	ShaderProgram* shader,
+	const Camera* camera,
+	int32_t lightIndex
 ) const
 {
 	ARG_ASSERT(lightIndex >= 0 && lightIndex <= POINT_LIGHTS_MAX, "Index out of range!");
@@ -45,7 +45,7 @@ void Arg::Renderer::PointLight::Apply(
 	const float rangeA = LIGHT_RANGE_STEPS[lightRangeIndex];
 	const float rangeB = LIGHT_RANGE_STEPS[lightRangeIndex + 1];
 	const float diff = rangeB - rangeA;
-	const float percentB = (rangeB - m_Range) / diff;
+	const float percentB = 1.0f - ((rangeB - m_Range) / diff);
 	const Vec3 rangeValuesA = LIGHT_RANGE_VALUES[lightRangeIndex];
 	const Vec3 rangeValuesB = LIGHT_RANGE_VALUES[lightRangeIndex + 1];
 	const Vec3 rangeValues = percentB * rangeValuesB + (1.0f - percentB) * rangeValuesA;

@@ -23,6 +23,8 @@ void Arg::Gameplay::StaticModelComponent::VRender(
 	Renderer::RenderContext& context
 )
 {
+	ActorComponent::VRender(context);
+	
 	if (m_StaticModel.IsValid())
 	{
 		const auto& staticModel = m_StaticModel.Get()->GetStaticModel();

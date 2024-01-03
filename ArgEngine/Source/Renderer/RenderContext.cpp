@@ -51,6 +51,16 @@ void Arg::Renderer::RenderContext::AddDirectionalLight(DirectionalLight& light)
 	m_pDirectionalLight = &light;
 }
 
+void Arg::Renderer::RenderContext::AddPointLight(PointLight& light)
+{
+	m_PointLights.push_back(&light);
+}
+
+void Arg::Renderer::RenderContext::AddSpotLight(SpotLight& light)
+{
+	m_SpotLights.push_back(&light);
+}
+
 void Arg::Renderer::RenderContext::Render(
 	Renderer& renderer,
 	RenderTarget* renderTarget
@@ -67,7 +77,6 @@ void Arg::Renderer::RenderContext::Render(
 
 	const Mat4 proj = m_Spec.pCamera->VGetProjection(aspectRatio);
 	const Mat4 view = m_Spec.pCamera->GetView();
-
 
 	auto shader = m_Spec.pBasicShader;
 
@@ -137,8 +146,28 @@ void Arg::Renderer::RenderContext::Render(
 	{
 		m_pDirectionalLight->Apply(shader, m_Spec.pCamera);
 	}
-	shader->SetUniform("u_PointLightsCount", 0);
-	shader->SetUniform("u_SpotLightsCount", 0);
+	shader->SetUniform("u_PointLightsCount", static_cast<int32_t>(m_PointLights.size()));
+	shader->SetUniform("u_SpotLightsCount", static_cast<int32_t>(m_SpotLights.size()));
+
+	for (int32_t i = 0; i < m_PointLights.size(); i++)
+	{
+		if (i > POINT_LIGHTS_MAX)
+		{
+			break;
+		}
+
+		m_PointLights[i]->Apply(shader, m_Spec.pCamera, i);
+	}
+
+	for (int32_t i = 0; i < m_SpotLights.size(); i++)
+	{
+		if (i > SPOT_LIGHTS_MAX)
+		{
+			break;
+		}
+
+		m_SpotLights[i]->Apply(shader, m_Spec.pCamera, i);
+	}
 
 	const FrameParams frameParams{
 		.ViewportSize = viewportSize,

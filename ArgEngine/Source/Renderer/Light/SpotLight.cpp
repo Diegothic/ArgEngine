@@ -6,19 +6,19 @@
 
 Arg::Renderer::SpotLight::SpotLight(const SpotLightSpec& spec)
 	: m_Position(spec.Position),
-	m_Direction(spec.Direction),
-	m_InnerConeAngle(spec.InnerConeAngle),
-	m_OuterConeAngle(spec.OuterConeAngle),
-	m_Color(spec.Color),
-	m_Range(Math::clamp(spec.Range, 0.0f, 1000.0f)),
-	m_Intensity(spec.Intensity)
+	  m_Direction(spec.Direction),
+	  m_InnerConeAngle(spec.InnerConeAngle),
+	  m_OuterConeAngle(spec.OuterConeAngle),
+	  m_Color(spec.Color),
+	  m_Range(Math::clamp(spec.Range, 0.0f, 1000.0f)),
+	  m_Intensity(spec.Intensity)
 {
 }
 
 void Arg::Renderer::SpotLight::Apply(
-	const std::shared_ptr<ShaderProgram>& shader,
-	const std::shared_ptr<const Camera>& camera,
-	const int32_t lightIndex) const
+	ShaderProgram* shader,
+	const Camera* camera,
+	int32_t lightIndex) const
 {
 	ARG_ASSERT(lightIndex >= 0 && lightIndex <= SPOT_LIGHTS_MAX, "Index out of range!");
 	const std::string lightName = std::format("u_SpotLights[{}]", lightIndex);
@@ -35,7 +35,7 @@ void Arg::Renderer::SpotLight::Apply(
 		m_Color * m_Intensity
 	);
 
-	ARG_ASSERT(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid point light range!");
+	ARG_ASSERT(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid spot light range!");
 	int32_t lightRangeIndex = 0;
 	for (auto i = 1; i < LIGHT_RANGE_STEPS_COUNT; i++)
 	{
@@ -49,7 +49,7 @@ void Arg::Renderer::SpotLight::Apply(
 	const float rangeA = LIGHT_RANGE_STEPS[lightRangeIndex];
 	const float rangeB = LIGHT_RANGE_STEPS[lightRangeIndex + 1];
 	const float diff = rangeB - rangeA;
-	const float percentB = (rangeB - m_Range) / diff;
+	const float percentB = 1.0f - ((rangeB - m_Range) / diff);
 	const Vec3 rangeValuesA = LIGHT_RANGE_VALUES[lightRangeIndex];
 	const Vec3 rangeValuesB = LIGHT_RANGE_VALUES[lightRangeIndex + 1];
 	const Vec3 rangeValues = percentB * rangeValuesB + (1.0f - percentB) * rangeValuesA;

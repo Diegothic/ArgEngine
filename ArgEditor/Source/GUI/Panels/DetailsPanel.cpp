@@ -263,8 +263,18 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 		{
 			if (component->VGetID() == Gameplay::StaticModelComponent::COMPONENT_ID)
 			{
-				auto staticModelComponent = dynamic_pointer_cast<Gameplay::StaticModelComponent>(component);
-				DrawActorComponentProperties(context, actor, staticModelComponent);
+				auto actorComponent = dynamic_pointer_cast<Gameplay::StaticModelComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
+			else if (component->VGetID() == Gameplay::PointLightComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::PointLightComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
+			else if (component->VGetID() == Gameplay::SpotLightComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::SpotLightComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
 			}
 			else
 			{
@@ -469,6 +479,195 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			if (bReceiveShadows != pComponent->GetReceiveShadows())
 			{
 				pComponent->SetReceiveShadows(bReceiveShadows);
+			}
+		}
+	}
+
+	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::PointLightComponent>& pComponent)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpended = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpended
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpended
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##StaticModelComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Color");
+
+			ImGui::TableNextColumn();
+
+			Vec3 color = pComponent->GetLightColor();
+			ImGui::ColorEdit3("##LightColor", Math::ValuePtr(color));
+			if (color != pComponent->GetLightColor())
+			{
+				pComponent->SetLightColor(color);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Range");
+
+			ImGui::TableNextColumn();
+
+			float range = pComponent->GetLightRange();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::SliderFloat("##LightRange", &range, 0.0f, 1.0f);
+			if (range != pComponent->GetLightRange())
+			{
+				pComponent->SetLightRange(range);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Intensity");
+
+			ImGui::TableNextColumn();
+
+			float intensity = pComponent->GetLightIntensity();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::DragFloat("##LightIntensity", &intensity, 0.1f);
+			if (intensity != pComponent->GetLightIntensity())
+			{
+				pComponent->SetLightIntensity(intensity);
+			}
+		}
+	}
+
+	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::SpotLightComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpended = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpended
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpended
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##StaticModelComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Color");
+
+			ImGui::TableNextColumn();
+
+			Vec3 color = pComponent->GetLightColor();
+			ImGui::ColorEdit3("##LightColor", Math::ValuePtr(color));
+			if (color != pComponent->GetLightColor())
+			{
+				pComponent->SetLightColor(color);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Range");
+
+			ImGui::TableNextColumn();
+
+			float range = pComponent->GetLightRange();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::SliderFloat("##LightRange", &range, 0.0f, 1.0f);
+			if (range != pComponent->GetLightRange())
+			{
+				pComponent->SetLightRange(range);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Intensity");
+
+			ImGui::TableNextColumn();
+
+			float intensity = pComponent->GetLightIntensity();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::DragFloat("##LightIntensity", &intensity, 0.1f);
+			if (intensity != pComponent->GetLightIntensity())
+			{
+				pComponent->SetLightIntensity(intensity);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Inner Cone");
+
+			ImGui::TableNextColumn();
+
+			float angle = pComponent->GetInnerConeAngle();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::SliderFloat("##InnerConeAngle", &angle, 0.0f, 180.0f);
+			if (angle != pComponent->GetInnerConeAngle())
+			{
+				pComponent->SetInnerConeAngle(angle);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Outer Cone");
+
+			ImGui::TableNextColumn();
+
+			float angle = pComponent->GetOuterConeAngle();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::SliderFloat("##OuterConeAngle", &angle, 0.0f, 180.0f);
+			if (angle != pComponent->GetOuterConeAngle())
+			{
+				pComponent->SetOuterConeAngle(angle);
 			}
 		}
 	}

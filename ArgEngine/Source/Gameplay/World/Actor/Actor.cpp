@@ -243,6 +243,58 @@ void Arg::Gameplay::Actor::SetScale(const Vec3& scale)
 	SetLocalScale(dScale);
 }
 
+auto Arg::Gameplay::Actor::GetForwardVec() const -> Vec3
+{
+	const Vec3 rotation = GetRotation();
+	return Math::normalize(Vec3(
+		Math::cos(Math::radians(rotation.z)) * Math::cos(Math::radians(rotation.y)),
+		Math::sin(Math::radians(rotation.z)) * Math::cos(Math::radians(rotation.y)),
+		Math::sin(Math::radians(rotation.y))
+	));
+}
+
+auto Arg::Gameplay::Actor::GetRightVec() const -> Vec3
+{
+	const Vec3 rotation = GetRotation();
+	return Math::normalize(Vec3(
+		-Math::cos(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.y))
+		* Math::sin(Math::radians(rotation.x))
+		- Math::sin(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.x)),
+
+		-Math::sin(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.y))
+		* Math::sin(Math::radians(rotation.x))
+		+ Math::cos(Math::radians(rotation.z))
+		* Math::cos(Math::radians(rotation.x)),
+
+		Math::cos(Math::radians(rotation.y))
+		* Math::sin(Math::radians(rotation.x))
+	));
+}
+
+auto Arg::Gameplay::Actor::GetUpVec() const -> Vec3
+{
+	const Vec3 rotation = GetRotation();
+	return Math::normalize(Vec3(
+		-Math::cos(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.y))
+		* Math::cos(Math::radians(rotation.x))
+		+ Math::sin(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.x)),
+
+		-Math::sin(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.y))
+		* Math::cos(Math::radians(rotation.x))
+		- Math::cos(Math::radians(rotation.z))
+		* Math::sin(Math::radians(rotation.x)),
+
+		Math::cos(Math::radians(rotation.y))
+		* Math::sin(Math::radians(rotation.x))
+	));
+}
+
 void Arg::Gameplay::Actor::BeginPlay()
 {
 	if (m_bIsDestroyed)

@@ -69,6 +69,10 @@ namespace Arg
 			auto GetScale() const -> Vec3;
 			void SetScale(const Vec3& scale);
 
+			auto GetForwardVec() const -> Vec3;
+			auto GetRightVec() const -> Vec3;
+			auto GetUpVec() const -> Vec3;
+
 			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);

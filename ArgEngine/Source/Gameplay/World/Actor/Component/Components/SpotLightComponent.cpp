@@ -1,0 +1,70 @@
+﻿#include <arg_pch.hpp>
+#include "SpotLightComponent.hpp"
+
+#include "Gameplay/World/Actor/Actor.hpp"
+
+const Arg::GUID Arg::Gameplay::SpotLightComponent::COMPONENT_ID
+	= std::hash<std::string>{}("SpotLightComponent");
+
+const std::string Arg::Gameplay::SpotLightComponent::COMPONENT_NAME = "SpotLightComponent";
+
+Arg::Gameplay::SpotLightComponent::SpotLightComponent()
+{
+	m_bCanEverTick = false;
+}
+
+auto Arg::Gameplay::SpotLightComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
+{
+	return std::make_shared<SpotLightComponent>();
+}
+
+void Arg::Gameplay::SpotLightComponent::VRender(Renderer::RenderContext& context)
+{
+	ActorComponent::VRender(context);
+
+	m_SpotLight.SetPosition(GetOwner()->GetPosition());
+	m_SpotLight.SetDirection(GetOwner()->GetForwardVec());
+	context.AddSpotLight(m_SpotLight);
+}
+
+void Arg::Gameplay::SpotLightComponent::VOnComponentAdded()
+{
+}
+
+void Arg::Gameplay::SpotLightComponent::VOnComponentRemoved()
+{
+}
+
+bool Arg::Gameplay::SpotLightComponent::VOnSerialize(YAML::Node& node) const
+{
+	const bool bIsSuccess = ActorComponent::VOnSerialize(node);
+	if (!bIsSuccess)
+	{
+		return false;
+	}
+
+	node["Color"] = GetLightColor();
+	node["Range"] = GetLightRange();
+	node["Intensity"] = GetLightIntensity();
+	node["InnerConeAngle"] = GetInnerConeAngle();
+	node["OuterConeAngle"] = GetOuterConeAngle();
+
+	return true;
+}
+
+bool Arg::Gameplay::SpotLightComponent::VOnDeserialize(const YAML::Node& node)
+{
+	const bool bIsSuccess = ActorComponent::VOnDeserialize(node);
+	if (!bIsSuccess)
+	{
+		return false;
+	}
+
+	SetLightColor(ValueOr<Vec3>(node["Color"], Vec3(1.0f)));
+	SetLightRange(ValueOr<float>(node["Range"], 0.0f));
+	SetLightIntensity(ValueOr<float>(node["Intensity"], 1.0f));
+	SetInnerConeAngle(ValueOr<float>(node["InnerConeAngle"], 75.0f));
+	SetOuterConeAngle(ValueOr<float>(node["OuterConeAngle"], 90.0f));
+
+	return true;
+}
