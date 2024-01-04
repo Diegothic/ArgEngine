@@ -212,15 +212,15 @@ void Arg::Content::Content::ScanDirectory(
 
 			if (foundResource->GetType() == ResourceType::ResourceTypeFolder)
 			{
-				auto foderDirectory = entryPath;
-				foderDirectory.replace_extension("");
+				auto folderDirectory = entryPath;
+				folderDirectory.replace_extension("");
 
 				auto resourceFolder = std::make_shared<ResourceFolder>(foundResource);
 				resourceFolder->SetParentFolder(folder);
 				folder->AddSubfolder(resourceFolder);
 				m_pFolders.push_back(resourceFolder);
 
-				ScanDirectory(foderDirectory, resourceFolder);
+				ScanDirectory(folderDirectory, resourceFolder);
 			}
 			else
 			{

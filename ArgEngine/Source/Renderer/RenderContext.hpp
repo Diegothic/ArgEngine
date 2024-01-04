@@ -7,6 +7,8 @@
 #include "Material.hpp"
 #include "Renderer.hpp"
 #include "RenderTarget.hpp"
+#include "SkeletalModel.hpp"
+#include "Animation/Skeleton.hpp"
 #include "Camera/Camera.hpp"
 #include "Light/DirectionalLight.hpp"
 #include "Light/PointLight.hpp"
@@ -45,6 +47,15 @@ namespace Arg
 				bool bCastShadows
 			);
 
+			void DrawSkeletalModel(
+				const SkeletonPose& pose,
+				const SkeletalModel& model,
+				const Mat4& transform,
+				const std::vector<Material*>& materials,
+				bool bReceiveShadows,
+				bool bCastShadows
+			);
+
 			void AddDirectionalLight(DirectionalLight& light);
 			void AddPointLight(PointLight& light);
 			void AddSpotLight(SpotLight& light);
@@ -64,9 +75,14 @@ namespace Arg
 			std::vector<StaticMesh*> m_StaticMeshes;
 			std::vector<MeshDetails> m_StaticMeshesDetails;
 
+			std::vector<const SkeletalMesh*> m_SkeletalMeshes;
+			std::vector<MeshDetails> m_SkeletalMeshesDetails;
+			std::vector<const SkeletonPose*> m_SkeletalMeshesPoses;
+
 			std::vector<Mat4> m_Transforms;
 			std::unordered_map<GUID, Material*> m_Materials;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialStaticMeshIndices;
+			std::unordered_map<GUID, std::vector<size_t>> m_MaterialSkeletalMeshIndices;
 		};
 	}
 }

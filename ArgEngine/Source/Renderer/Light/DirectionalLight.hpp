@@ -6,6 +6,7 @@
 #include "Renderer/ShaderProgram.hpp"
 #include "Renderer/StaticMesh.hpp"
 #include "Renderer/SkeletalMesh.hpp"
+#include "Renderer/Animation/Skeleton.hpp"
 #include "Renderer/FrameBuffer.hpp"
 #include "Renderer/Texture.hpp"
 #include "Renderer/Renderer.hpp"
@@ -33,11 +34,12 @@ namespace Arg
 			void Draw(
 				const StaticMesh& mesh,
 				const Mat4& transform
-			);
+			) const;
 			void Draw(
 				const SkeletalMesh& mesh,
-				const Mat4& transform
-			);
+				const Mat4& transform,
+				const SkeletonPose& pose
+			) const;
 			void End();
 
 		private:
@@ -71,7 +73,7 @@ namespace Arg
 			~DirectionalLight() = default;
 
 			auto GetDirection() const -> const Vec3& { return m_Direction; }
-			void SetDirection(const Vec3& direction) { m_Direction = Math::normalize(direction); }
+			void SetDirection(const Vec3& direction) { m_Direction = direction; }
 
 			auto GetColor() const -> const Vec3& { return m_Color; }
 			void SetColor(const Vec3& color) { m_Color = color; }
@@ -97,6 +99,11 @@ namespace Arg
 			void DrawToShadowMap(
 				const StaticMesh& mesh,
 				const Mat4& transform
+			) const;
+			void DrawToShadowMap(
+				const SkeletalMesh& mesh,
+				const Mat4& transform,
+				const SkeletonPose& pose
 			) const;
 			void EndShadowMap();
 

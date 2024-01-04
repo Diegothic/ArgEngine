@@ -2,39 +2,65 @@
 
 #include <arg_pch.hpp>
 
+#include "Content/Serialization/YamlSerializable.hpp"
 #include "Core/Math/Math.hpp"
+#include "Renderer/ShaderProgram.hpp"
 
 namespace Arg
 {
 	namespace Renderer
 	{
+		struct SkeletonPose
+		{
+			std::vector<Mat4> BoneTransforms;
+
+		public:
+			void Apply(ShaderProgram* pShader) const;
+		};
+
+		struct SkeletonSpec : public Content::YamlSerializable
+		{
+			size_t BoneCount;
+			std::vector<std::string> BoneNames;
+
+		protected:
+			auto VOnSerialize(YAML::Node& node) const -> bool override;
+			auto VOnDeserialize(const YAML::Node& node) -> bool override;
+		};
+
 		struct Bone
 		{
 			int32_t Index = 0;
 			int32_t ParentIndex = -1;
-			std::string Name = std::string();
 			Mat4 LocalTransform = Mat4(1.0f);
 			Mat4 OffsetTransform = Mat4(1.0f);
 		};
 
-		struct SkeletonSpec
+		struct SkeletonData
 		{
+			SkeletonSpec Spec;
 			std::vector<Bone> Bones;
-			std::unordered_map<std::string, int32_t> BoneMap;
 		};
 
 		class Skeleton
 		{
 		public:
-			Skeleton(const SkeletonSpec& spec) {};
+			Skeleton() = default;
+			Skeleton(const Skeleton&) = delete;
 			~Skeleton() = default;
 
-			auto CalculatePose(
-				const std::vector<const Mat4>& boneTransforms
-			) -> std::vector<Mat4> {};
+			void CalculateRestPose(
+				SkeletonPose& outPose
+			) const;
+			void CalculatePose(
+				const std::vector<Mat4>& boneTransforms,
+				SkeletonPose& outPose
+			) const;
+
+			void SetData(const SkeletonData& data);
 
 		private:
-			int32_t m_BoneCount;
+			SkeletonSpec m_Spec;
 			std::vector<Bone> m_Bones;
 		};
 	}

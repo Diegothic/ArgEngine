@@ -3,6 +3,7 @@
 
 #include "Debug/Assert.hpp"
 #include "Components/PointLightComponent.hpp"
+#include "Components/SkeletalModelComponent.hpp"
 #include "Components/SpotLightComponent.hpp"
 #include "Components/StaticModelComponent.hpp"
 
@@ -58,6 +59,7 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 	Clear();
 
 	RegisterComponent(new StaticModelComponent());
+	RegisterComponent(new SkeletalModelComponent());
 	RegisterComponent(new PointLightComponent());
 	RegisterComponent(new SpotLightComponent());
 }

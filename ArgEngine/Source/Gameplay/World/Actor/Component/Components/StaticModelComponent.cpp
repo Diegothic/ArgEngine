@@ -24,7 +24,7 @@ void Arg::Gameplay::StaticModelComponent::VRender(
 )
 {
 	ActorComponent::VRender(context);
-	
+
 	if (m_StaticModel.IsValid())
 	{
 		const auto& staticModel = m_StaticModel.Get()->GetStaticModel();
@@ -152,6 +152,10 @@ auto Arg::Gameplay::StaticModelComponent::VOnSerialize(
 	}
 
 	node["ModelID"] = m_StaticModel.GetID();
+
+	node["CastShadows"] = m_bCastShadows;
+	node["ReceiveShadows"] = m_bReceiveShadows;
+
 	auto materialsNode = node["Materials"];
 	materialsNode.reset();
 	for (const auto& material : m_Materials)
@@ -178,6 +182,9 @@ auto Arg::Gameplay::StaticModelComponent::VOnDeserialize(
 
 	const GUID modelID = ValueOr<GUID>(node["ModelID"], GUID::Empty);
 	m_StaticModel = GetResourceCache()->CreateHandle<Content::StaticModelResource>(modelID);
+
+	m_bCastShadows = ValueOr<bool>(node["CastShadows"], true);
+	m_bReceiveShadows = ValueOr<bool>(node["ReceiveShadows"], true);
 
 	m_Materials.clear();
 	const auto& materialsNode = node["Materials"];

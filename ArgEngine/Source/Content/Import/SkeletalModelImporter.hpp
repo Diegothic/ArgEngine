@@ -1,19 +1,18 @@
-#pragma once
+﻿#pragma once
 
 #include <arg_pch.hpp>
 
 #include "IResourceImporter.hpp"
-#include "Renderer/StaticModel.hpp"
+#include "Renderer/SkeletalModel.hpp"
 
 namespace Arg
 {
 	namespace Import
 	{
-		class StaticModelImporter : public IResourceImporter
+		class SkeletalModelImporter : public IResourceImporter
 		{
 		public:
-			StaticModelImporter() = default;
-			~StaticModelImporter() = default;
+			SkeletalModelImporter() = default;
 
 			virtual auto ImportFile(const std::string& file) -> bool override;
 			virtual void Save(
@@ -21,10 +20,10 @@ namespace Arg
 				const std::filesystem::path& destination
 			) override;
 
-			auto GetData() const -> const Renderer::StaticModelData&;
+			auto GetData() const -> const Renderer::SkeletalModelData&;
 
 		private:
-			Renderer::StaticModelData m_Data;
+			Renderer::SkeletalModelData m_Data;
 		};
 	}
 }

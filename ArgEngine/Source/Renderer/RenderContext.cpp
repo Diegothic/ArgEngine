@@ -46,6 +46,43 @@ void Arg::Renderer::RenderContext::DrawModel(
 	}
 }
 
+void Arg::Renderer::RenderContext::DrawSkeletalModel(
+	const SkeletonPose& pose,
+	const SkeletalModel& model,
+	const Mat4& transform,
+	const std::vector<Material*>& materials,
+	bool bReceiveShadows,
+	bool bCastShadows
+)
+{
+	m_Transforms.push_back(transform);
+	const size_t transformIndex = m_Transforms.size() - 1;
+	for (size_t i = 0; i < model.GetMeshCount(); i++)
+	{
+		const SkeletalMesh* mesh = &model.GetMesh(i);
+		m_SkeletalMeshes.push_back(mesh);
+		const size_t meshIndex = m_SkeletalMeshes.size() - 1;
+
+		m_SkeletalMeshesDetails.emplace_back(transformIndex, bReceiveShadows, bCastShadows);
+		m_SkeletalMeshesPoses.push_back(&pose);
+
+		const size_t materialIndex = model.GetMaterialIndex(i);
+		Material* material = materials[materialIndex];
+		const GUID materialID = material == nullptr
+			                        ? GUID::Empty
+			                        : material->GetID();
+
+		if (!m_Materials.contains(materialID))
+		{
+			m_Materials[materialID] = material;
+			m_MaterialSkeletalMeshIndices[materialID] = std::vector<size_t>();
+			m_MaterialSkeletalMeshIndices[materialID].reserve(16);
+		}
+
+		m_MaterialSkeletalMeshIndices[materialID].push_back(meshIndex);
+	}
+}
+
 void Arg::Renderer::RenderContext::AddDirectionalLight(DirectionalLight& light)
 {
 	m_pDirectionalLight = &light;
@@ -110,6 +147,20 @@ void Arg::Renderer::RenderContext::Render(
 				m_pDirectionalLight->DrawToShadowMap(*mesh, transform);
 			}
 
+			for (size_t i = 0; i < m_SkeletalMeshes.size(); i++)
+			{
+				const SkeletalMesh* mesh = m_SkeletalMeshes[i];
+				const MeshDetails& meshDetails = m_SkeletalMeshesDetails[i];
+				if (!meshDetails.bCastShadows)
+				{
+					continue;
+				}
+
+				const SkeletonPose* pose = m_SkeletalMeshesPoses[i];
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				m_pDirectionalLight->DrawToShadowMap(*mesh, transform, *pose);
+			}
+
 			m_pDirectionalLight->EndShadowMap();
 		}
 
@@ -127,6 +178,20 @@ void Arg::Renderer::RenderContext::Render(
 
 				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
 				m_pDirectionalLight->DrawToShadowMapFar(*mesh, transform);
+			}
+
+			for (size_t i = 0; i < m_SkeletalMeshes.size(); i++)
+			{
+				const SkeletalMesh* mesh = m_SkeletalMeshes[i];
+				const MeshDetails& meshDetails = m_SkeletalMeshesDetails[i];
+				if (!meshDetails.bCastShadows)
+				{
+					continue;
+				}
+
+				const SkeletonPose* pose = m_SkeletalMeshesPoses[i];
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				m_pDirectionalLight->DrawToShadowMap(*mesh, transform, *pose);
 			}
 
 			m_pDirectionalLight->EndShadowMapFar();
@@ -180,38 +245,86 @@ void Arg::Renderer::RenderContext::Render(
 	for (const GUID& materialID : m_Materials | std::ranges::views::keys)
 	{
 		const Material* material = m_Materials.at(materialID);
-		const std::vector<size_t>& meshIndices = m_MaterialStaticMeshIndices.at(materialID);
-		for (const size_t& meshIndex : meshIndices)
+
+		shader->SetUniform("u_IsSkeletal", false);
+
+		if (m_MaterialStaticMeshIndices.contains(materialID))
 		{
-			const StaticMesh* mesh = m_StaticMeshes[meshIndex];
-			const MeshDetails& meshDetails = m_StaticMeshesDetails[meshIndex];
-
-			const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
-			const Mat3 normal(Math::transpose(Math::inverse(view * transform)));
-
-			shader->SetUniform("u_Model", transform);
-			shader->SetUniform("u_Normal", normal);
-
-			shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
-
-			if (materialID != GUID::Empty)
+			const std::vector<size_t>& meshIndices = m_MaterialStaticMeshIndices.at(materialID);
+			for (const size_t& meshIndex : meshIndices)
 			{
-				material->Apply(shader);
+				const StaticMesh* mesh = m_StaticMeshes[meshIndex];
+				const MeshDetails& meshDetails = m_StaticMeshesDetails[meshIndex];
+
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				const Mat3 normal(Math::transpose(Math::inverse(view * transform)));
+
+				shader->SetUniform("u_Model", transform);
+				shader->SetUniform("u_Normal", normal);
+
+				shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
+
+				if (materialID != GUID::Empty)
+				{
+					material->Apply(shader);
+				}
+				else
+				{
+					shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
+					shader->SetUniform("u_Material.diffuseMap", 0);
+
+					shader->SetUniform("u_Material.specular", 0.4f);
+					shader->SetUniform("u_Material.specularMap", 0);
+					shader->SetUniform("u_Material.shininess", 0.2f);
+
+					shader->SetUniform("u_Material.reflection", 0.0f);
+					shader->SetUniform("u_Material.reflectionMap", 0);
+				}
+
+				mesh->Draw();
 			}
-			else
+		}
+
+		shader->SetUniform("u_IsSkeletal", true);
+
+		if (m_MaterialSkeletalMeshIndices.contains(materialID))
+		{
+			const std::vector<size_t>& skeletalMeshIndices = m_MaterialSkeletalMeshIndices.at(materialID);
+			for (const size_t& meshIndex : skeletalMeshIndices)
 			{
-				shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
-				shader->SetUniform("u_Material.diffuseMap", 0);
+				const SkeletalMesh* mesh = m_SkeletalMeshes[meshIndex];
+				const MeshDetails& meshDetails = m_SkeletalMeshesDetails[meshIndex];
 
-				shader->SetUniform("u_Material.specular", 0.4f);
-				shader->SetUniform("u_Material.specularMap", 0);
-				shader->SetUniform("u_Material.shininess", 0.2f);
+				const Mat4& transform = m_Transforms[meshDetails.TransformIndex];
+				const Mat3 normal(Math::transpose(Math::inverse(view * transform)));
 
-				shader->SetUniform("u_Material.reflection", 0.0f);
-				shader->SetUniform("u_Material.reflectionMap", 0);
+				shader->SetUniform("u_Model", transform);
+				shader->SetUniform("u_Normal", normal);
+
+				const SkeletonPose* pose = m_SkeletalMeshesPoses[meshIndex];
+				pose->Apply(shader);
+
+				shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
+
+				if (materialID != GUID::Empty)
+				{
+					material->Apply(shader);
+				}
+				else
+				{
+					shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
+					shader->SetUniform("u_Material.diffuseMap", 0);
+
+					shader->SetUniform("u_Material.specular", 0.4f);
+					shader->SetUniform("u_Material.specularMap", 0);
+					shader->SetUniform("u_Material.shininess", 0.2f);
+
+					shader->SetUniform("u_Material.reflection", 0.0f);
+					shader->SetUniform("u_Material.reflectionMap", 0);
+				}
+
+				mesh->Draw();
 			}
-
-			mesh->Draw();
 		}
 	}
 

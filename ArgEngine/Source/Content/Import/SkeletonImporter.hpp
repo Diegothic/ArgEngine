@@ -2,24 +2,28 @@
 
 #include <arg_pch.hpp>
 
+#include "IResourceImporter.hpp"
 #include "Renderer/Animation/Skeleton.hpp"
 
 namespace Arg
 {
 	namespace Import
 	{
-		class SkeletonImporter
+		class SkeletonImporter : public IResourceImporter
 		{
 		public:
 			SkeletonImporter() = default;
-			~SkeletonImporter() = default;
 
-			auto ImportFile(const std::string& file) -> bool;
+			virtual auto ImportFile(const std::string& file) -> bool override;
+			virtual void Save(
+				const std::string& fileName,
+				const std::filesystem::path& destination
+			) override;
 
-			auto GetData() const -> const Renderer::SkeletonSpec&;
+			auto GetData() const -> const Renderer::SkeletonData&;
 
 		private:
-			Renderer::SkeletonSpec m_Data = Renderer::SkeletonSpec();
+			Renderer::SkeletonData m_Data;
 		};
 	}
 }

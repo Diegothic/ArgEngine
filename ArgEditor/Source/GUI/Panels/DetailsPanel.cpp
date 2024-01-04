@@ -266,6 +266,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 				auto actorComponent = dynamic_pointer_cast<Gameplay::StaticModelComponent>(component);
 				DrawActorComponentProperties(context, actor, actorComponent);
 			}
+			else if (component->VGetID() == Gameplay::SkeletalModelComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::SkeletalModelComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
 			else if (component->VGetID() == Gameplay::PointLightComponent::COMPONENT_ID)
 			{
 				auto actorComponent = dynamic_pointer_cast<Gameplay::PointLightComponent>(component);
@@ -479,6 +484,240 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			if (bReceiveShadows != pComponent->GetReceiveShadows())
 			{
 				pComponent->SetReceiveShadows(bReceiveShadows);
+			}
+		}
+	}
+
+	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::SkeletalModelComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpended = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpended
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpended
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##SkeletonComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Skeleton");
+
+			ImGui::TableNextColumn();
+
+			const auto skeleton = pComponent->GetSkeleton();
+			ResourceHandleProperty(
+				"##SkeletonHandle",
+				Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+				skeleton.IsValid() ? skeleton.Get()->GetName().c_str() : nullptr,
+				[&](GUID droppedResourceID)
+				{
+					const auto& resource = pResourceCache->GetResource(droppedResourceID);
+					if (resource->GetType() == Content::ResourceType::ResourceTypeSkeleton)
+					{
+						pComponent->SetSkeleton(pResourceCache->CreateHandle<Content::SkeletonResource>(
+							droppedResourceID
+						));
+					}
+				},
+				[&]
+				{
+					pComponent->SetSkeleton(pResourceCache->CreateHandle<Content::SkeletonResource>(
+						GUID::Empty
+					));
+				}
+			);
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Skeletal Model");
+
+			ImGui::TableNextColumn();
+
+			const auto model = pComponent->GetModel();
+			ResourceHandleProperty(
+				"##SkeletalModelHandle",
+				Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+				model.IsValid() ? model.Get()->GetName().c_str() : nullptr,
+				[&](GUID droppedResourceID)
+				{
+					const auto& resource = pResourceCache->GetResource(droppedResourceID);
+					if (resource->GetType() == Content::ResourceType::ResourceTypeSkeletalModel)
+					{
+						pComponent->SetModel(pResourceCache->CreateHandle<Content::SkeletalModelResource>(
+							droppedResourceID
+						));
+					}
+				},
+				[&]
+				{
+					pComponent->SetModel(pResourceCache->CreateHandle<Content::SkeletalModelResource>(
+						GUID::Empty
+					));
+				}
+			);
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Materials");
+
+			ImGui::TableNextColumn();
+
+			for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
+			{
+				ImGui::PushID(i);
+
+				ImGui::Text(std::to_string(i).c_str());
+				ImGui::SameLine();
+
+				const auto material = pComponent->GetMaterial(i);
+				ResourceHandleProperty(
+					"##MaterialHandle",
+					Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
+					material.IsValid() ? material.Get()->GetName().c_str() : nullptr,
+					[&](GUID droppedResourceID)
+					{
+						const auto& resource = pResourceCache->GetResource(droppedResourceID);
+						if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+						{
+							pComponent->SetMaterial(
+								i,
+								pResourceCache->CreateHandle<Content::MaterialResource>(
+									droppedResourceID
+								));
+						}
+					},
+					[&]
+					{
+						pComponent->SetMaterial(
+							i,
+							pResourceCache->CreateHandle<Content::MaterialResource>(GUID::Empty)
+						);
+					}
+				);
+
+				ImGui::PopID();
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Cast Shadows");
+
+			ImGui::TableNextColumn();
+
+			bool bCastShadows = pComponent->GetCastShadows();
+			ImGui::Checkbox("##CastShadows", &bCastShadows);
+			if (bCastShadows != pComponent->GetCastShadows())
+			{
+				pComponent->SetCastShadows(bCastShadows);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Receive Shadows");
+
+			ImGui::TableNextColumn();
+
+			bool bReceiveShadows = pComponent->GetReceiveShadows();
+			ImGui::Checkbox("##ReceiveShadows", &bReceiveShadows);
+			if (bReceiveShadows != pComponent->GetReceiveShadows())
+			{
+				pComponent->SetReceiveShadows(bReceiveShadows);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Current Animation");
+
+			ImGui::TableNextColumn();
+
+			const auto animation = pComponent->GetCurrentAnimation();
+			ResourceHandleProperty(
+				"##SkeletalAnimationHandle",
+				Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+				animation.IsValid() ? animation.Get()->GetName().c_str() : nullptr,
+				[&](GUID droppedResourceID)
+				{
+					const auto& resource = pResourceCache->GetResource(droppedResourceID);
+					if (resource->GetType() == Content::ResourceType::ResourceTypeSkeletalAnimation)
+					{
+						pComponent->SetCurrentAnimation(
+							pResourceCache->CreateHandle<Content::SkeletalAnimationResource>(
+								droppedResourceID
+							));
+					}
+				},
+				[&]
+				{
+					pComponent->SetCurrentAnimation(pResourceCache->CreateHandle<Content::SkeletalAnimationResource>(
+						GUID::Empty
+					));
+				}
+			);
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Play on Start");
+
+			ImGui::TableNextColumn();
+
+			bool bPlayOnStart = pComponent->GetPlayOnStart();
+			ImGui::Checkbox("##PlayOnStart", &bPlayOnStart);
+			if (bPlayOnStart != pComponent->GetPlayOnStart())
+			{
+				pComponent->SetPlayOnStart(bPlayOnStart);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Loop");
+
+			ImGui::TableNextColumn();
+
+			bool bLooping = pComponent->GetLooping();
+			ImGui::Checkbox("##Loop", &bLooping);
+			if (bLooping != pComponent->GetLooping())
+			{
+				pComponent->SetLooping(bLooping);
 			}
 		}
 	}

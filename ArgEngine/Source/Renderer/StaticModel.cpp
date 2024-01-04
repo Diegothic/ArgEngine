@@ -53,6 +53,8 @@ auto Arg::Renderer::StaticModelSpec::VOnSerialize(YAML::Node& node) const -> boo
 		meshNode["IndexCount"] = IndexCounts[i];
 	}
 
+	node["StaticModel"] = header;
+
 	return true;
 }
 

@@ -56,7 +56,7 @@ void Arg::Renderer::ShadowMap::Begin(
 void Arg::Renderer::ShadowMap::Draw(
 	const StaticMesh& mesh,
 	const Mat4& transform
-)
+) const
 {
 	m_pShader->SetUniform("u_IsSkeletal", false);
 	m_pShader->SetUniform("u_Model", transform);
@@ -65,12 +65,13 @@ void Arg::Renderer::ShadowMap::Draw(
 
 void Arg::Renderer::ShadowMap::Draw(
 	const SkeletalMesh& mesh,
-	const Mat4& transform
-)
+	const Mat4& transform,
+	const SkeletonPose& pose
+) const
 {
 	m_pShader->SetUniform("u_IsSkeletal", true);
 	m_pShader->SetUniform("u_Model", transform);
-	// TODO :: Set bone transforms on the shader pose.Apply(shader)
+	pose.Apply(m_pShader);
 	mesh.Draw();
 }
 
@@ -109,7 +110,7 @@ void Arg::Renderer::ShadowMap::InitializeBuffer(
 Arg::Renderer::DirectionalLight::DirectionalLight(
 	const DirectionalLightSpec& spec
 )
-	: m_Direction(Math::normalize(spec.Direction)),
+	: m_Direction(spec.Direction),
 	  m_Color(spec.Color),
 	  m_Intensity(spec.Intensity),
 	  m_bCastShadows(spec.bCastShadows),
@@ -146,8 +147,9 @@ void Arg::Renderer::DirectionalLight::Apply(
 	shader->SetUniform("u_DirLights[0].properties.ambient", m_Color * m_Intensity * 0.2f);
 	shader->SetUniform("u_DirLights[0].properties.diffuse", m_Color * m_Intensity);
 	shader->SetUniform("u_DirLights[0].properties.specular", m_Color * m_Intensity);
+	const Vec3 directionNormalized = Math::normalize(m_Direction);
 	const Vec3 lightDirectionView = Vec3(camera->GetView()
-		* Vec4(m_Direction, 0.0f));
+		* Vec4(directionNormalized, 0.0f));
 	shader->SetUniform("u_DirLights[0].direction", lightDirectionView);
 
 	shader->SetUniform("u_DirLights[0].castShadows", m_bCastShadows);
@@ -179,6 +181,16 @@ void Arg::Renderer::DirectionalLight::DrawToShadowMap(
 {
 	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
 	m_pShadowMap->Draw(mesh, transform);
+}
+
+void Arg::Renderer::DirectionalLight::DrawToShadowMap(
+	const SkeletalMesh& mesh,
+	const Mat4& transform,
+	const SkeletonPose& pose
+) const
+{
+	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	m_pShadowMap->Draw(mesh, transform, pose);
 }
 
 void Arg::Renderer::DirectionalLight::EndShadowMap()
@@ -218,19 +230,30 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpace(
 ) const -> Mat4
 {
 	const Mat4 lightProj = Math::ortho(
-		-35.0f, 35.0f,
-		-35.0f, 35.0f,
-		0.1f, 75.0f
+		-25.0f, 25.0f,
+		-25.0f, 25.0f,
+		0.1f, 35.0f
 	);
+	const Vec3 directionNormalized = Math::normalize(m_Direction);
+	const Vec3 arbitrary = m_Direction.z != 0.0f ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(0.0f, 0.0f, 1.0f);
+	const Vec3 perp = Math::normalize(Math::cross(directionNormalized, arbitrary));
+	const Vec3 up = Math::normalize(Math::cross(perp, directionNormalized));
 	const Mat4 lightView = Math::lookAt(
-		-m_Direction * 20.0f
-		+ camera->GetPosition()
-		+ camera->GetForwardVector() * 5.0f,
-		Vec3(0.0f) + camera->GetPosition()
-		+ camera->GetForwardVector() * 5.0f,
-		Vec3(0.0f, 0.0f, 1.0f)
+		-directionNormalized,
+		Vec3(0.0f),
+		up
 	);
-	return lightProj * lightView;
+	Mat4 lightModel(1.0f);
+	lightModel = glm::translate(
+		lightModel,
+		-(camera->GetPosition()
+			+ camera->GetForwardVector() * 2.5f)
+	);
+	lightModel = glm::translate(
+		lightModel,
+		directionNormalized * 20.0f
+	);
+	return lightProj * lightView * lightModel;
 }
 
 auto Arg::Renderer::DirectionalLight::CalculateLightSpaceFar(
@@ -242,23 +265,34 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpaceFar(
 		-100.0f, 100.0f,
 		0.1f, 500.0f
 	);
+	const Vec3 directionNormalized = Math::normalize(m_Direction);
+	const Vec3 arbitrary = m_Direction.z != 0.0f ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(0.0f, 0.0f, 1.0f);
+	const Vec3 perp = Math::normalize(Math::cross(directionNormalized, arbitrary));
+	const Vec3 up = Math::normalize(Math::cross(perp, directionNormalized));
 	const Mat4 lightView = Math::lookAt(
-		-m_Direction * 200.0f
-		+ camera->GetPosition()
-		+ camera->GetForwardVector() * 5.0f,
-		Vec3(0.0f) + camera->GetPosition()
-		+ camera->GetForwardVector() * 5.0f,
-		Vec3(0.0f, 0.0f, 1.0f)
+		-directionNormalized,
+		Vec3(0.0f),
+		up
 	);
-	return lightProj * lightView;
+	Mat4 lightModel(1.0f);
+	lightModel = glm::translate(
+		lightModel,
+		-(camera->GetPosition()
+			+ camera->GetForwardVector() * 5.0f)
+	);
+	lightModel = glm::translate(
+		lightModel,
+		directionNormalized * 200.0f
+	);
+	return lightProj * lightView * lightModel;
 }
 
 void Arg::Renderer::DirectionalLight::RefreshShadowMaps()
 {
 	if (m_bCastShadows)
 	{
-		m_pShadowMap = std::make_unique<ShadowMap>(4096, m_pShadowMapShader);
-		m_pShadowMapFar = std::make_unique<ShadowMap>(2048, m_pShadowMapShader);
+		m_pShadowMap = std::make_unique<ShadowMap>(8192, m_pShadowMapShader);
+		m_pShadowMapFar = std::make_unique<ShadowMap>(4096, m_pShadowMapShader);
 	}
 	else
 	{

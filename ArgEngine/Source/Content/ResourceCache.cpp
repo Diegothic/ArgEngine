@@ -8,6 +8,9 @@
 #include "Resource/GameResources/StaticModelResource.hpp"
 #include "Resource/GameResources/WorldResource.hpp"
 #include "Resource/GameResources/MaterialResource.hpp"
+#include "Resource/GameResources/SkeletalAnimationResource.hpp"
+#include "Resource/GameResources/SkeletalModelResource.hpp"
+#include "Resource/GameResources/SkeletonResource.hpp"
 
 void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& resource)
 {
@@ -21,30 +24,45 @@ void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& r
 		switch (resource->GetType())
 		{
 		case ResourceType::ResourceTypeShader:
-		{
-			m_pGameResources[resource->GetID()] = std::make_shared<ShaderResource>(resource);
-			break;
-		}
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<ShaderResource>(resource);
+				break;
+			}
 		case ResourceType::ResourceTypeMaterial:
-		{
-			m_pGameResources[resource->GetID()] = std::make_shared<MaterialResource>(resource);
-			break;
-		}
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<MaterialResource>(resource);
+				break;
+			}
 		case ResourceType::ResourceTypeTexture:
-		{
-			m_pGameResources[resource->GetID()] = std::make_shared<TextureResource>(resource);
-			break;
-		}
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<TextureResource>(resource);
+				break;
+			}
 		case ResourceType::ResourceTypeStaticModel:
-		{
-			m_pGameResources[resource->GetID()] = std::make_shared<StaticModelResource>(resource);
-			break;
-		}
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<StaticModelResource>(resource);
+				break;
+			}
+		case ResourceType::ResourceTypeSkeletalModel:
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<SkeletalModelResource>(resource);
+				break;
+			}
+		case ResourceType::ResourceTypeSkeleton:
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<SkeletonResource>(resource);
+				break;
+			}
+		case ResourceType::ResourceTypeSkeletalAnimation:
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<SkeletalAnimationResource>(resource);
+				break;
+			}
 		case ResourceType::ResourceTypeWorld:
-		{
-			m_pGameResources[resource->GetID()] = std::make_shared<WorldResource>(resource);
-			break;
-		}
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<WorldResource>(resource);
+				break;
+			}
 		}
 	}
 }
@@ -78,7 +96,7 @@ void Arg::Content::ResourceCache::SaveResource(const GUID ID) const
 	{
 		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
 		const auto& gameResource = m_pGameResources.at(ID);
-		if(gameResource->VIsSaveable())
+		if (gameResource->VIsSaveable())
 		{
 			m_pGameResources.at(ID)->VSaveFiles();
 		}
@@ -170,8 +188,8 @@ void Arg::Content::ResourceCache::FreeResource(const GUID ID)
 void Arg::Content::ResourceCache::SaveAll() const
 {
 	for (const auto& resourceKey : m_pResources
-		| std::ranges::views::keys
-		)
+	     | std::ranges::views::keys
+	)
 	{
 		SaveResource(resourceKey);
 	}

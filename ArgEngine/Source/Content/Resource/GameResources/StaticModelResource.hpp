@@ -17,7 +17,7 @@ namespace Arg
 		public:
 			StaticModelResource(const std::shared_ptr<Resource>& resource);
 			StaticModelResource(const StaticModelResource&) = delete;
-			~StaticModelResource() = default;
+			virtual ~StaticModelResource() = default;
 
 			auto GetStaticModel() const -> const std::shared_ptr<Renderer::StaticModel>&
 			{

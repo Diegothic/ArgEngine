@@ -5,6 +5,9 @@
 
 #include "Editor.hpp"
 #include "Content/ResourceCache.hpp"
+#include "Content/Import/SkeletalAnimationImporter.hpp"
+#include "Content/Import/SkeletalModelImporter.hpp"
+#include "Content/Import/SkeletonImporter.hpp"
 #include "Content/Import/TextureImporter.hpp"
 #include "Content/Import/StaticModelImporter.hpp"
 #include "Dialog/FileDialog/FileOpenDialog.hpp"
@@ -183,19 +186,21 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 								{
 									Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
 								}
-
-								importer.Save(resourceName, currentFolderPath);
-
-								auto resource = pContent->CreateResource(
-									resourceName,
-									Content::ResourceType::ResourceTypeTexture,
-									m_pOpenedFolder
-								);
-
-								if (pEditor->IsProjectOpened())
+								else
 								{
-									auto& project = pEditor->GetProject();
-									project->Save();
+									importer.Save(resourceName, currentFolderPath);
+
+									auto resource = pContent->CreateResource(
+										resourceName,
+										Content::ResourceType::ResourceTypeTexture,
+										m_pOpenedFolder
+									);
+
+									if (pEditor->IsProjectOpened())
+									{
+										auto& project = pEditor->GetProject();
+										project->Save();
+									}
 								}
 							}
 							else
@@ -209,60 +214,49 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 					if (ImGui::MenuItem("Static Model"))
 					{
-						std::filesystem::path path;
-						const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
-						if (isSuccess)
-						{
-							if (path.has_extension()
-								&& (path.extension() == ".fbx"
-									|| path.extension() == ".gltf"
-									|| path.extension() == ".glb"
-								)
-							)
-							{
-								const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
-								auto pathNoExtension = path;
-								pathNoExtension.replace_extension("");
-								const auto fileName = pathNoExtension.filename().string();
-								auto resourceName = fileName;
-								if (std::filesystem::exists(currentFolderPath / resourceName))
-								{
-									for (size_t i = 0; i < 999; i++)
-									{
-										resourceName = std::format("{} ({})", fileName, i);
-										if (!std::filesystem::exists(currentFolderPath / resourceName))
-										{
-											break;
-										}
-									}
-								}
+						std::unique_ptr<Import::IResourceImporter> importer
+							= std::make_unique<Import::StaticModelImporter>();
+						ImportResource(
+							context,
+							importer.get(),
+							Content::ResourceType::ResourceTypeStaticModel,
+							{".fbx", ".gltf", ".glb"}
+						);
+					}
 
-								Import::StaticModelImporter importer;
-								bool bImported = importer.ImportFile(path.string());
-								if (!bImported)
-								{
-									Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
-								}
+					ImGui::Separator();
 
-								importer.Save(resourceName, currentFolderPath);
+					if (ImGui::MenuItem("Skeletal Model"))
+					{
+						auto importer = std::make_unique<Import::SkeletalModelImporter>();
+						ImportResource(
+							context,
+							importer.get(),
+							Content::ResourceType::ResourceTypeSkeletalModel,
+							{".fbx", ".gltf", ".glb"}
+						);
+					}
 
-								auto resource = pContent->CreateResource(
-									resourceName,
-									Content::ResourceType::ResourceTypeStaticModel,
-									m_pOpenedFolder
-								);
+					if (ImGui::MenuItem("Skeleton"))
+					{
+						auto importer = std::make_unique<Import::SkeletonImporter>();
+						ImportResource(
+							context,
+							importer.get(),
+							Content::ResourceType::ResourceTypeSkeleton,
+							{".fbx", ".gltf", ".glb"}
+						);
+					}
 
-								if (pEditor->IsProjectOpened())
-								{
-									auto& project = pEditor->GetProject();
-									project->Save();
-								}
-							}
-							else
-							{
-								Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
-							}
-						}
+					if (ImGui::MenuItem("Skeletal Animations"))
+					{
+						auto animationImporter = std::make_unique<Import::SkeletalAnimationImporter>();
+						ImportAnimations(
+							context,
+							animationImporter.get(),
+							Content::ResourceType::ResourceTypeSkeletalAnimation,
+							{".fbx", ".gltf", ".glb"}
+						);
 					}
 
 					ImGui::EndPopup();
@@ -686,5 +680,154 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
+	}
+}
+
+void Arg::Editor::GUI::ContentBrowserPanel::ImportResource(
+	const EditorGUIContext& context,
+	Import::IResourceImporter* pImporter,
+	const Content::ResourceType& resourceType,
+	const std::vector<std::string>& validExtensions
+) const
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpened = pEditor->IsProjectOpened();
+	const auto& pContent = isProjectOpened
+		                       ? pEditor->GetProject()->GetContent()
+		                       : pEditor->GetContent();
+
+	std::filesystem::path path;
+	const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
+	if (!isSuccess
+		|| !path.has_extension()
+		|| std::ranges::find(validExtensions,
+		                     path.extension()
+		) == validExtensions.end())
+	{
+		Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
+		return;
+	}
+
+	const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
+	auto pathNoExtension = path;
+	pathNoExtension.replace_extension("");
+	const auto fileName = pathNoExtension.filename().string();
+	auto resourceName = fileName;
+	if (std::filesystem::exists(currentFolderPath / resourceName))
+	{
+		for (size_t i = 0; i < 999; i++)
+		{
+			resourceName = std::format("{} ({})", fileName, i);
+			if (!std::filesystem::exists(currentFolderPath / resourceName))
+			{
+				break;
+			}
+		}
+	}
+
+	if (std::filesystem::exists(currentFolderPath / resourceName))
+	{
+		Dialog::MessageBoxDialog::ShowWarning("Items limit exceeded!");
+		return;
+	}
+
+	const bool bImported = pImporter->ImportFile(path.string());
+	if (!bImported)
+	{
+		Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
+		return;
+	}
+
+	pImporter->Save(resourceName, currentFolderPath);
+
+	auto resource = pContent->CreateResource(
+		resourceName,
+		resourceType,
+		m_pOpenedFolder
+	);
+
+	if (pEditor->IsProjectOpened())
+	{
+		const auto& project = pEditor->GetProject();
+		project->Save();
+	}
+}
+
+void Arg::Editor::GUI::ContentBrowserPanel::ImportAnimations(
+	const EditorGUIContext& context,
+	Import::SkeletalAnimationImporter* pImporter,
+	const Content::ResourceType& resourceType,
+	const std::vector<std::string>& validExtensions
+) const
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpened = pEditor->IsProjectOpened();
+	const auto& pContent = isProjectOpened
+		                       ? pEditor->GetProject()->GetContent()
+		                       : pEditor->GetContent();
+
+	std::filesystem::path path;
+	const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
+	if (!isSuccess
+		|| !path.has_extension()
+		|| std::ranges::find(validExtensions,
+		                     path.extension()
+		) == validExtensions.end())
+	{
+		Dialog::MessageBoxDialog::ShowWarning("Invalid file!");
+		return;
+	}
+
+
+	const auto currentFolderPath = m_pOpenedFolder->GetFullPath();
+	auto pathNoExtension = path;
+	pathNoExtension.replace_extension("");
+	const auto fileName = pathNoExtension.filename().string();
+
+	pImporter->ScanFile(path.string());
+	for (size_t i = 0; i < pImporter->GetAnimationCount(); i++)
+	{
+		pImporter->SetIndex(i);
+		const std::string& animationName = pImporter->GetAnimationName(i);
+
+		auto resourceName = std::format("{}_{}", fileName, animationName);
+		if (std::filesystem::exists(currentFolderPath / resourceName))
+		{
+			for (size_t i = 0; i < 999; i++)
+			{
+				resourceName = std::format("{}_{} ({})", fileName, animationName, i);
+				if (!std::filesystem::exists(currentFolderPath / resourceName))
+				{
+					break;
+				}
+			}
+		}
+
+		if (std::filesystem::exists(currentFolderPath / resourceName))
+		{
+			Dialog::MessageBoxDialog::ShowWarning("Items limit exceeded!");
+			return;
+		}
+
+		const bool bImported = pImporter->ImportFile(path.string());
+		if (!bImported)
+		{
+			Dialog::MessageBoxDialog::ShowWarning("Failed to import file!");
+			return;
+		}
+
+		pImporter->Save(resourceName, currentFolderPath);
+
+		auto resource = pContent->CreateResource(
+			resourceName,
+			resourceType,
+			m_pOpenedFolder
+		);
+	}
+
+	if (pEditor->IsProjectOpened())
+	{
+		const auto& project = pEditor->GetProject();
+		project->Save();
 	}
 }

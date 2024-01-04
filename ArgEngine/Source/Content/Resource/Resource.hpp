@@ -18,6 +18,7 @@ namespace Arg
 			// Data resources
 			ResourceTypeTexture = 100,
 			ResourceTypeStaticModel = 101,
+			ResourceTypeSkeleton = 107,
 			ResourceTypeSkeletalModel = 102,
 			ResourceTypeSkeletalAnimation = 103,
 			ResourceTypeShader = 104,

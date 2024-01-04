@@ -405,7 +405,7 @@ void Arg::RuntimeApplication::VOnRun()
 	};
 	Renderer::SpotLight spotLight(spotLightSpec);
 
-	Renderer::SkeletonSpec skeleton;
+	Renderer::SkeletonData skeleton;
 	{
 		Import::SkeletonImporter skeletonImporter;
 		const bool bIsSuccess = skeletonImporter.ImportFile("..\\Content\\Skeletons\\humanoid.fbx");
