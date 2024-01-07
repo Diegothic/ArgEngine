@@ -48,7 +48,10 @@ void Arg::Script::ScriptComponent::VBeginPlay()
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	state[m_Name]["_begin_play"](scriptInstances[m_OwnerIDString]);
+	if (state[m_Name]["_begin_play"].valid())
+	{
+		state[m_Name]["_begin_play"](scriptInstances[m_OwnerIDString]);
+	}
 }
 
 void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime)
@@ -58,7 +61,10 @@ void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime)
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	state[m_Name]["_tick"](scriptInstances[m_OwnerIDString], gameTime.GetDeltaTime());
+	if (state[m_Name]["_tick"].valid())
+	{
+		state[m_Name]["_tick"](scriptInstances[m_OwnerIDString], gameTime.GetDeltaTime());
+	}
 }
 
 void Arg::Script::ScriptComponent::VOnComponentAdded()
@@ -97,7 +103,10 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 			                                              : m_pBase->m_FloatFieldValues.at(fieldName);
 	}
 
-	state[m_Name]["_on_create"](scriptInstances[m_OwnerIDString]);
+	if (state[m_Name]["_on_create"].valid())
+	{
+		state[m_Name]["_on_create"](scriptInstances[m_OwnerIDString]);
+	}
 }
 
 void Arg::Script::ScriptComponent::VOnComponentRemoved()
@@ -105,7 +114,10 @@ void Arg::Script::ScriptComponent::VOnComponentRemoved()
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	state[m_Name]["_on_destroy"](scriptInstances[m_OwnerIDString]);
+	if (state[m_Name]["_on_destroy"].valid())
+	{
+		state[m_Name]["_on_destroy"](scriptInstances[m_OwnerIDString]);
+	}
 
 	scriptInstances[m_OwnerIDString] = sol::nil;
 }

@@ -23,6 +23,8 @@ namespace Arg
 			void RegisterComponent(ActorComponent* prototype);
 			void Clear();
 
+			auto ContainsComponent(const GUID& componentID) const -> bool;
+
 			auto GetComponent(const GUID& componentID) const -> ActorComponent*;
 			auto GetComponentCount() const -> size_t;
 			auto GetComponentID(size_t index) const -> GUID;

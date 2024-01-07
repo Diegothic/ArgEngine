@@ -93,6 +93,11 @@ void Arg::Gameplay::SkeletalModelComponent::VOnComponentAdded()
 				material.AddRef();
 			}
 		}
+
+		if (m_CurrentAnimation.IsValid())
+		{
+			m_CurrentAnimation.AddRef();
+		}
 	}
 }
 
@@ -113,6 +118,10 @@ void Arg::Gameplay::SkeletalModelComponent::VOnComponentRemoved()
 	if (m_Skeleton.IsValid())
 	{
 		m_Skeleton.FreeRef();
+	}
+	if (m_CurrentAnimation.IsValid())
+	{
+		m_CurrentAnimation.FreeRef();
 	}
 }
 

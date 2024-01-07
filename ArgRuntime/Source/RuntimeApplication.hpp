@@ -1,5 +1,7 @@
 #pragma once
 
+#include <arg_pch.hpp>
+
 #include "Core/Application.hpp"
 #include "Core/Window/Window.hpp"
 

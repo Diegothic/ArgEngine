@@ -133,6 +133,7 @@ void Arg::GameEngine::LoadWorld(const WorldHandle& worldHandle)
 	{
 		if (m_WorldHandle.IsValid())
 		{
+			m_pLoadedWorld->Destroy();
 			m_WorldHandle.FreeRef();
 		}
 

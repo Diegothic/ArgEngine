@@ -28,6 +28,9 @@ namespace Arg
 			void BeginOpaque() const;
 			void BeginTransparent() const;
 
+			void BeginSkybox() const;
+			void EndSkybox() const;
+
 		private:
 			std::unique_ptr<Texture> m_pWhiteTexture = nullptr;
 			std::unique_ptr<Texture> m_pBlackTexture = nullptr;

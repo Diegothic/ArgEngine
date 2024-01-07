@@ -333,6 +333,19 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 				ImGui::EndMenu();
 			}
 
+			const float frameTime = pGameEngine->GetGameTime().GetAvgFrameTime();
+			const float fps = 1.0f / frameTime;
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 100.0f);
+			const std::string fpsText = std::format("FPS: {:.3f}", fps);
+			ImGui::Text(fpsText.c_str());
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 250.0f);
+			const std::string frameTimeText = std::format("Frame Time: {:.5f}", frameTime);
+			ImGui::Text(frameTimeText.c_str());
+
 			ImGui::EndMainMenuBar();
 		}
 

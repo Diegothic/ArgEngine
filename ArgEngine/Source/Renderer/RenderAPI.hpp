@@ -16,6 +16,7 @@ namespace Arg
 			void ClearBuffers();
 
 			void SetBlendingEnabled(bool bIsEnabled);
+			void SetDrawingBackground(bool bDrawingBackground);
 		}
 	}
 }

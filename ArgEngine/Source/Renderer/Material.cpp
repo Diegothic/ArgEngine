@@ -16,7 +16,7 @@ void Arg::Renderer::Material::Apply(ShaderProgram* shader) const
 	}
 	else
 	{
-		shader->SetUniform("u_Material.diffuseMap", 0);
+		shader->SetUniform("u_Material.diffuseMap", TEXTURE_UNIT_WHITE);
 		shader->SetUniform("u_Material.diffuse", Vec3(m_DiffuseColor));
 	}
 
@@ -28,7 +28,7 @@ void Arg::Renderer::Material::Apply(ShaderProgram* shader) const
 	}
 	else
 	{
-		shader->SetUniform("u_Material.specularMap", 0);
+		shader->SetUniform("u_Material.specularMap", TEXTURE_UNIT_WHITE);
 		shader->SetUniform("u_Material.specular", m_Specular);
 	}
 
@@ -42,7 +42,7 @@ void Arg::Renderer::Material::Apply(ShaderProgram* shader) const
 	}
 	else
 	{
-		shader->SetUniform("u_Material.reflectionMap", 1);
+		shader->SetUniform("u_Material.reflectionMap", TEXTURE_UNIT_WHITE);
 	}
 
 	shader->SetUniform("u_Material.reflection", m_Reflectivity);

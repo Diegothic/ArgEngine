@@ -2,6 +2,7 @@
 
 #include <arg_pch.hpp>
 
+#include "CubeMap.hpp"
 #include "Core/Math/Math.hpp"
 #include "StaticModel.hpp"
 #include "Material.hpp"
@@ -24,6 +25,8 @@ namespace Arg
 			Vec2i ViewportSize = Vec2i(1920, 1080);
 			ShaderProgram* pBasicShader = nullptr;
 			ShaderProgram* pShadowMapShader = nullptr;
+			ShaderProgram* pSkyboxShader = nullptr;
+			StaticModel* pSkyboxMesh = nullptr;
 		};
 
 		class RenderContext
@@ -60,6 +63,9 @@ namespace Arg
 			void AddPointLight(PointLight& light);
 			void AddSpotLight(SpotLight& light);
 
+			void SetBackgroundColor(const Vec3& color);
+			void SetSkybox(CubeMap* cubeMap);
+
 			void Render(
 				Renderer& renderer,
 				RenderTarget* renderTarget
@@ -83,6 +89,9 @@ namespace Arg
 			std::unordered_map<GUID, Material*> m_Materials;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialStaticMeshIndices;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialSkeletalMeshIndices;
+
+			Vec3 m_BackgroundColor = Vec3(0.5f);
+			CubeMap* m_pCubeMap = nullptr;
 		};
 	}
 }

@@ -409,6 +409,12 @@ auto Arg::Gameplay::Actor::VOnDeserialize(const YAML::Node& node) -> bool
 			}
 
 			const std::string componentID = ValueOr<std::string>(componentNode["ID"], "");
+			const GUID ID = std::hash<std::string>{}(componentID);
+			if (!componentRegistry->ContainsComponent(ID))
+			{
+				continue;
+			}
+
 			auto component = componentRegistry->CreateComponent(componentID);
 
 			m_Components.push_back(component);

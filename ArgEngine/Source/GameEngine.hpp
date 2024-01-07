@@ -24,11 +24,13 @@ namespace Arg
 		void Initialize(
 			const std::filesystem::path& rootDirectory,
 			const std::shared_ptr<Content::ResourceCache>& pResourceCache
-			);
+		);
 		void Deinitialize();
 
 		void RebuildScripts();
 		void LoadScripts();
+
+		auto GetGameTime() const -> const Gameplay::GameTime& { return m_GameTime; }
 
 		void LoadWorld(const std::string& worldName);
 		void LoadWorld(const GUID& worldID);
@@ -42,7 +44,6 @@ namespace Arg
 		auto IsPlaying() const -> bool { return m_bIsPlaying; }
 
 		void Update(const float& deltaTime);
-
 		void RenderEditor(Renderer::RenderContext& context) const;
 
 		void ClearGarbage();

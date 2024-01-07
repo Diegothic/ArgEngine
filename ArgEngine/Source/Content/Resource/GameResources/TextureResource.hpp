@@ -24,12 +24,15 @@ namespace Arg
 				return m_pTexture;
 			}
 
+			auto GetTextureData() -> char*;
+			void FreeTextureData();
+
 		protected:
-			auto GetResourceFileExtension() const -> const std::string & override;
+			auto GetResourceFileExtension() const -> const std::string& override;
 
 			void VPreLoad() override;
 			void VOnLoad() override;
-			auto VGetSerializableData() const->ISerializable* override;
+			auto VGetSerializableData() const -> ISerializable* override;
 			void VUnload() override;
 
 		private:

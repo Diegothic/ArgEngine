@@ -40,3 +40,15 @@ void Arg::Renderer::RenderAPI::SetBlendingEnabled(bool bIsEnabled)
 		glDisable(GL_BLEND);
 	}
 }
+
+void Arg::Renderer::RenderAPI::SetDrawingBackground(bool bDrawingBackground)
+{
+	if (bDrawingBackground)
+	{
+		glDepthFunc(GL_LEQUAL);
+	}
+	else
+	{
+		glDepthFunc(GL_LESS);
+	}
+}

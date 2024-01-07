@@ -8,7 +8,7 @@ void Arg::Renderer::Renderer::Initialize()
 {
 	m_pWhiteTexture = std::make_unique<Texture>();
 	{
-		uint32_t whiteTexturePixel[] = { 0xFFFFFFFF };
+		uint32_t whiteTexturePixel[] = {0xFFFFFFFF};
 		const TextureData whiteTextureData{
 			.Data = whiteTexturePixel,
 			.Width = 1,
@@ -21,7 +21,7 @@ void Arg::Renderer::Renderer::Initialize()
 
 	m_pBlackTexture = std::make_unique<Texture>();
 	{
-		uint32_t blackTexturePixel[] = { 0x000000FF };
+		uint32_t blackTexturePixel[] = {0x000000FF};
 		const TextureData blackTextureData{
 			.Data = blackTexturePixel,
 			.Width = 1,
@@ -42,7 +42,7 @@ void Arg::Renderer::Renderer::BeginFrame(const FrameParams& params) const
 
 	m_pWhiteTexture->Bind(0);
 	m_pBlackTexture->Bind(1);
-	
+
 	m_pWhiteTexture->Unbind();
 	m_pBlackTexture->Unbind();
 }
@@ -61,4 +61,14 @@ void Arg::Renderer::Renderer::BeginOpaque() const
 void Arg::Renderer::Renderer::BeginTransparent() const
 {
 	RenderAPI::SetBlendingEnabled(true);
+}
+
+void Arg::Renderer::Renderer::BeginSkybox() const
+{
+	RenderAPI::SetDrawingBackground(true);
+}
+
+void Arg::Renderer::Renderer::EndSkybox() const
+{
+	RenderAPI::SetDrawingBackground(false);
 }

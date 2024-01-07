@@ -98,6 +98,16 @@ void Arg::Renderer::RenderContext::AddSpotLight(SpotLight& light)
 	m_SpotLights.push_back(&light);
 }
 
+void Arg::Renderer::RenderContext::SetBackgroundColor(const Vec3& color)
+{
+	m_BackgroundColor = color;
+}
+
+void Arg::Renderer::RenderContext::SetSkybox(CubeMap* cubeMap)
+{
+	m_pCubeMap = cubeMap;
+}
+
 void Arg::Renderer::RenderContext::Render(
 	Renderer& renderer,
 	RenderTarget* renderTarget
@@ -204,7 +214,18 @@ void Arg::Renderer::RenderContext::Render(
 	shader->SetUniform("u_Proj", proj);
 	shader->SetUniform("u_View", view);
 
-	shader->SetUniform("u_SkyBox", 0);
+	shader->SetUniform("u_SkyboxColor", m_BackgroundColor);
+	if (m_pCubeMap != nullptr)
+	{
+		shader->SetUniform("u_UsingSkybox", true);
+		m_pCubeMap->Bind(TEXTURE_UNIT_SKYBOX);
+		shader->SetUniform("u_Skybox", TEXTURE_UNIT_SKYBOX);
+	}
+	else
+	{
+		shader->SetUniform("u_UsingSkybox", false);
+		shader->SetUniform("u_Skybox", TEXTURE_UNIT_WHITE);
+	}
 
 	shader->SetUniform("u_DirLightsCount", m_pDirectionalLight != nullptr ? 1 : 0);
 	if (m_pDirectionalLight != nullptr)
@@ -236,7 +257,7 @@ void Arg::Renderer::RenderContext::Render(
 
 	const FrameParams frameParams{
 		.ViewportSize = viewportSize,
-		.ClearColor = Vec4(0.5f, 0.5f, 0.5f, 1.0f) // TODO: Camera->Background()
+		.ClearColor = Vec4(m_BackgroundColor, 1.0f)
 	};
 	renderer.BeginFrame(frameParams);
 
@@ -326,6 +347,30 @@ void Arg::Renderer::RenderContext::Render(
 				mesh->Draw();
 			}
 		}
+	}
+
+	if (m_pCubeMap != nullptr)
+	{
+		renderer.BeginSkybox();
+
+		auto skyboxShader = m_Spec.pSkyboxShader;
+		auto skyboxMesh = m_Spec.pSkyboxMesh;
+
+		skyboxShader->Use();
+
+		skyboxShader->SetUniform("u_Proj", proj);
+
+		const Mat4 skyBoxView = Mat4(Mat3(view));
+		skyboxShader->SetUniform("u_View", skyBoxView);
+
+		m_pCubeMap->Bind(TEXTURE_UNIT_SKYBOX);
+		skyboxShader->SetUniform("u_SkyBox", TEXTURE_UNIT_SKYBOX);
+
+		skyboxMesh->GetMesh(0)->Draw();
+
+		m_pCubeMap->Unbind();
+
+		renderer.EndSkybox();
 	}
 
 	renderer.EndFrame();

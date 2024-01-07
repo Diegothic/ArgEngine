@@ -30,6 +30,11 @@ void Arg::Gameplay::ComponentRegistry::Clear()
 	m_ComponentIDs.clear();
 }
 
+auto Arg::Gameplay::ComponentRegistry::ContainsComponent(const GUID& componentID) const -> bool
+{
+	return m_ComponentRegistry.contains(componentID);
+}
+
 auto Arg::Gameplay::ComponentRegistry::GetComponent(const GUID& componentID) const -> ActorComponent*
 {
 	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "");

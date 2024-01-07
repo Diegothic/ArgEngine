@@ -9,6 +9,17 @@ Arg::Content::TextureResource::TextureResource(const std::shared_ptr<Resource>& 
 
 }
 
+auto Arg::Content::TextureResource::GetTextureData() -> char*
+{
+	GameDataResource::VPreLoad();
+	return GetData()->data();
+}
+
+void Arg::Content::TextureResource::FreeTextureData()
+{
+	GameDataResource::VPostLoad();
+}
+
 auto Arg::Content::TextureResource::GetResourceFileExtension() const -> const std::string&
 {
 	return TEXTURE_RESOURCE_FILE_EXTENSION;

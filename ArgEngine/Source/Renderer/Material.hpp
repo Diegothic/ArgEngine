@@ -13,9 +13,17 @@ namespace Arg
 
 	namespace Renderer
 	{
+		constexpr int32_t TEXTURE_UNIT_WHITE = 0;
+		constexpr int32_t TEXTURE_UNIT_BLACK = 1;
+		
 		constexpr int32_t TEXTURE_UNIT_DIFFUSE = 2;
 		constexpr int32_t TEXTURE_UNIT_SPECULAR = 3;
 		constexpr int32_t TEXTURE_UNIT_REFLECTIVITY = 4;
+		
+		constexpr int32_t TEXTURE_UNIT_SKYBOX = 9;
+		
+		constexpr int32_t TEXTURE_UNIT_SHADOW_MAP = 10;
+		constexpr int32_t TEXTURE_UNIT_SHADOW_MAP_FAR = 11;
 
 		class Material : public Content::YamlSerializable
 		{

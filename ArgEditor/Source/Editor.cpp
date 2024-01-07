@@ -115,6 +115,17 @@ void Arg::Editor::Editor::Initialize()
 		auto shadowMapShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\ShadowMap");
 		shadowMapShaderHandle.AddRef();
+
+		auto skyboxShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\Skybox");
+		skyboxShaderHandle.AddRef();
+	}
+
+	// Load engine content
+	{
+		auto skyboxMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Skybox");
+		skyboxMeshHandle.AddRef();
 	}
 }
 
@@ -232,20 +243,34 @@ void Arg::Editor::Editor::Render()
 		const auto basicShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\BasicStatic");
 		const auto basicShader = basicShaderHandle.IsValid()
-			                   ? basicShaderHandle.Get()->GetShader()
-			                   : nullptr;
+			                         ? basicShaderHandle.Get()->GetShader()
+			                         : nullptr;
 
 		const auto shadowMapShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\ShadowMap");
 		const auto shadowMapShader = shadowMapShaderHandle.IsValid()
-							   ? shadowMapShaderHandle.Get()->GetShader()
-							   : nullptr;
+			                             ? shadowMapShaderHandle.Get()->GetShader()
+			                             : nullptr;
+
+		const auto skyboxShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\Skybox");
+		const auto skyboxShader = skyboxShaderHandle.IsValid()
+			                          ? skyboxShaderHandle.Get()->GetShader()
+			                          : nullptr;
+
+		const auto skyboxMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Skybox");
+		const auto skyboxMesh = skyboxMeshHandle.IsValid()
+			                        ? skyboxMeshHandle.Get()->GetStaticModel()
+			                        : nullptr;
 
 		const Renderer::RenderContextSpec renderContextSpec{
 			.pCamera = camera.get(),
 			.ViewportSize = viewportSize,
 			.pBasicShader = basicShader.get(),
-			.pShadowMapShader = shadowMapShader.get()
+			.pShadowMapShader = shadowMapShader.get(),
+			.pSkyboxShader = skyboxShader.get(),
+			.pSkyboxMesh = skyboxMesh.get()
 		};
 		Renderer::RenderContext renderContext(renderContextSpec);
 		m_pGameEngine->RenderEditor(renderContext);
@@ -259,8 +284,6 @@ void Arg::Editor::Editor::Render()
 
 	// Apply GUI
 	m_pGUI->RenderDrawData();
-
-	// TODO: Render game view
 }
 
 auto Arg::Editor::Editor::GetEditorViewRendererID() const -> uint32_t

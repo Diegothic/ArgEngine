@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 
 #include "Editor.hpp"
+#include "GUI/Elements/Properties.hpp"
 
 void Arg::Editor::GUI::WorldSettingsPanel::OnInitialize(const EditorGUIContext& context)
 {
@@ -13,6 +14,13 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 {
 	Editor* pEditor = context.pEditor;
 	auto& pGameEngine = pEditor->GetGameEngine();
+	const bool isProjectOpended = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpended
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpended
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 10.0f));
 	const bool isOpen = ImGui::Begin("World Settings", &GetIsOpened());
@@ -115,6 +123,140 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 					if (bCastShadows != pWorld->GetSunlightCastsShadows())
 					{
 						pWorld->SetSunlightCastsShadows(bCastShadows);
+					}
+				}
+			}
+
+			ImGui::EndTable();
+		}
+
+		const bool isBackgroundHeaderOpen = ImGui::CollapsingHeader(
+			"##BackgroundSettingsHeader",
+			ImGuiTreeNodeFlags_DefaultOpen
+			| ImGuiTreeNodeFlags_OpenOnArrow
+			| ImGuiTreeNodeFlags_OpenOnDoubleClick
+			| ImGuiTreeNodeFlags_FramePadding
+			| ImGuiTreeNodeFlags_AllowOverlap
+		);
+
+		ImGui::SameLine(50.0f);
+		ImGui::Text("Background");
+
+		if (isBackgroundHeaderOpen)
+		{
+			if (ImGui::BeginTable(
+				"##BackgroundSettingsTable",
+				2,
+				ImGuiTableFlags_BordersInnerV
+				| ImGuiTableFlags_BordersOuter
+				| ImGuiTableFlags_NoSavedSettings
+				| ImGuiTableFlags_SizingFixedFit
+			))
+			{
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Type");
+
+					ImGui::TableNextColumn();
+
+					const char* backgroundTypes[] = {"Flat Color", "Skybox"};
+					size_t currentType = pWorld->GetUsingSkybox() ? 1 : 0;
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					if (ImGui::BeginCombo("##BackgroundType", backgroundTypes[currentType]))
+					{
+						for (size_t i = 0; i < 2; i++)
+						{
+							const bool bIsSelected = currentType == i;
+							if (ImGui::Selectable(backgroundTypes[i], bIsSelected))
+							{
+								currentType = i;
+								pWorld->SetUsingSkybox(i == 1);
+							}
+
+							if (bIsSelected)
+							{
+								ImGui::SetItemDefaultFocus();
+							}
+						}
+
+						ImGui::EndCombo();
+					}
+
+					switch (currentType)
+					{
+					case 0:
+						{
+							ImGui::TableNextColumn();
+							ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+							ImGui::Text("Color");
+
+							ImGui::TableNextColumn();
+
+							static Vec3 color = Vec3(1.0f);
+							color = pWorld->GetBackgroundColor();
+							ImGui::ColorEdit3(
+								"##BackgroundColor",
+								Math::ValuePtr(color),
+								ImGuiColorEditFlags_Float
+								| ImGuiColorEditFlags_HDR
+							);
+							if (color != pWorld->GetBackgroundColor())
+							{
+								pWorld->SetBackgroundColor(color);
+							}
+
+							break;
+						}
+					case 1:
+						{
+							for (size_t i = 0; i < 6; i++)
+							{
+								ImGui::PushID(i);
+
+								ImGui::TableNextColumn();
+								ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+								const std::string label = std::format("Texture {}", i);
+								ImGui::Text(label.c_str());
+
+								ImGui::TableNextColumn();
+
+								const auto texture = pWorld->GetSkyboxTexture(i);
+								ResourceHandleProperty(
+									"##TextureHandle",
+									Vec2(ImGui::GetWindowWidth() - 160.0f, 25.0f),
+									texture.IsValid() ? texture.Get()->GetName().c_str() : nullptr,
+									[&](GUID droppedResourceID)
+									{
+										const auto& resource = pResourceCache->GetResource(droppedResourceID);
+										if (resource->GetType() == Content::ResourceType::ResourceTypeTexture)
+										{
+											pWorld->SetSkyboxTexture(
+												i,
+												pResourceCache
+												->CreateHandle<Content::TextureResource>(
+													droppedResourceID
+												)
+											);
+										}
+									},
+									[&]
+									{
+										pWorld->SetSkyboxTexture(
+											i,
+											pResourceCache->CreateHandle<Content::TextureResource>(GUID::Empty)
+										);
+									}
+								);
+
+								ImGui::PopID();
+							}
+
+							break;
+						}
 					}
 				}
 			}

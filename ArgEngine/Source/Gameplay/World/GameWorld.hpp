@@ -25,6 +25,7 @@ namespace Arg
 
 			void Create();
 			void Initialize(const GameContext& context);
+			void Destroy();
 
 			auto GetName() const -> const std::string& { return m_pResource->GetName(); }
 
@@ -50,6 +51,14 @@ namespace Arg
 			void SetSunlightCastsShadows(bool bCastShadows);
 
 		public:
+			auto GetUsingSkybox() const -> bool;
+			void SetUsingSkybox(bool bUsingSkybox);
+			auto GetBackgroundColor() const -> Vec3;
+			void SetBackgroundColor(const Vec3& color);
+			auto GetSkyboxTexture(size_t index) const -> TextureHandle;
+			void SetSkyboxTexture(size_t index, const TextureHandle& texture);
+
+		public:
 			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
@@ -61,6 +70,9 @@ namespace Arg
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;
+
+		private:
+			void CheckSkybox();
 
 		private:
 			auto GenerateID() -> GUID;
@@ -76,6 +88,11 @@ namespace Arg
 			std::unordered_map<GUID, Actor*> m_ActorsRegistry;
 
 			std::unique_ptr<Renderer::DirectionalLight> m_pSunlight = nullptr;
+			Vec3 m_BackgroundColor = Vec3(0.5f);
+			std::vector<TextureHandle> m_SkyboxTextures;
+			std::unique_ptr<Renderer::CubeMap> m_pSkybox = nullptr;
+			bool m_bUsingSkybox = false;
+			bool m_bSkyboxValid = false;
 
 			ComponentRegistry* m_pComponents = nullptr;
 

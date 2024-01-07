@@ -10,6 +10,8 @@ Arg::Gameplay::GameWorld::GameWorld(Content::Resource* pResource)
 {
 	m_pResource = pResource;
 	m_pRootActor = std::make_unique<Actor>(GUID::Empty, this);
+
+	m_SkyboxTextures = std::vector<TextureHandle>(6);
 }
 
 void Arg::Gameplay::GameWorld::Create()
@@ -30,6 +32,32 @@ void Arg::Gameplay::GameWorld::Initialize(const GameContext& context)
 		.pShadowMapShader = nullptr
 	};
 	m_pSunlight = std::make_unique<Renderer::DirectionalLight>(sunlightSpec);
+}
+
+void Arg::Gameplay::GameWorld::Destroy()
+{
+	std::vector<GUID> actorsToDestroy;
+	actorsToDestroy.reserve(m_Actors.size());
+	for (const auto& actor : m_Actors)
+	{
+		actorsToDestroy.push_back(actor->GetID());
+	}
+
+	for (const auto& actorID : actorsToDestroy)
+	{
+		Actor& actor = GetActor(actorID);
+		DestroyActor(actor);
+	}
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		if (m_SkyboxTextures[i].IsValid())
+		{
+			m_SkyboxTextures[i].FreeRef();
+		}
+	}
+
+	m_pSkybox = nullptr;
 }
 
 auto Arg::Gameplay::GameWorld::HasActor(const GUID& actorID) const -> bool
@@ -142,6 +170,61 @@ void Arg::Gameplay::GameWorld::SetSunlightCastsShadows(bool bCastShadows)
 	m_pSunlight->SetCastingShadows(bCastShadows);
 }
 
+auto Arg::Gameplay::GameWorld::GetUsingSkybox() const -> bool
+{
+	return m_bUsingSkybox;
+}
+
+void Arg::Gameplay::GameWorld::SetUsingSkybox(bool bUsingSkybox)
+{
+	m_bUsingSkybox = bUsingSkybox;
+	if (!m_bUsingSkybox)
+	{
+		m_pSkybox = nullptr;
+		m_bSkyboxValid = false;
+	}
+	else
+	{
+		m_pSkybox = std::make_unique<Renderer::CubeMap>();
+		CheckSkybox();
+	}
+}
+
+auto Arg::Gameplay::GameWorld::GetBackgroundColor() const -> Vec3
+{
+	return m_BackgroundColor;
+}
+
+void Arg::Gameplay::GameWorld::SetBackgroundColor(const Vec3& color)
+{
+	m_BackgroundColor = color;
+}
+
+auto Arg::Gameplay::GameWorld::GetSkyboxTexture(size_t index) const -> TextureHandle
+{
+	ARG_ASSERT(index < 6, "");
+	return m_SkyboxTextures[index];
+}
+
+void Arg::Gameplay::GameWorld::SetSkyboxTexture(size_t index, const TextureHandle& texture)
+{
+	ARG_ASSERT(index < 6, "");
+
+	if (m_SkyboxTextures[index].IsValid())
+	{
+		m_SkyboxTextures[index].FreeRef();
+	}
+
+	m_SkyboxTextures[index] = texture;
+
+	if (m_SkyboxTextures[index].IsValid())
+	{
+		m_SkyboxTextures[index].AddRef();
+	}
+
+	CheckSkybox();
+}
+
 void Arg::Gameplay::GameWorld::BeginPlay()
 {
 	for (const auto& actor : m_Actors)
@@ -169,6 +252,12 @@ void Arg::Gameplay::GameWorld::Render(Renderer::RenderContext& context)
 	}
 
 	context.AddDirectionalLight(*m_pSunlight);
+
+	context.SetBackgroundColor(m_BackgroundColor);
+	if (m_bUsingSkybox && m_bSkyboxValid)
+	{
+		context.SetSkybox(m_pSkybox.get());
+	}
 
 	for (const auto& actor : m_Actors)
 	{
@@ -208,6 +297,18 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 	sunlightNode["CastShadows"] = m_pSunlight->IsCastingShadows();
 
 	header["Sunlight"] = sunlightNode;
+
+	auto backgroundNode = header["Background"];
+	backgroundNode["UsingSkybox"] = m_bUsingSkybox;
+	backgroundNode["Color"] = m_BackgroundColor;
+	auto backgroundTexturesNode = backgroundNode["Textures"];
+	for (size_t i = 0; i < 6; i++)
+	{
+		backgroundTexturesNode[i] = m_SkyboxTextures[i].GetID();
+	}
+
+	backgroundNode["Textures"] = backgroundTexturesNode;
+	header["Background"] = backgroundNode;
 
 	auto actorsNode = header["Actors"];
 	actorsNode.reset();
@@ -256,6 +357,8 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 		return false;
 	}
 
+	Content::ResourceCache* pResourceCache = m_pResource->GetResourceCache();
+
 	const auto lastGeneratedID = ValueOr<uint64_t>(header["LastGeneratedID"], 0);
 	m_IDGenerator.SetSeed(lastGeneratedID);
 
@@ -266,6 +369,21 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 		m_pSunlight->SetDirection(ValueOr<Vec3>(sunlightNode["Direction"], Vec3(0.0f, 0.0f, -1.0f)));
 		m_pSunlight->SetIntensity(ValueOr<float>(sunlightNode["Intensity"], 1.0f));
 		m_pSunlight->SetCastingShadows(ValueOr<bool>(sunlightNode["CastShadows"], true));
+	}
+
+	const auto& backgroundNode = header["Background"];
+	if (backgroundNode)
+	{
+		SetBackgroundColor(ValueOr<Vec3>(backgroundNode["Color"], Vec3(1.0f)));
+
+		const auto& backgroundTexturesNode = backgroundNode["Textures"];
+		for (size_t i = 0; i < 6; i++)
+		{
+			const GUID textureID = ValueOr<GUID>(backgroundTexturesNode[i], GUID::Empty);
+			SetSkyboxTexture(i, pResourceCache->CreateHandle<Content::TextureResource>(textureID));
+		}
+
+		SetUsingSkybox(ValueOr<bool>(backgroundNode["UsingSkybox"], false));
 	}
 
 	m_ActorsRegistry.clear();
@@ -314,6 +432,33 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 	}
 
 	return true;
+}
+
+void Arg::Gameplay::GameWorld::CheckSkybox()
+{
+	m_bSkyboxValid = false;
+
+	bool bAllTexturesValid = true;
+	for (size_t i = 0; i < 6; i++)
+	{
+		if (!m_SkyboxTextures[i].IsValid())
+		{
+			bAllTexturesValid = false;
+			break;
+		}
+	}
+
+	if (bAllTexturesValid && m_bUsingSkybox)
+	{
+		std::vector<TextureHandle> faces(6);
+		for (size_t i = 0; i < 6; i++)
+		{
+			faces[i] = m_SkyboxTextures[i];
+		}
+		m_pSkybox->SetFaces(faces);
+
+		m_bSkyboxValid = true;
+	}
 }
 
 auto Arg::Gameplay::GameWorld::GenerateID() -> GUID

@@ -246,8 +246,7 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpace(
 	Mat4 lightModel(1.0f);
 	lightModel = glm::translate(
 		lightModel,
-		-(camera->GetPosition()
-			+ camera->GetForwardVector() * 2.5f)
+		-camera->GetPosition()
 	);
 	lightModel = glm::translate(
 		lightModel,
@@ -263,7 +262,7 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpaceFar(
 	const Mat4 lightProj = Math::ortho(
 		-100.0f, 100.0f,
 		-100.0f, 100.0f,
-		0.1f, 500.0f
+		0.1f, 200.0f
 	);
 	const Vec3 directionNormalized = Math::normalize(m_Direction);
 	const Vec3 arbitrary = m_Direction.z != 0.0f ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(0.0f, 0.0f, 1.0f);
@@ -278,11 +277,11 @@ auto Arg::Renderer::DirectionalLight::CalculateLightSpaceFar(
 	lightModel = glm::translate(
 		lightModel,
 		-(camera->GetPosition()
-			+ camera->GetForwardVector() * 5.0f)
+			+ camera->GetForwardVector() * 10.0f)
 	);
 	lightModel = glm::translate(
 		lightModel,
-		directionNormalized * 200.0f
+		directionNormalized * 100.0f
 	);
 	return lightProj * lightView * lightModel;
 }

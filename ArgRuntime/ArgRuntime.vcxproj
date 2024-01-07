@@ -46,20 +46,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Bin\Runtime_$(Configuration)_$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Temp\Runtime\$(Configuration)_$(Platform)\</IntDir>
-    <IncludePath>$(ProjectDir)Source;$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Source;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Bin\Runtime_$(Configuration)_$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Temp\Runtime\$(Configuration)_$(Platform)\</IntDir>
-    <IncludePath>$(ProjectDir)Source;$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Source;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -77,12 +79,14 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>arg_pch.hpp</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
