@@ -47,7 +47,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 	ImGui::Text(actorName.c_str());
 	ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "\tID: %llu", actor->GetID());
 
-	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+	const bool bIsTransformOpen = ImGui::CollapsingHeader(
+		"Transform",
+		ImGuiTreeNodeFlags_DefaultOpen
+	);
+	if (bIsTransformOpen)
 	{
 		const auto position = actor->GetLocalPosition();
 		const auto rotation = actor->GetLocalRotation();
@@ -242,8 +246,22 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 
 		auto& component = actor->GetComponentByIndex(i);
 		const auto& componentName = component->VGetName();
-		const bool bComponentHeaderOpen =
-			ImGui::CollapsingHeader(componentName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+		const bool bComponentHeaderOpen = ImGui::CollapsingHeader(
+			componentName.c_str(),
+			ImGuiTreeNodeFlags_DefaultOpen
+		);
+
+		if (ImGui::BeginDragDropSource())
+		{
+			static GUID actorComponentSource[2];
+			actorComponentSource[0] = actor->GetID();
+			actorComponentSource[1] = component->VGetID();
+
+			ImGui::SetDragDropPayload("ActorComponent", &actorComponentSource, 2 * sizeof(GUID));
+			ImGui::Text(component->VGetName().c_str());
+			ImGui::EndDragDropSource();
+		}
+
 		if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
 		{
 			ImGui::OpenPopup(ImGui::GetID("##ComponentContextMenu"));
@@ -279,6 +297,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			else if (component->VGetID() == Gameplay::SpotLightComponent::COMPONENT_ID)
 			{
 				auto actorComponent = dynamic_pointer_cast<Gameplay::SpotLightComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
+			else if (component->VGetID() == Gameplay::CameraComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::CameraComponent>(component);
 				DrawActorComponentProperties(context, actor, actorComponent);
 			}
 			else
@@ -507,7 +530,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		                 : pEditor->GetContent();
 
 	if (ImGui::BeginTable(
-		"##SkeletonComponentTable",
+		"##SkeletalModelComponentTable",
 		2,
 		ImGuiTableFlags_BordersInnerV
 		| ImGuiTableFlags_BordersOuter
@@ -740,7 +763,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		                 : pEditor->GetContent();
 
 	if (ImGui::BeginTable(
-		"##StaticModelComponentTable",
+		"##PointLightComponentTable",
 		2,
 		ImGuiTableFlags_BordersInnerV
 		| ImGuiTableFlags_BordersOuter
@@ -818,7 +841,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		                 : pEditor->GetContent();
 
 	if (ImGui::BeginTable(
-		"##StaticModelComponentTable",
+		"##SpotLightComponentTable",
 		2,
 		ImGuiTableFlags_BordersInnerV
 		| ImGuiTableFlags_BordersOuter
@@ -912,6 +935,106 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 	}
 
 	ImGui::EndTable();
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::CameraComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpen = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpen
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpen
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##CameraComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Mode");
+
+			ImGui::TableNextColumn();
+
+			const char* backgroundTypes[] = {"Perspective", "Orthographic"};
+			int32_t currentType = static_cast<int32_t>(pComponent->GetMode());
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			if (ImGui::BeginCombo("##Mode", backgroundTypes[currentType]))
+			{
+				for (int32_t i = 0; i < 2; i++)
+				{
+					const bool bIsSelected = currentType == i;
+					if (ImGui::Selectable(backgroundTypes[i], bIsSelected))
+					{
+						currentType = i;
+						pComponent->SetMode(static_cast<Gameplay::CameraMode>(i));
+					}
+
+					if (bIsSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+
+				ImGui::EndCombo();
+			}
+
+			switch (currentType)
+			{
+			case 0:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("FOV Angle");
+
+					ImGui::TableNextColumn();
+
+					float angle = pComponent->GetFOVAngle();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat("##FOVAngle", &angle);
+					if (angle != pComponent->GetFOVAngle())
+					{
+						pComponent->SetFOVAngle(angle);
+					}
+					break;
+				}
+			case 1:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Size");
+
+					ImGui::TableNextColumn();
+
+					float size = pComponent->GetSize();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat("##Size", &size);
+					if (size != pComponent->GetSize())
+					{
+						pComponent->SetSize(size);
+					}
+					break;
+				}
+			}
+		}
+
+		ImGui::EndTable();
+	}
 }
 
 void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(

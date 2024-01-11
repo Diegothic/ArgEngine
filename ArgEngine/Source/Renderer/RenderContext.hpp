@@ -41,6 +41,8 @@ namespace Arg
 
 		public:
 			RenderContext(const RenderContextSpec& spec);
+			
+			void SetCamera(Camera* pCamera);
 
 			void DrawModel(
 				const std::shared_ptr<StaticModel>& model,

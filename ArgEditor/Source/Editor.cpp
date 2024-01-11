@@ -142,12 +142,15 @@ void Arg::Editor::Editor::PlayGame()
 		return;
 	}
 
+	SetCameraActive(false);
 	DeselectActor();
 	DeselectResource();
 
 	m_pWorldCacheNode = std::make_unique<YAML::Node>();
 	m_pGameEngine->GetLoadedWorld()->Serialize(*m_pWorldCacheNode);
 	m_pGameEngine->Play();
+
+	SetGameFocused(true);
 }
 
 void Arg::Editor::Editor::StopGame()
@@ -203,6 +206,14 @@ void Arg::Editor::Editor::Update(const float deltaTime)
 		if (keyboardState.IsKeyPressed(Input::KeyCode::F2))
 		{
 			m_pWindow->SetMode(WindowMode::Windowed);
+		}
+	}
+
+	// Handle Editor shortcuts
+	{
+		if (keyboardState.IsKeyPressed(Input::KeyCode::F1, Input::KeyMods::Shift))
+		{
+			SetGameFocused(false);
 		}
 	}
 
@@ -273,7 +284,15 @@ void Arg::Editor::Editor::Render()
 			.pSkyboxMesh = skyboxMesh.get()
 		};
 		Renderer::RenderContext renderContext(renderContextSpec);
-		m_pGameEngine->RenderEditor(renderContext);
+
+		if (m_pGameEngine->IsPlaying())
+		{
+			m_pGameEngine->RenderGame(renderContext);
+		}
+		else
+		{
+			m_pGameEngine->RenderEditor(renderContext);
+		}
 
 		m_pEditorViewRenderTarget->Begin();
 
@@ -401,4 +420,10 @@ void Arg::Editor::Editor::SelectResource(const GUID resourceID)
 void Arg::Editor::Editor::DeselectResource()
 {
 	m_SelectedResourceID = GUID::Empty;
+}
+
+void Arg::Editor::Editor::SetGameFocused(const bool bFocused)
+{
+	m_bIsGameFocused = bFocused;
+	m_pWindow->SetCursorMode(bFocused ? Input::CursorMode::Locked : Input::CursorMode::Normal);
 }

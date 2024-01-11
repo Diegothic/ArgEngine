@@ -310,6 +310,12 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 	backgroundNode["Textures"] = backgroundTexturesNode;
 	header["Background"] = backgroundNode;
 
+
+	auto gameplayNode = header["Gameplay"];
+	gameplayNode["MainCamera"] = GetMainCamera().GetOwnerID();
+
+	header["Gameplay"] = gameplayNode;
+
 	auto actorsNode = header["Actors"];
 	actorsNode.reset();
 	for (const auto& actor : m_Actors)
@@ -384,6 +390,13 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 		}
 
 		SetUsingSkybox(ValueOr<bool>(backgroundNode["UsingSkybox"], false));
+	}
+
+	const auto& gameplayNode = header["Gameplay"];
+	if (gameplayNode)
+	{
+		const GUID mainCameraActorID = ValueOr<GUID>(gameplayNode["MainCamera"], GUID::Empty);
+		SetMainCamera(ActorComponentHandle<CameraComponent>(this, mainCameraActorID, CameraComponent::COMPONENT_ID));
 	}
 
 	m_ActorsRegistry.clear();

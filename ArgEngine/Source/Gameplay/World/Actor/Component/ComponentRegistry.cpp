@@ -1,11 +1,12 @@
 #include <arg_pch.hpp>
 #include "ComponentRegistry.hpp"
 
+#include "Components/Graphics/CameraComponent.hpp"
 #include "Debug/Assert.hpp"
-#include "Components/PointLightComponent.hpp"
-#include "Components/SkeletalModelComponent.hpp"
-#include "Components/SpotLightComponent.hpp"
-#include "Components/StaticModelComponent.hpp"
+#include "Components/Graphics/PointLightComponent.hpp"
+#include "Components/Graphics/SkeletalModelComponent.hpp"
+#include "Components/Graphics/SpotLightComponent.hpp"
+#include "Components/Graphics/StaticModelComponent.hpp"
 
 auto Arg::Gameplay::ComponentRegistry::CreateComponent(
 	const std::string& componentID
@@ -63,6 +64,7 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 {
 	Clear();
 
+	RegisterComponent(new CameraComponent());
 	RegisterComponent(new StaticModelComponent());
 	RegisterComponent(new SkeletalModelComponent());
 	RegisterComponent(new PointLightComponent());

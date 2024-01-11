@@ -32,12 +32,12 @@ namespace Arg
 
 			auto GetLightRange() const -> float
 			{
-				return Math::clamp(m_PointLight.GetRange() / 1000.0f, 0.0f, 1.0f);
+				return Math::clamp((m_PointLight.GetRange() - 8.0f) / 992.0f, 0.0f, 1.0f);
 			}
 
 			void SetLightRange(float range)
 			{
-				m_PointLight.SetRange(Math::clamp(range * 993.0f + 8.0f, 8.0f, 1000.0f));
+				m_PointLight.SetRange(Math::clamp(range * 992.0f + 8.0f, 8.0f, 1000.0f));
 			}
 
 			auto GetLightIntensity() const -> float { return m_PointLight.GetIntensity(); }

@@ -81,6 +81,8 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 
 	auto componentHandle = ScriptComponentHandle(pWorld, ownerID, m_ID);
 	componentTable["__component"] = componentHandle;
+
+	componentTable[sol::metatable_key] = state[m_Name];
 	{
 		componentTable.set_function("get_owner", [&](sol::table self)
 		{

@@ -21,6 +21,8 @@ namespace Arg
 			void SetPitch(float angle);
 			auto GetYaw() const -> const float& { return m_Yaw; }
 			void SetYaw(float angle);
+			auto GetRoll() const -> const float& { return m_Roll; }
+            void SetRoll(float angle);
 
 			auto GetForwardVector() const -> const Vec3& { return m_Forward; }
 			auto GetUpVector() const -> const Vec3& { return m_Up; }
@@ -46,6 +48,7 @@ namespace Arg
 
 			float m_Pitch = 0.0f;
 			float m_Yaw = 0.0f;
+			float m_Roll = 0.0f;
 
 			float m_NearPlane = 0.1f;
 			float m_FarPlane = 1000.0f;

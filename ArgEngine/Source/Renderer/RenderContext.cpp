@@ -11,6 +11,11 @@ Arg::Renderer::RenderContext::RenderContext(
 {
 }
 
+void Arg::Renderer::RenderContext::SetCamera(Camera* pCamera)
+{
+	m_Spec.pCamera = pCamera;
+}
+
 void Arg::Renderer::RenderContext::DrawModel(
 	const std::shared_ptr<StaticModel>& model,
 	const Mat4& transform,

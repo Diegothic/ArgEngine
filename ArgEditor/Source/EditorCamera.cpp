@@ -10,12 +10,12 @@ Arg::Editor::EditorCamera::EditorCamera(Window* window)
 	m_pCamera->SetPosition(Vec3(-10.0f, 0.0f, 0.0f));
 }
 
-auto Arg::Editor::EditorCamera::GetView() const->Mat4
+auto Arg::Editor::EditorCamera::GetView() const -> Mat4
 {
 	return m_pCamera->GetView();
 }
 
-auto Arg::Editor::EditorCamera::GetProjection(const float aspectRatio) const->Mat4
+auto Arg::Editor::EditorCamera::GetProjection(const float aspectRatio) const -> Mat4
 {
 	return m_pCamera->VGetProjection(aspectRatio);
 }
@@ -31,7 +31,7 @@ void Arg::Editor::EditorCamera::Update(
 
 	if (mouseState.IsButtonDown(Input::MouseButton::Right)
 		&& !m_bLookWithMouse
-		)
+	)
 	{
 		m_bLookWithMouse = true;
 		m_pWindow->SetCursorMode(Input::CursorMode::Locked);
@@ -39,7 +39,7 @@ void Arg::Editor::EditorCamera::Update(
 
 	if (mouseState.IsButtonUp(Input::MouseButton::Right)
 		&& m_bLookWithMouse
-		)
+	)
 	{
 		m_bLookWithMouse = false;
 		m_pWindow->SetCursorMode(Input::CursorMode::Normal);
@@ -93,6 +93,7 @@ void Arg::Editor::EditorCamera::Update(
 
 		float cameraPitch = m_pCamera->GetPitch();
 		cameraPitch += mouseDelta.y * -10.0f * m_Speed * deltaTime;
+		cameraPitch = Math::clamp(cameraPitch, -89.0f, 89.0f);
 		m_pCamera->SetPitch(cameraPitch);
 
 		float cameraYaw = m_pCamera->GetYaw();

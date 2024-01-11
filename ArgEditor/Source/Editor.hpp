@@ -77,6 +77,9 @@ namespace Arg
 			auto IsCameraActive() const -> bool { return m_bIsCameraActive; }
 			void SetCameraActive(const bool isActive) { m_bIsCameraActive = isActive; }
 
+			auto IsGameFocused() const -> bool { return m_bIsGameFocused; }
+			void SetGameFocused(const bool bFocused);
+
 		private:
 			std::filesystem::path m_ConfigPath;
 			EditorConfig m_Config;
@@ -85,6 +88,7 @@ namespace Arg
 			bool m_bIsCameraActive = false;
 			std::shared_ptr<GameEngine> m_pGameEngine = nullptr;
 			std::unique_ptr<YAML::Node> m_pWorldCacheNode = nullptr;
+			bool m_bIsGameFocused = false;
 
 			std::shared_ptr<Window> m_pWindow = nullptr;
 			std::shared_ptr<Content::ResourceCache> m_pResourceCache = nullptr;

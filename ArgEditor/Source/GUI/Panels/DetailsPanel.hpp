@@ -3,12 +3,10 @@
 #include <arg_pch.hpp>
 
 #include "GUI/EditorGUIPanel.hpp"
-#include "Content/Content.hpp"
-#include "Gameplay/World/Actor/Actor.hpp"
-#include "Gameplay/World/Actor/Component/Components/PointLightComponent.hpp"
-#include "Gameplay/World/Actor/Component/Components/SkeletalModelComponent.hpp"
-#include "Gameplay/World/Actor/Component/Components/SpotLightComponent.hpp"
-#include "Gameplay/World/Actor/Component/Components/StaticModelComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Graphics/PointLightComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Graphics/SkeletalModelComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Graphics/SpotLightComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Graphics/StaticModelComponent.hpp"
 #include "Script/ScriptComponent.hpp"
 
 namespace Arg
@@ -51,6 +49,12 @@ namespace Arg
 					const EditorGUIContext& context,
 					Gameplay::Actor* pActor,
 					std::shared_ptr<Gameplay::SpotLightComponent>& pComponent
+				);
+
+				void DrawActorComponentProperties(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Gameplay::CameraComponent>& pComponent
 				);
 
 				void DrawActorComponentProperties(

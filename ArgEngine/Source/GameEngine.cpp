@@ -111,6 +111,20 @@ void Arg::GameEngine::Update(const float& deltaTime)
 	}
 }
 
+void Arg::GameEngine::RenderGame(Renderer::RenderContext& context) const
+{
+	if (IsWorldLoaded())
+	{
+		const auto mainCamera = m_pLoadedWorld->GetMainCamera();
+		if (mainCamera.IsValid())
+		{
+			context.SetCamera(mainCamera.Get().GetCamera());
+		}
+
+		m_pLoadedWorld->Render(context);
+	}
+}
+
 void Arg::GameEngine::RenderEditor(Renderer::RenderContext& context) const
 {
 	if (IsWorldLoaded())

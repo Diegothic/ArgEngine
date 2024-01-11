@@ -20,23 +20,38 @@ void Arg::Renderer::Camera::SetYaw(float angle)
 	Refresh();
 }
 
+void Arg::Renderer::Camera::SetRoll(float angle)
+{
+	m_Roll = angle;
+	Refresh();
+}
+
 auto Arg::Renderer::Camera::GetView() const -> Mat4
 {
 	return Math::lookAtRH(
 		m_Position,
 		m_Position + m_Forward,
-		m_WorldUp
+		m_Up
 	);
 }
 
 void Arg::Renderer::Camera::Refresh()
 {
-	m_Forward = Math::normalize(Vec3(
-		Math::cos(Math::radians(m_Yaw)) * Math::cos(Math::radians(m_Pitch)),
-		Math::sin(Math::radians(m_Yaw)) * Math::cos(Math::radians(m_Pitch)),
-		Math::sin(Math::radians(m_Pitch))
-	));
+	m_Forward = Math::ForwardVecFromRotation(
+		Math::radians(m_Pitch),
+		Math::radians(m_Yaw),
+		Math::radians(m_Roll)
+	);
 
-	m_Right = Math::normalize(Math::cross(m_Forward, m_WorldUp));
-	m_Up = Math::normalize(Math::cross(m_Right, m_Forward));
+	m_Right = Math::RightVecFromRotation(
+		Math::radians(m_Pitch),
+		Math::radians(m_Yaw),
+		Math::radians(m_Roll)
+	);
+
+	m_Up = Math::UpVecFromRotation(
+		Math::radians(m_Pitch),
+		Math::radians(m_Yaw),
+		Math::radians(m_Roll)
+	);
 }

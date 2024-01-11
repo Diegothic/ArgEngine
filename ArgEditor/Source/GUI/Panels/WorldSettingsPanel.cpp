@@ -263,6 +263,89 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 
 			ImGui::EndTable();
 		}
+
+		const bool isGameplayHeaderOpen = ImGui::CollapsingHeader(
+			"##GameplaySettingsHeader",
+			ImGuiTreeNodeFlags_DefaultOpen
+			| ImGuiTreeNodeFlags_OpenOnArrow
+			| ImGuiTreeNodeFlags_OpenOnDoubleClick
+			| ImGuiTreeNodeFlags_FramePadding
+			| ImGuiTreeNodeFlags_AllowOverlap
+		);
+
+		ImGui::SameLine(50.0f);
+		ImGui::Text("Gameplay");
+
+		if (isGameplayHeaderOpen)
+		{
+			if (ImGui::BeginTable(
+				"##GameplaySettingsTable",
+				2,
+				ImGuiTableFlags_BordersInnerV
+				| ImGuiTableFlags_BordersOuter
+				| ImGuiTableFlags_NoSavedSettings
+				| ImGuiTableFlags_SizingFixedFit
+			))
+			{
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Main Camera");
+
+					ImGui::TableNextColumn();
+
+					const auto mainCamera = pWorld->GetMainCamera();
+
+					const char* mainCameraName = nullptr;
+					std::string name;
+					if (mainCamera.IsValid())
+					{
+						name = std::format(
+							"{}:{}",
+							mainCamera.Get().GetOwner()->GetName(),
+							mainCamera.Get().VGetName()
+						);
+						mainCameraName = name.c_str();
+					}
+
+					ActorComponentHandleProperty(
+						"##MainCameraHandle",
+						Vec2(ImGui::GetWindowWidth() - 160.0f, 25.0f),
+						mainCameraName,
+						[&](GUID droppedActorID)
+						{
+							if (!pWorld->HasActor(droppedActorID))
+							{
+								return;
+							}
+
+							const auto& actor = pWorld->GetActor(droppedActorID);
+							if (!actor.HasComponent(Gameplay::CameraComponent::COMPONENT_ID))
+							{
+								return;
+							}
+
+							pWorld->SetMainCamera(
+								Gameplay::ActorComponentHandle<Gameplay::CameraComponent>(
+									pWorld.get(),
+									actor.GetID(),
+									Gameplay::CameraComponent::COMPONENT_ID
+								)
+							);
+						},
+						[&]
+						{
+							pWorld->SetMainCamera(
+								Gameplay::ActorComponentHandle<Gameplay::CameraComponent>()
+							);
+						}
+					);
+				}
+			}
+
+			ImGui::EndTable();
+		}
 	}
 
 	ImGui::End();

@@ -297,7 +297,10 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 
 				if (ImGui::MenuItem("Save"))
 				{
-					pProject->Save();
+					if (!pGameEngine->IsPlaying())
+					{
+						pProject->Save();
+					}
 				}
 
 				ImGui::EndMenu();
@@ -372,13 +375,19 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 				ImGui::SetCursorPos(ImVec2(5.0f, 5.0f));
 				if (ImGui::Button("Save", ImVec2(40.0f, 40.0f)))
 				{
-					pProject->Save();
+					if (!pGameEngine->IsPlaying())
+					{
+						pProject->Save();
+					}
 				}
 
 				ImGui::SetCursorPos(ImVec2(50.0f, 5.0f));
 				if (ImGui::Button("ReloadScripts", ImVec2(40.0f, 40.0f)))
 				{
-					pEditor->ReloadScripts();
+					if (!pGameEngine->IsPlaying())
+					{
+						pEditor->ReloadScripts();
+					}
 				}
 
 				ImGui::SetCursorPos(ImVec2(125.0f, 5.0f));
@@ -445,28 +454,50 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 
 			{
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-				const bool isEditorViewOpen = ImGui::Begin(
+				const bool isGameViewOpen = ImGui::Begin(
 					"Game View",
 					nullptr,
 					ImGuiWindowFlags_NoCollapse
 				);
 				ImGui::PopStyleVar();
-				if (isEditorViewOpen)
+
+				if (pGameEngine->IsPlaying()
+					&& ImGui::IsWindowHovered()
+					&& ImGui::IsMouseClicked(ImGuiMouseButton_Left)
+					&& !pEditor->IsGameFocused())
 				{
-					if (ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows))
+					pEditor->SetGameFocused(true);
+				}
+
+				if (pEditor->IsGameFocused())
+				{
+					ImGui::SetWindowFocus("Game View");
+					ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+				}
+				else
+				{
+					ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+				}
+
+				if (isGameViewOpen)
+				{
+					if (!pGameEngine->IsPlaying())
 					{
-						if (!pEditor->IsCameraActive())
+						if (ImGui::IsWindowHovered(ImGuiFocusedFlags_RootAndChildWindows))
 						{
-							pEditor->SetCameraActive(true);
+							if (!pEditor->IsCameraActive())
+							{
+								pEditor->SetCameraActive(true);
+							}
 						}
-					}
-					else
-					{
-						if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)
-							&& pEditor->IsCameraActive())
+						else
 						{
-							pEditor->SetCameraActive(false);
-							pEditor->GetCamera()->Cancel();
+							if (ImGui::IsMouseReleased(ImGuiMouseButton_Right)
+								&& pEditor->IsCameraActive())
+							{
+								pEditor->SetCameraActive(false);
+								pEditor->GetCamera()->Cancel();
+							}
 						}
 					}
 
@@ -490,86 +521,89 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 						ImVec2(1.0f, 0.0f)
 					);
 
-					const auto& pCamera = pEditor->GetCamera();
+					if (!pGameEngine->IsPlaying())
+					{
+						const auto& pCamera = pEditor->GetCamera();
 
-					const float aspectRatio = (float)windowViewportSize.x / windowViewportSize.y;
-					const Mat4 view = pCamera->GetView();
-					const Mat4 proj = pCamera->GetProjection(1.0f);
+						const float aspectRatio = (float)windowViewportSize.x / windowViewportSize.y;
+						const Mat4 view = pCamera->GetView();
+						const Mat4 proj = pCamera->GetProjection(1.0f);
 
-					const auto& camera = pCamera->GetCamera();
+						const auto& camera = pCamera->GetCamera();
 
-					const Vec3 zPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
-						0.0f, 0.0f, 1.0f);
-					const Vec3 yPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
-						0.0f, 1.0f, 0.0f);
-					const Vec3 xPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
-						1.0f, 0.0f, 0.0f);
+						const Vec3 zPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+							0.0f, 0.0f, 1.0f);
+						const Vec3 yPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+							0.0f, 1.0f, 0.0f);
+						const Vec3 xPoint = camera->GetPosition() + camera->GetForwardVector() * 5.0f + Vec3(
+							1.0f, 0.0f, 0.0f);
 
-					const Vec4 zPointT = proj * view * Vec4(zPoint, 1.0f);
-					const Vec2 zPointClip = Vec2(zPointT.x / zPointT.w, zPointT.y / zPointT.w);
+						const Vec4 zPointT = proj * view * Vec4(zPoint, 1.0f);
+						const Vec2 zPointClip = Vec2(zPointT.x / zPointT.w, zPointT.y / zPointT.w);
 
-					const Vec4 yPointT = proj * view * Vec4(yPoint, 1.0f);
-					const Vec2 yPointClip = Vec2(yPointT.x / yPointT.w, yPointT.y / yPointT.w);
+						const Vec4 yPointT = proj * view * Vec4(yPoint, 1.0f);
+						const Vec2 yPointClip = Vec2(yPointT.x / yPointT.w, yPointT.y / yPointT.w);
 
-					const Vec4 xPointT = proj * view * Vec4(xPoint, 1.0f);
-					const Vec2 xPointClip = Vec2(xPointT.x / xPointT.w, xPointT.y / xPointT.w);
+						const Vec4 xPointT = proj * view * Vec4(xPoint, 1.0f);
+						const Vec2 xPointClip = Vec2(xPointT.x / xPointT.w, xPointT.y / xPointT.w);
 
-					ImVec2 orientationCenter = ImVec2(
-						ImGui::GetWindowPos().x + 40.0f,
-						ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40.0f
-					);
+						ImVec2 orientationCenter = ImVec2(
+							ImGui::GetWindowPos().x + 40.0f,
+							ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - 40.0f
+						);
 
-					const ImVec2 xTextSize = ImGui::CalcTextSize("X");
-					ImGui::SetCursorScreenPos(ImVec2(
-						orientationCenter.x + 60.0f * xPointClip.x - xTextSize.x * 0.5f,
-						orientationCenter.y - 60.0f * xPointClip.y - xTextSize.y * 0.5f
-					));
-					ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "X");
+						const ImVec2 xTextSize = ImGui::CalcTextSize("X");
+						ImGui::SetCursorScreenPos(ImVec2(
+							orientationCenter.x + 60.0f * xPointClip.x - xTextSize.x * 0.5f,
+							orientationCenter.y - 60.0f * xPointClip.y - xTextSize.y * 0.5f
+						));
+						ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "X");
 
-					const ImVec2 yTextSize = ImGui::CalcTextSize("Y");
-					ImGui::SetCursorScreenPos(ImVec2(
-						orientationCenter.x + 60.0f * yPointClip.x - yTextSize.x * 0.5f,
-						orientationCenter.y - 60.0f * yPointClip.y - yTextSize.y * 0.5f
-					));
-					ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Y");
+						const ImVec2 yTextSize = ImGui::CalcTextSize("Y");
+						ImGui::SetCursorScreenPos(ImVec2(
+							orientationCenter.x + 60.0f * yPointClip.x - yTextSize.x * 0.5f,
+							orientationCenter.y - 60.0f * yPointClip.y - yTextSize.y * 0.5f
+						));
+						ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Y");
 
-					const ImVec2 zTextSize = ImGui::CalcTextSize("Z");
-					ImGui::SetCursorScreenPos(ImVec2(
-						orientationCenter.x + 60.0f * zPointClip.x - zTextSize.x * 0.5f,
-						orientationCenter.y - 60.0f * zPointClip.y - zTextSize.y * 0.5f
-					));
-					ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Z");
+						const ImVec2 zTextSize = ImGui::CalcTextSize("Z");
+						ImGui::SetCursorScreenPos(ImVec2(
+							orientationCenter.x + 60.0f * zPointClip.x - zTextSize.x * 0.5f,
+							orientationCenter.y - 60.0f * zPointClip.y - zTextSize.y * 0.5f
+						));
+						ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Z");
 
-					ImGui::GetForegroundDrawList()->AddLine(
-						orientationCenter,
-						ImVec2(
-							orientationCenter.x + 45.0f * xPointClip.x,
-							orientationCenter.y - 45.0f * xPointClip.y
-						),
-						0xFF0000FF,
-						2.0f
-					);
+						ImGui::GetForegroundDrawList()->AddLine(
+							orientationCenter,
+							ImVec2(
+								orientationCenter.x + 45.0f * xPointClip.x,
+								orientationCenter.y - 45.0f * xPointClip.y
+							),
+							0xFF0000FF,
+							2.0f
+						);
 
 
-					ImGui::GetForegroundDrawList()->AddLine(
-						orientationCenter,
-						ImVec2(
-							orientationCenter.x + 45.0f * yPointClip.x,
-							orientationCenter.y - 45.0f * yPointClip.y
-						),
-						0xFF00FF00,
-						2.0f
-					);
+						ImGui::GetForegroundDrawList()->AddLine(
+							orientationCenter,
+							ImVec2(
+								orientationCenter.x + 45.0f * yPointClip.x,
+								orientationCenter.y - 45.0f * yPointClip.y
+							),
+							0xFF00FF00,
+							2.0f
+						);
 
-					ImGui::GetForegroundDrawList()->AddLine(
-						orientationCenter,
-						ImVec2(
-							orientationCenter.x + 45.0f * zPointClip.x,
-							orientationCenter.y - 45.0f * zPointClip.y
-						),
-						0xFFFF0000,
-						2.0f
-					);
+						ImGui::GetForegroundDrawList()->AddLine(
+							orientationCenter,
+							ImVec2(
+								orientationCenter.x + 45.0f * zPointClip.x,
+								orientationCenter.y - 45.0f * zPointClip.y
+							),
+							0xFFFF0000,
+							2.0f
+						);
+					}
 				}
 				ImGui::End();
 			}

@@ -44,6 +44,7 @@ namespace Arg
 		auto IsPlaying() const -> bool { return m_bIsPlaying; }
 
 		void Update(const float& deltaTime);
+		void RenderGame(Renderer::RenderContext& context) const;
 		void RenderEditor(Renderer::RenderContext& context) const;
 
 		void ClearGarbage();

@@ -4,6 +4,8 @@
 
 #include "Content/Serialization/YamlSerializable.hpp"
 #include "Actor/Actor.hpp"
+#include "Actor/Component/ActorComponentHandle.hpp"
+#include "Actor/Component/Components/Graphics/CameraComponent.hpp"
 #include "Gameplay/GameContext.hpp"
 #include "Renderer/RenderContext.hpp"
 
@@ -59,6 +61,17 @@ namespace Arg
 			void SetSkyboxTexture(size_t index, const TextureHandle& texture);
 
 		public:
+			auto GetMainCamera() const -> const ActorComponentHandle<CameraComponent>&
+			{
+				return m_MainCamera;
+			}
+
+			void SetMainCamera(const ActorComponentHandle<CameraComponent>& camera)
+			{
+				m_MainCamera = camera;
+			}
+
+		public:
 			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
@@ -93,6 +106,8 @@ namespace Arg
 			std::unique_ptr<Renderer::CubeMap> m_pSkybox = nullptr;
 			bool m_bUsingSkybox = false;
 			bool m_bSkyboxValid = false;
+
+			ActorComponentHandle<CameraComponent> m_MainCamera;
 
 			ComponentRegistry* m_pComponents = nullptr;
 

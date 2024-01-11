@@ -3,7 +3,7 @@
 
 auto Arg::Renderer::OrthoCamera::VGetProjection(float aspectRatio) const -> Mat4
 {
-	const Vec2 halfExtends = Vec2(aspectRatio * m_Size, m_Size) * 0.5f;
+	const Vec2 halfExtends = Vec2(m_Size, m_Size * 1.0f / aspectRatio) * 0.5f;
 	return Math::ortho(
 		-halfExtends.x,
 		halfExtends.x,

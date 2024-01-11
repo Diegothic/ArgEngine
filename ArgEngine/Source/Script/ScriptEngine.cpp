@@ -137,6 +137,7 @@ void Arg::Script::ScriptEngine::DefineComponent(const std::string& componentName
 	ScriptComponent* componentPrototype = new ScriptComponent(this, componentName);
 	sol::table componentTable = (*m_pLuaState)[componentName].get_or_create<sol::table>();
 	componentTable[sol::metatable_key] = (*m_pLuaState)["ScriptComponent"];
+	componentTable["__index"] = (*m_pLuaState)[componentName];
 
 	(*m_pLuaState)[componentName]["_instances"].get_or_create<sol::table>();
 
