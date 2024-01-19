@@ -8,9 +8,9 @@
 
 Arg::Content::Content::Content(const ContentSpec& spec)
 	: m_RootDirectory(spec.RootDirectory),
-	m_pResourceCache(spec.ResourceCache)
+	  m_pResourceCache(spec.ResourceCache),
+	  m_bAutoSaveConfig(spec.bAutoSaveConfig)
 {
-
 }
 
 void Arg::Content::Content::Initialize()
@@ -136,7 +136,7 @@ auto Arg::Content::Content::CreateResource(
 	const std::string& name,
 	const ResourceType type,
 	const std::shared_ptr<ResourceFolder>& parent
-) ->std::shared_ptr<Resource>&
+) -> std::shared_ptr<Resource>&
 {
 	auto resource = std::make_shared<Resource>();
 	resource->Create(
@@ -281,6 +281,11 @@ void Arg::Content::Content::LoadConfig()
 
 void Arg::Content::Content::SaveConfig() const
 {
+	if (!m_bAutoSaveConfig)
+	{
+		return;
+	}
+
 	m_Config.Serialize(m_ConfigFile);
 }
 

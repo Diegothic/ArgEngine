@@ -111,6 +111,7 @@
     <ClCompile Include="Source\GUI\Elements\Properties.cpp" />
     <ClCompile Include="Source\GUI\Panels\ContentBrowserPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\DetailsPanel.cpp" />
+    <ClCompile Include="Source\GUI\Panels\ProjectSettingsPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\ResourceDetailsPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\WorldOutlinerPanel.cpp" />
     <ClCompile Include="Source\GUI\Panels\WorldSettingsPanel.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="Source\GUI\Elements\Properties.hpp" />
     <ClInclude Include="Source\GUI\Panels\ContentBrowserPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\DetailsPanel.hpp" />
+    <ClInclude Include="Source\GUI\Panels\ProjectSettingsPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\ResourceDetailsPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\WorldOutlinerPanel.hpp" />
     <ClInclude Include="Source\GUI\Panels\WorldSettingsPanel.hpp" />

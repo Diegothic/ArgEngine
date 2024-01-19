@@ -5,6 +5,7 @@
 #include "Panels/ContentBrowserPanel.hpp"
 #include "Panels/WorldOutlinerPanel.hpp"
 #include "Panels/DetailsPanel.hpp"
+#include "Panels/ProjectSettingsPanel.hpp"
 #include "Panels/ResourceDetailsPanel.hpp"
 #include "Panels/WorldSettingsPanel.hpp"
 
@@ -57,6 +58,7 @@ namespace Arg
 				DetailsPanel m_Details;
 				ResourceDetailsPanel m_ResourceDetails;
 				WorldSettingsPanel m_WorldSettings;
+				ProjectSettingsPanel m_ProjectSettings;
 			};
 		}
 	}

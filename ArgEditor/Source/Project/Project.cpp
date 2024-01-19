@@ -5,22 +5,38 @@ auto Arg::Editor::ProjectSettings::VOnSerialize(YAML::Node& node) const -> bool
 {
 	auto header = node["ArgProject"];
 
-	header["Name"] = Name;
-	header["EditorMap"] = EditorMap;
+	auto generalHeader = header["General"];
+	generalHeader["Name"] = Name;
+	header["General"] = generalHeader;
+
+	auto mapsHeader = header["Maps"];
+	mapsHeader["EditorMap"] = EditorMap;
+	mapsHeader["GameMap"] = GameMap;
+	header["Maps"] = mapsHeader;
 
 	return true;
 }
 
 auto Arg::Editor::ProjectSettings::VOnDeserialize(const YAML::Node& node) -> bool
 {
-	const auto header = node["ArgProject"];
+	const auto& header = node["ArgProject"];
 	if (!header)
 	{
 		return false;
 	}
 
-	Name = ValueOr<std::string>(header["Name"], "EmptyProject");
-	EditorMap = ValueOr<std::string>(header["EditorMap"], "");
+	const auto& generalHeader = header["General"];
+	if (generalHeader)
+	{
+		Name = ValueOr<std::string>(generalHeader["Name"], "EmptyProject");
+	}
+
+	const auto& mapsHeader = header["Maps"];
+	if (generalHeader)
+	{
+		EditorMap = ValueOr<std::string>(mapsHeader["EditorMap"], "");
+		GameMap = ValueOr<std::string>(mapsHeader["GameMap"], "");
+	}
 
 	return true;
 }
@@ -39,6 +55,7 @@ auto Arg::Editor::Project::Open(
 	m_RootDirectory = m_SettingsFile.parent_path();
 	m_Name = m_Settings.Name;
 	m_EditorMap = m_Settings.EditorMap;
+	m_GameMap = m_Settings.GameMap;
 
 	m_pResourceCache = std::make_shared<Content::ResourceCache>();
 
@@ -61,7 +78,11 @@ void Arg::Editor::Project::Close()
 
 void Arg::Editor::Project::Save() const
 {
-	const ProjectSettings settings = m_Settings;
+	ProjectSettings settings = m_Settings;
+	settings.Name = m_Name;
+	settings.EditorMap = m_EditorMap;
+	settings.GameMap = m_GameMap;
+
 	settings.Serialize(m_SettingsFile);
 
 	m_pContent->Save();

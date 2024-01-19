@@ -3,6 +3,42 @@
 
 #include "Gameplay/GameContext.hpp"
 
+auto Arg::EngineConfig::VOnSerialize(YAML::Node& node) const -> bool
+{
+	auto windowHeader = node["Window"];
+	windowHeader["Width"] = WindowWidth;
+	windowHeader["Height"] = WindowHeight;
+	windowHeader["IsFullscreen"] = bIsFullscreen;
+	windowHeader["IsVSync"] = bIsWindowVSync;
+	node["Window"] = windowHeader;
+
+	auto gameHeader = node["Game"];
+	gameHeader["Map"] = StartingMap;
+	node["Game"] = gameHeader;
+
+	return true;
+}
+
+auto Arg::EngineConfig::VOnDeserialize(const YAML::Node& node) -> bool
+{
+	const auto windowHeader = node["Window"];
+	if (windowHeader)
+	{
+		WindowWidth = ValueOr<int32_t>(windowHeader["Width"], 1920);
+		WindowHeight = ValueOr<int32_t>(windowHeader["Height"], 1080);
+		bIsFullscreen = ValueOr<bool>(windowHeader["IsFullscreen"], true);
+		bIsWindowVSync = ValueOr<bool>(windowHeader["IsVSync"], true);
+	}
+
+	const auto gameHeader = node["Game"];
+	if (windowHeader)
+	{
+		StartingMap = ValueOr<std::string>(gameHeader["Map"], "");
+	}
+
+	return true;
+}
+
 void Arg::GameEngine::Initialize(
 	const std::filesystem::path& rootDirectory,
 	const std::shared_ptr<Content::ResourceCache>& pResourceCache
@@ -107,7 +143,6 @@ void Arg::GameEngine::Update(const float& deltaTime)
 	if (m_bIsPlaying)
 	{
 		m_pLoadedWorld->Tick(m_GameTime);
-		m_pLoadedWorld->ClearGarbage();
 	}
 }
 

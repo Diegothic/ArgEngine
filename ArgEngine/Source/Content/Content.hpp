@@ -24,6 +24,7 @@ namespace Arg
 		{
 			std::string RootDirectory;
 			std::shared_ptr<ResourceCache> ResourceCache;
+			bool bAutoSaveConfig = true;
 		};
 
 		class Content
@@ -79,6 +80,7 @@ namespace Arg
 
 			ContentConfig m_Config;
 			std::filesystem::path m_ConfigFile;
+			bool m_bAutoSaveConfig = true;
 			Random::Random m_IDGenerator;
 		};
 	}

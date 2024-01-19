@@ -27,7 +27,7 @@ namespace Arg
 			float GuiFontSize = 18.0f;
 			int32_t WindowWidth = 1920;
 			int32_t WindowHeight = 1080;
-			bool bIsWindwoVSync = true;
+			bool bIsWindowVSync = true;
 
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;

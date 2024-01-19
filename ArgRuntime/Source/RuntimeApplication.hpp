@@ -2,6 +2,7 @@
 
 #include <arg_pch.hpp>
 
+#include "Runtime.hpp"
 #include "Core/Application.hpp"
 #include "Core/Window/Window.hpp"
 
@@ -19,6 +20,7 @@ namespace Arg
 		void VOnRun() override;
 
 	private:
-		std::unique_ptr<Window> m_pWindow = nullptr;
+		std::shared_ptr<Window> m_pWindow = nullptr;
+		std::unique_ptr<Runtime::Runtime> m_pRuntime = nullptr;
 	};
 }

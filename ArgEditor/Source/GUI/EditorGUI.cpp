@@ -34,12 +34,14 @@ void Arg::Editor::GUI::EditorGUI::Initialize(
 	ImGui_ImplOpenGL3_Init("#version 150");
 
 	m_ContentBrowser.Initialize(context);
+	m_ProjectSettings.Initialize(context);
 	m_WorldOutliner.Initialize(context);
 	m_Details.Initialize(context);
 	m_ResourceDetails.Initialize(context);
 	m_WorldSettings.Initialize(context);
 
 	m_ContentBrowser.Open();
+	m_ProjectSettings.Open();
 	m_WorldOutliner.Open();
 	m_Details.Open();
 	m_ResourceDetails.Open();
@@ -311,6 +313,11 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 				if (ImGui::MenuItem("Content Browser"))
 				{
 					m_ContentBrowser.Open();
+				}
+
+				if (ImGui::MenuItem("Project Settings"))
+				{
+					m_ProjectSettings.Open();
 				}
 
 				if (ImGui::MenuItem("World Outliner"))
@@ -609,6 +616,7 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 			}
 
 			m_ContentBrowser.Draw(context);
+			m_ProjectSettings.Draw(context);
 			m_WorldOutliner.Draw(context);
 			m_Details.Draw(context);
 			m_ResourceDetails.Draw(context);

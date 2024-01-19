@@ -29,7 +29,7 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 	{
 		if (!pGameEngine->IsWorldLoaded())
 		{
-			ImGui::Text("No world opened!");
+			ImGui::Text("No world open!");
 			ImGui::End();
 			return;
 		}

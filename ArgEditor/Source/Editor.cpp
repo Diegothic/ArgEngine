@@ -15,7 +15,7 @@ auto Arg::Editor::EditorConfig::VOnSerialize(YAML::Node& node) const -> bool
 	auto window = header["Window"];
 	window["Width"] = WindowWidth;
 	window["Height"] = WindowHeight;
-	window["IsVSync"] = bIsWindwoVSync;
+	window["IsVSync"] = bIsWindowVSync;
 
 	return true;
 }
@@ -40,7 +40,7 @@ auto Arg::Editor::EditorConfig::VOnDeserialize(const YAML::Node& node) -> bool
 	{
 		WindowWidth = ValueOr<int32_t>(window["Width"], 1920);
 		WindowHeight = ValueOr<int32_t>(window["Height"], 1080);
-		bIsWindwoVSync = ValueOr<bool>(window["IsVSync"], true);
+		bIsWindowVSync = ValueOr<bool>(window["IsVSync"], true);
 	}
 
 	return true;
@@ -68,7 +68,7 @@ void Arg::Editor::Editor::Initialize()
 	{
 		m_pWindow->SetWidth(m_Config.WindowWidth);
 		m_pWindow->SetHeight(m_Config.WindowHeight);
-		m_pWindow->SetVSyncEnabled(m_Config.bIsWindwoVSync);
+		m_pWindow->SetVSyncEnabled(m_Config.bIsWindowVSync);
 	}
 
 	// Init Editor resource management
@@ -77,6 +77,7 @@ void Arg::Editor::Editor::Initialize()
 		const Content::ContentSpec contentSpec{
 			.RootDirectory = "Content",
 			.ResourceCache = m_pResourceCache,
+			.bAutoSaveConfig = false
 		};
 		m_pContent = std::make_unique<Content::Content>(contentSpec);
 		m_pContent->Initialize();
@@ -348,7 +349,7 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	const auto editorMapPath = m_pProject->GetEditorMap();
 	if (!editorMapPath.empty())
 	{
-		m_pGameEngine->LoadWorld(m_pProject->GetEditorMap());
+		m_pGameEngine->LoadWorld(editorMapPath);
 	}
 
 	m_pProject->Save();

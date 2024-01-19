@@ -14,6 +14,21 @@ namespace Arg
 {
 	using WorldHandle = Content::ResourceHandle<Content::WorldResource>;
 
+	struct EngineConfig : public Content::YamlSerializable
+	{
+		std::string WindowTitle = "Game";
+		int32_t WindowWidth = 1920;
+		int32_t WindowHeight = 1080;
+		bool bIsFullscreen = true;
+		bool bIsWindowVSync = true;
+		
+		std::string StartingMap;
+
+	protected:
+		auto VOnSerialize(YAML::Node& node) const -> bool override;
+		auto VOnDeserialize(const YAML::Node& node) -> bool override;
+	};
+
 	class GameEngine
 	{
 	public:

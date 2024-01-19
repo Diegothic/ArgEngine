@@ -137,7 +137,10 @@ void Arg::Renderer::RenderContext::Render(
 		return;
 	}
 
-	renderTarget->End();
+	if (renderTarget != nullptr)
+	{
+		renderTarget->End();
+	}
 
 	if (m_pDirectionalLight != nullptr && m_pDirectionalLight->IsCastingShadows())
 	{
@@ -213,7 +216,10 @@ void Arg::Renderer::RenderContext::Render(
 		}
 	}
 
-	renderTarget->Begin();
+	if (renderTarget != nullptr)
+	{
+		renderTarget->Begin();
+	}
 
 	shader->Use();
 	shader->SetUniform("u_Proj", proj);
