@@ -59,7 +59,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;BT_THREADSAFE=1;ARG_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -75,7 +75,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimpd.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimpd.lib;lua54.lib;BulletLinearMathd.lib;BulletCollisiond.lib;BulletDynamicsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
     </Lib>
@@ -86,7 +86,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;BT_THREADSAFE=1;ARG_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -105,7 +105,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cpp.lib;zlibstatic.lib;assimp.lib;lua54.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cpp.lib;zlibstatic.lib;assimp.lib;lua54.lib;BulletLinearMath.lib;BulletCollision.lib;BulletDynamics.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
@@ -151,8 +151,10 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SkeletalModelComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
     <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
+    <ClCompile Include="Source\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="Source\Renderer\Animation\SkeletalAnimation.cpp" />
     <ClCompile Include="Source\Renderer\Animation\Skeleton.cpp" />
     <ClCompile Include="Source\Renderer\Buffers.cpp" />
@@ -236,8 +238,11 @@
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SkeletalModelComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
     <ClInclude Include="Source\Gameplay\World\GameWorld.hpp" />
+    <ClInclude Include="Source\Physics\PhysicsBody.hpp" />
+    <ClInclude Include="Source\Physics\PhysicsWorld.hpp" />
     <ClInclude Include="Source\Renderer\Animation\SkeletalAnimation.hpp" />
     <ClInclude Include="Source\Renderer\CubeMap.hpp" />
     <ClInclude Include="Source\Renderer\RenderContext.hpp" />
@@ -284,9 +289,6 @@
     <ClInclude Include="Source\Debug\Log.hpp" />
     <ClInclude Include="Source\Core\Window\Window.hpp" />
     <ClInclude Include="Source\arg_pch.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source\Gameplay\World\Actor\Component\Components\Physics\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

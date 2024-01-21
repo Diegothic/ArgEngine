@@ -225,16 +225,45 @@ void Arg::Gameplay::GameWorld::SetSkyboxTexture(size_t index, const TextureHandl
 	CheckSkybox();
 }
 
+auto Arg::Gameplay::GameWorld::GetGravity() const -> const Vec3&
+{
+	return m_Gravity;
+}
+
+void Arg::Gameplay::GameWorld::SetGravity(const Vec3& gravity)
+{
+	m_Gravity = gravity;
+	if (m_pPhysicsWorld != nullptr)
+	{
+		m_pPhysicsWorld->SetGravity(m_Gravity);
+	}
+}
+
 void Arg::Gameplay::GameWorld::BeginPlay()
 {
+	m_pPhysicsWorld = std::make_unique<Physics::PhysicsWorld>(this);
+	m_pPhysicsWorld->Initialize();
+	m_pPhysicsWorld->SetGravity(m_Gravity);
+
 	for (const auto& actor : m_Actors)
 	{
 		actor->BeginPlay();
 	}
 }
 
+void Arg::Gameplay::GameWorld::EndPlay()
+{
+	if (m_pPhysicsWorld != nullptr)
+	{
+		m_pPhysicsWorld->CleanUp();
+		m_pPhysicsWorld = nullptr;
+	}
+}
+
 void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime)
 {
+	m_pPhysicsWorld->Tick(gameTime.GetDeltaTime());
+
 	for (const auto& actor : m_Actors)
 	{
 		actor->Tick(gameTime);
@@ -295,7 +324,6 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 	sunlightNode["Direction"] = m_pSunlight->GetDirection();
 	sunlightNode["Intensity"] = m_pSunlight->GetIntensity();
 	sunlightNode["CastShadows"] = m_pSunlight->IsCastingShadows();
-
 	header["Sunlight"] = sunlightNode;
 
 	auto backgroundNode = header["Background"];
@@ -306,15 +334,17 @@ auto Arg::Gameplay::GameWorld::VOnSerialize(YAML::Node& node) const -> bool
 	{
 		backgroundTexturesNode[i] = m_SkyboxTextures[i].GetID();
 	}
-
 	backgroundNode["Textures"] = backgroundTexturesNode;
 	header["Background"] = backgroundNode;
 
 
 	auto gameplayNode = header["Gameplay"];
 	gameplayNode["MainCamera"] = GetMainCamera().GetOwnerID();
-
 	header["Gameplay"] = gameplayNode;
+
+	auto physicsNode = header["Physics"];
+	physicsNode["Gravity"] = m_Gravity;
+	header["Physics"] = physicsNode;
 
 	auto actorsNode = header["Actors"];
 	actorsNode.reset();
@@ -397,6 +427,12 @@ auto Arg::Gameplay::GameWorld::VOnDeserialize(const YAML::Node& node) -> bool
 	{
 		const GUID mainCameraActorID = ValueOr<GUID>(gameplayNode["MainCamera"], GUID::Empty);
 		SetMainCamera(ActorComponentHandle<CameraComponent>(this, mainCameraActorID, CameraComponent::COMPONENT_ID));
+	}
+
+	const auto& physicsNode = header["Physics"];
+	if (physicsNode)
+	{
+		m_Gravity = ValueOr<Vec3>(physicsNode["Gravity"], Vec3(0.0f, 0.0f, -9.81f));
 	}
 
 	m_ActorsRegistry.clear();

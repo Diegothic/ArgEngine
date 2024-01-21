@@ -346,6 +346,50 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 
 			ImGui::EndTable();
 		}
+
+		const bool isPhysicsHeaderOpen = ImGui::CollapsingHeader(
+			"##PhysicsSettingsHeader",
+			ImGuiTreeNodeFlags_DefaultOpen
+			| ImGuiTreeNodeFlags_OpenOnArrow
+			| ImGuiTreeNodeFlags_OpenOnDoubleClick
+			| ImGuiTreeNodeFlags_FramePadding
+			| ImGuiTreeNodeFlags_AllowOverlap
+		);
+
+		ImGui::SameLine(50.0f);
+		ImGui::Text("Physics");
+
+		if (isPhysicsHeaderOpen)
+		{
+			if (ImGui::BeginTable(
+				"##PhysicsSettingsTable",
+				2,
+				ImGuiTableFlags_BordersInnerV
+				| ImGuiTableFlags_BordersOuter
+				| ImGuiTableFlags_NoSavedSettings
+				| ImGuiTableFlags_SizingFixedFit
+			))
+			{
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Gravity");
+
+					ImGui::TableNextColumn();
+
+					Vec3 gravity = pWorld->GetGravity();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat3("##Gravity", Math::ValuePtr(gravity));
+					if (gravity != pWorld->GetGravity())
+					{
+						pWorld->SetGravity(gravity);
+					}
+				}
+			}
+
+			ImGui::EndTable();
+		}
 	}
 
 	ImGui::End();

@@ -122,6 +122,11 @@ void Arg::GameEngine::Stop()
 {
 	m_bIsPlaying = false;
 	m_bPlayRequested = false;
+
+	if (IsWorldLoaded())
+	{
+		m_pLoadedWorld->EndPlay();
+	}
 }
 
 void Arg::GameEngine::Update(const float& deltaTime)

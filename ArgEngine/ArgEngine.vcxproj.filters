@@ -159,9 +159,6 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -201,15 +198,6 @@
     <ClCompile Include="Source\Content\Resource\GameResources\SkeletonResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\PointLightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\SkeletalModelComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\SpotLightComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Renderer\Animation\SkeletalAnimation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -232,6 +220,30 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueGameplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\PointLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SkeletalModelComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\PhysicsBody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Physics\PhysicsWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -428,9 +440,6 @@
     <ClInclude Include="Source\Renderer\RenderContext.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\StaticModelComponent.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ComponentRegistry.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -470,15 +479,6 @@
     <ClInclude Include="Source\Gameplay\World\Actor\Component\ActorComponentHandle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\PointLightComponent.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\SkeletalModelComponent.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\SpotLightComponent.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Renderer\CubeMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -498,6 +498,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Libraries\Include\sol\sol.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\CameraComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\PointLightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SkeletalModelComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Physics\PhysicsBody.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Physics\PhysicsWorld.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

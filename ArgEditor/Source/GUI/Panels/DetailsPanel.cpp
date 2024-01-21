@@ -4,6 +4,7 @@
 #include <imgui/imgui.h>
 
 #include "Editor.hpp"
+#include "Gameplay/World/Actor/Component/Components/Physics/PhysicsBodyComponent.hpp"
 #include "GUI/Elements/Properties.hpp"
 
 void Arg::Editor::GUI::DetailsPanel::OnInitialize(const EditorGUIContext& context)
@@ -304,6 +305,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 				auto actorComponent = dynamic_pointer_cast<Gameplay::CameraComponent>(component);
 				DrawActorComponentProperties(context, actor, actorComponent);
 			}
+			else if (component->VGetID() == Gameplay::PhysicsBodyComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::PhysicsBodyComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
 			else
 			{
 				auto scriptComponent = dynamic_pointer_cast<Script::ScriptComponent>(component);
@@ -574,7 +580,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text("Skeletal Model");
+			ImGui::Text("Skeletal");
+			ImGui::Text("Model");
 
 			ImGui::TableNextColumn();
 
@@ -651,7 +658,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text("Cast Shadows");
+			ImGui::Text("Cast");
+			ImGui::Text("Shadows");
 
 			ImGui::TableNextColumn();
 
@@ -667,7 +675,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text("Receive Shadows");
+			ImGui::Text("Receive");
+			ImGui::Text("Shadows");
 
 			ImGui::TableNextColumn();
 
@@ -683,7 +692,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text("Current Animation");
+			ImGui::Text("Current");
+			ImGui::Text("Animation");
 
 			ImGui::TableNextColumn();
 
@@ -716,7 +726,8 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-			ImGui::Text("Play on Start");
+			ImGui::Text("Play");
+			ImGui::Text("on Start");
 
 			ImGui::TableNextColumn();
 
@@ -1027,6 +1038,324 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 					if (size != pComponent->GetSize())
 					{
 						pComponent->SetSize(size);
+					}
+					break;
+				}
+			}
+		}
+
+		ImGui::EndTable();
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::PhysicsBodyComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpen = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpen
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpen
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##PhysicsBodyComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Dynamic");
+
+			ImGui::TableNextColumn();
+
+			bool isDynamic = pComponent->GetIsDynamic();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::Checkbox("##IsDynamic", &isDynamic);
+			if (isDynamic != pComponent->GetIsDynamic())
+			{
+				pComponent->SetIsDynamic(isDynamic);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Mass");
+
+			ImGui::TableNextColumn();
+
+			float mass = pComponent->GetMass();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##Mass", &mass);
+			if (mass != pComponent->GetMass())
+			{
+				pComponent->SetMass(mass);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Damping");
+
+			ImGui::TableNextColumn();
+
+			float damping = pComponent->GetDamping();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##Damping", &damping);
+			if (damping != pComponent->GetDamping())
+			{
+				pComponent->SetDamping(damping);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Angular");
+			ImGui::Text("Damping");
+
+			ImGui::TableNextColumn();
+
+			float damping = pComponent->GetAngularDamping();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##ADamping", &damping);
+			if (damping != pComponent->GetAngularDamping())
+			{
+				pComponent->SetAngularDamping(damping);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Bounciness");
+
+			ImGui::TableNextColumn();
+
+			float bounciness = pComponent->GetBounciness();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::DragFloat("##Bounciness", &bounciness, 0.1f, 0.0f);
+			if (bounciness != pComponent->GetBounciness())
+			{
+				pComponent->SetBounciness(bounciness);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Lock");
+			ImGui::Text("Movement");
+
+			ImGui::TableNextColumn();
+
+			{
+				bool bLock = pComponent->GetMovementLockX();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockMovementX", &bLock);
+				if (bLock != pComponent->GetMovementLockX())
+				{
+					pComponent->SetMovementLockX(bLock);
+				}
+			}
+
+			{
+				bool bLock = pComponent->GetMovementLockY();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockMovementY", &bLock);
+				if (bLock != pComponent->GetMovementLockY())
+				{
+					pComponent->SetMovementLockY(bLock);
+				}
+			}
+
+			{
+				bool bLock = pComponent->GetMovementLockZ();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockMovementZ", &bLock);
+				if (bLock != pComponent->GetMovementLockZ())
+				{
+					pComponent->SetMovementLockZ(bLock);
+				}
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Lock");
+			ImGui::Text("Rotation");
+
+			ImGui::TableNextColumn();
+
+			{
+				bool bLock = pComponent->GetRotationLockX();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("X");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockRotationX", &bLock);
+				if (bLock != pComponent->GetRotationLockX())
+				{
+					pComponent->SetRotationLockX(bLock);
+				}
+			}
+
+			{
+				bool bLock = pComponent->GetRotationLockY();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("Y");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockRotationY", &bLock);
+				if (bLock != pComponent->GetRotationLockY())
+				{
+					pComponent->SetRotationLockY(bLock);
+				}
+			}
+
+			{
+				bool bLock = pComponent->GetRotationLockZ();
+				ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+				ImGui::Text("Z");
+				ImGui::SameLine();
+				ImGui::Checkbox("##LockRotationZ", &bLock);
+				if (bLock != pComponent->GetRotationLockZ())
+				{
+					pComponent->SetRotationLockZ(bLock);
+				}
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Shape");
+
+			ImGui::TableNextColumn();
+
+			const char* shapeTypes[] = {"Box", "Sphere", "Capsule"};
+			int32_t currentType = static_cast<int32_t>(pComponent->GetPhysicsShape());
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			if (ImGui::BeginCombo("##Shape", shapeTypes[currentType]))
+			{
+				for (int32_t i = 0; i < 3; i++)
+				{
+					const bool bIsSelected = currentType == i;
+					if (ImGui::Selectable(shapeTypes[i], bIsSelected))
+					{
+						currentType = i;
+						pComponent->SetPhysicsShape(static_cast<Physics::PhysicsBodyShape>(i));
+					}
+
+					if (bIsSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+
+				ImGui::EndCombo();
+			}
+
+			switch (currentType)
+			{
+			case 0:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Size");
+
+					ImGui::TableNextColumn();
+
+					Vec3 size = pComponent->GetSize();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat3("##Size", Math::ValuePtr(size));
+					if (size != pComponent->GetSize())
+					{
+						pComponent->SetSize(size);
+					}
+					break;
+				}
+			case 1:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Radius");
+
+					ImGui::TableNextColumn();
+
+					Vec3 size = pComponent->GetSize();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat("##Size", &size.x);
+					if (size.x != pComponent->GetSize().x)
+					{
+						pComponent->SetSize(size);
+					}
+					break;
+				}
+			case 2:
+				{
+					{
+						ImGui::TableNextColumn();
+						ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+						ImGui::Text("Radius");
+
+						ImGui::TableNextColumn();
+
+						float radius = pComponent->GetSize().x;
+						ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+						ImGui::InputFloat("##Size", &radius);
+						if (radius != pComponent->GetSize().x)
+						{
+							Vec3 newSize = pComponent->GetSize();
+							newSize.x = radius;
+							pComponent->SetSize(newSize);
+						}
+					}
+					{
+						ImGui::TableNextColumn();
+						ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+						ImGui::Text("Height");
+
+						ImGui::TableNextColumn();
+
+						float height = pComponent->GetSize().z;
+						ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+						ImGui::InputFloat("##Height", &height);
+						if (height != pComponent->GetSize().z)
+						{
+							Vec3 newSize = pComponent->GetSize();
+							newSize.z = height;
+							pComponent->SetSize(newSize);
+						}
 					}
 					break;
 				}

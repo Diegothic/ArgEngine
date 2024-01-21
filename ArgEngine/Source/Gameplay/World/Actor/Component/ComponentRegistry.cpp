@@ -7,6 +7,7 @@
 #include "Components/Graphics/SkeletalModelComponent.hpp"
 #include "Components/Graphics/SpotLightComponent.hpp"
 #include "Components/Graphics/StaticModelComponent.hpp"
+#include "Components/Physics/PhysicsBodyComponent.hpp"
 
 auto Arg::Gameplay::ComponentRegistry::CreateComponent(
 	const std::string& componentID
@@ -69,6 +70,7 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 	RegisterComponent(new SkeletalModelComponent());
 	RegisterComponent(new PointLightComponent());
 	RegisterComponent(new SpotLightComponent());
+	RegisterComponent(new PhysicsBodyComponent());
 }
 
 void Arg::Gameplay::ComponentRegistry::RegisterComponent(ActorComponent* prototype)

@@ -33,6 +33,7 @@ namespace Arg
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
+		public:
 			auto GetStaticModel() const -> Content::ResourceHandle<Content::StaticModelResource>
 			{
 				return m_StaticModel;

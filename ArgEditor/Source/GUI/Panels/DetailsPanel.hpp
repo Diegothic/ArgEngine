@@ -7,6 +7,7 @@
 #include "Gameplay/World/Actor/Component/Components/Graphics/SkeletalModelComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/SpotLightComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/StaticModelComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Physics/PhysicsBodyComponent.hpp"
 #include "Script/ScriptComponent.hpp"
 
 namespace Arg
@@ -55,6 +56,12 @@ namespace Arg
 					const EditorGUIContext& context,
 					Gameplay::Actor* pActor,
 					std::shared_ptr<Gameplay::CameraComponent>& pComponent
+				);
+
+				void DrawActorComponentProperties(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Gameplay::PhysicsBodyComponent>& pComponent
 				);
 
 				void DrawActorComponentProperties(

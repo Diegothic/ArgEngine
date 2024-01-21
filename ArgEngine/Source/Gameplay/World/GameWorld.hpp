@@ -7,6 +7,7 @@
 #include "Actor/Component/ActorComponentHandle.hpp"
 #include "Actor/Component/Components/Graphics/CameraComponent.hpp"
 #include "Gameplay/GameContext.hpp"
+#include "Physics/PhysicsWorld.hpp"
 #include "Renderer/RenderContext.hpp"
 
 namespace Arg
@@ -61,6 +62,10 @@ namespace Arg
 			void SetSkyboxTexture(size_t index, const TextureHandle& texture);
 
 		public:
+			auto GetGravity() const -> const Vec3&;
+			void SetGravity(const Vec3& gravity);
+
+		public:
 			auto GetMainCamera() const -> const ActorComponentHandle<CameraComponent>&
 			{
 				return m_MainCamera;
@@ -72,7 +77,11 @@ namespace Arg
 			}
 
 		public:
+			auto GetPhysicsWorld() const -> Physics::PhysicsWorld* { return m_pPhysicsWorld.get(); }
+
+		public:
 			void BeginPlay();
+			void EndPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
 			void ClearGarbage();
@@ -95,6 +104,7 @@ namespace Arg
 
 		private:
 			Content::Resource* m_pResource = nullptr;
+			ComponentRegistry* m_pComponents = nullptr;
 
 			std::unique_ptr<Actor> m_pRootActor = nullptr;
 			std::vector<std::unique_ptr<Actor>> m_Actors;
@@ -108,8 +118,8 @@ namespace Arg
 			bool m_bSkyboxValid = false;
 
 			ActorComponentHandle<CameraComponent> m_MainCamera;
-
-			ComponentRegistry* m_pComponents = nullptr;
+			std::unique_ptr<Physics::PhysicsWorld> m_pPhysicsWorld = nullptr;
+			Vec3 m_Gravity = Vec3(0.0f, 0.0f, -9.81f);
 
 			Random::Random m_IDGenerator;
 		};

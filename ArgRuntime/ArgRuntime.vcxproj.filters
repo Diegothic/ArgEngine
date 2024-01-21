@@ -18,9 +18,15 @@
     <ClCompile Include="Source\RuntimeApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\RuntimeApplication.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Runtime.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
