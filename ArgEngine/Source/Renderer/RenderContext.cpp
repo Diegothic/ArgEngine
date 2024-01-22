@@ -277,6 +277,22 @@ void Arg::Renderer::RenderContext::Render(
 	for (const GUID& materialID : m_Materials | std::ranges::views::keys)
 	{
 		const Material* material = m_Materials.at(materialID);
+		if (materialID != GUID::Empty)
+		{
+			material->Apply(shader);
+		}
+		else
+		{
+			shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
+			shader->SetUniform("u_Material.diffuseMap", 0);
+
+			shader->SetUniform("u_Material.specular", 0.4f);
+			shader->SetUniform("u_Material.specularMap", 0);
+			shader->SetUniform("u_Material.shininess", 0.2f);
+
+			shader->SetUniform("u_Material.reflection", 0.0f);
+			shader->SetUniform("u_Material.reflectionMap", 0);
+		}
 
 		shader->SetUniform("u_IsSkeletal", false);
 
@@ -295,23 +311,6 @@ void Arg::Renderer::RenderContext::Render(
 				shader->SetUniform("u_Normal", normal);
 
 				shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
-
-				if (materialID != GUID::Empty)
-				{
-					material->Apply(shader);
-				}
-				else
-				{
-					shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
-					shader->SetUniform("u_Material.diffuseMap", 0);
-
-					shader->SetUniform("u_Material.specular", 0.4f);
-					shader->SetUniform("u_Material.specularMap", 0);
-					shader->SetUniform("u_Material.shininess", 0.2f);
-
-					shader->SetUniform("u_Material.reflection", 0.0f);
-					shader->SetUniform("u_Material.reflectionMap", 0);
-				}
 
 				mesh->Draw();
 			}
@@ -337,23 +336,6 @@ void Arg::Renderer::RenderContext::Render(
 				pose->Apply(shader);
 
 				shader->SetUniform("u_ReceiveShadows", meshDetails.bReceiveShadows);
-
-				if (materialID != GUID::Empty)
-				{
-					material->Apply(shader);
-				}
-				else
-				{
-					shader->SetUniform("u_Material.diffuse", Vec3(0.5f));
-					shader->SetUniform("u_Material.diffuseMap", 0);
-
-					shader->SetUniform("u_Material.specular", 0.4f);
-					shader->SetUniform("u_Material.specularMap", 0);
-					shader->SetUniform("u_Material.shininess", 0.2f);
-
-					shader->SetUniform("u_Material.reflection", 0.0f);
-					shader->SetUniform("u_Material.reflectionMap", 0);
-				}
 
 				mesh->Draw();
 			}

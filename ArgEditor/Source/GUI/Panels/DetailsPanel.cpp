@@ -1,7 +1,7 @@
 #include <arg_pch.hpp>
 #include "DetailsPanel.hpp"
 
-#include <imgui/imgui.h>
+#include <imgui/ImGui.hpp>
 
 #include "Editor.hpp"
 #include "Gameplay/World/Actor/Component/Components/Physics/PhysicsBodyComponent.hpp"

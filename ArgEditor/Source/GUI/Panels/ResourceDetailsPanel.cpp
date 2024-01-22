@@ -1,7 +1,7 @@
 #include <arg_pch.hpp>
 #include "ResourceDetailsPanel.hpp"
 
-#include <imgui/imgui.h>
+#include <imgui/ImGui.hpp>
 
 #include "Editor.hpp"
 #include "GUI/Elements/Properties.hpp"

@@ -1,9 +1,7 @@
 #include <arg_pch.hpp>
 #include "EditorGUI.hpp"
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/ImGui.hpp>
 
 #include "Editor.hpp"
 #include "Dialog/FileDialog/FileOpenDialog.hpp"
@@ -149,6 +147,7 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 
 	if (!pEditor->IsProjectOpened())
 	{
@@ -397,24 +396,42 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					}
 				}
 
-				ImGui::SetCursorPos(ImVec2(125.0f, 5.0f));
-				if (ImGui::Button("Pan", ImVec2(40.0f, 40.0f)))
-				{
-				}
-
 				ImGui::SetCursorPos(ImVec2(170.0f, 5.0f));
 				if (ImGui::Button("Move", ImVec2(40.0f, 40.0f)))
 				{
+					pEditor->SetGuizmoOperation(EditorGizmoOperation::Translate);
 				}
 
 				ImGui::SetCursorPos(ImVec2(215.0f, 5.0f));
 				if (ImGui::Button("Rotate", ImVec2(40.0f, 40.0f)))
 				{
+					pEditor->SetGuizmoOperation(EditorGizmoOperation::Rotate);
 				}
 
 				ImGui::SetCursorPos(ImVec2(260.0f, 5.0f));
 				if (ImGui::Button("Scale", ImVec2(40.0f, 40.0f)))
 				{
+					pEditor->SetGuizmoOperation(EditorGizmoOperation::Scale);
+					pEditor->SetGuizmoMode(EditorGizmoMode::Local);
+				}
+
+				ImGui::SetCursorPos(ImVec2(305.0f, 5.0f));
+				if (pEditor->GetGuizmoMode() == EditorGizmoMode::Global)
+				{
+					if (ImGui::Button("Local", ImVec2(40.0f, 40.0f)))
+					{
+						pEditor->SetGuizmoMode(EditorGizmoMode::Local);
+					}
+				}
+				else
+				{
+					if (ImGui::Button("Global", ImVec2(40.0f, 40.0f)))
+					{
+						if (pEditor->GetGuizmoOperation() != EditorGizmoOperation::Scale)
+						{
+							pEditor->SetGuizmoMode(EditorGizmoMode::Global);
+						}
+					}
 				}
 
 				ImGui::SetCursorPos(ImVec2((viewportSize.x * 0.5f) - 20.0f, 5.0f));
@@ -532,7 +549,24 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					{
 						const auto& pCamera = pEditor->GetCamera();
 
-						const float aspectRatio = (float)windowViewportSize.x / windowViewportSize.y;
+						if (pEditor->HasSelectedActor())
+						{
+							Gameplay::Actor* pActor;
+							pEditor->GetSelectedActor(pActor);
+							Mat4 actorTransform = pActor->GetTransform();
+							EditTransform(
+								pEditor->GetGuizmoOperation(),
+								pEditor->GetGuizmoMode(),
+								pCamera->GetCamera().get(),
+								actorTransform
+							);
+							Vec3 position, rotation, scale;
+							Math::Decompose(actorTransform, position, rotation, scale);
+							pActor->SetPosition(position);
+							pActor->SetRotation(Math::degrees(rotation));
+							pActor->SetScale(scale);
+						}
+
 						const Mat4 view = pCamera->GetView();
 						const Mat4 proj = pCamera->GetProjection(1.0f);
 
@@ -632,4 +666,52 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 void Arg::Editor::GUI::EditorGUI::RenderDrawData()
 {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Arg::Editor::GUI::EditorGUI::EditTransform(
+	const EditorGizmoOperation& operation,
+	const EditorGizmoMode& mode,
+	const Renderer::Camera* pCamera,
+	Mat4& outTransform
+)
+{
+	ImGuizmo::OPERATION currentOperation = ImGuizmo::TRANSLATE;
+	switch (operation)
+	{
+	case EditorGizmoOperation::Translate:
+		currentOperation = ImGuizmo::TRANSLATE;
+		break;
+	case EditorGizmoOperation::Rotate:
+		currentOperation = ImGuizmo::ROTATE;
+		break;
+	case EditorGizmoOperation::Scale:
+		currentOperation = ImGuizmo::SCALE;
+		break;
+	}
+	ImGuizmo::MODE currentMode = ImGuizmo::WORLD;
+	switch (mode)
+	{
+	case EditorGizmoMode::Global:
+		currentMode = ImGuizmo::WORLD;
+		break;
+	case EditorGizmoMode::Local:
+		currentMode = ImGuizmo::LOCAL;
+		break;
+	}
+
+	const ImVec2 windowPos = ImGui::GetWindowPos();
+	const ImVec2 windowSize = ImGui::GetWindowSize();
+	ImGuizmo::SetRect(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
+	const Mat4 view = pCamera->GetView();
+	const Mat4 projection = pCamera->VGetProjection(windowSize.x / windowSize.y);
+	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+	ImGuizmo::Manipulate(
+		Math::ValuePtr(view),
+		Math::ValuePtr(projection),
+		currentOperation,
+		currentMode,
+		Math::ValuePtr(outTransform),
+		nullptr,
+		nullptr
+	);
 }

@@ -26,6 +26,19 @@ namespace Arg
 			{
 				std::filesystem::path ConfigFile;
 			};
+			
+			enum EditorGizmoOperation
+			{
+				Translate,
+				Rotate,
+				Scale
+			};
+
+			enum EditorGizmoMode
+			{
+				Global,
+				Local
+			};
 
 			class EditorGUI
 			{
@@ -45,6 +58,13 @@ namespace Arg
 
 				void OnGUI(const EditorGUIContext& context);
 				void RenderDrawData();
+
+				void EditTransform(
+					const EditorGizmoOperation& operation,
+					const EditorGizmoMode& mode,
+					const Renderer::Camera* pCamera,
+					Mat4& outTransform
+					);
 
 			protected:
 

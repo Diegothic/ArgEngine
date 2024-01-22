@@ -1,7 +1,7 @@
 #include <arg_pch.hpp>
 #include "ContentBrowserPanel.hpp"
 
-#include <imgui/imgui.h>
+#include <imgui/ImGui.hpp>
 
 #include "Editor.hpp"
 #include "Content/ResourceCache.hpp"

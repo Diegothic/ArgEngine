@@ -45,7 +45,7 @@ namespace Arg
 			void PlayGame();
 			void StopGame();
 			void ReloadScripts();
-			
+
 			void Update(const float deltaTime);
 			void Render();
 
@@ -56,8 +56,8 @@ namespace Arg
 			auto IsProjectOpened() const -> bool { return m_pProject != nullptr; }
 			auto GetProject() -> std::unique_ptr<Project>& { return m_pProject; }
 
-			auto GetEditorViewRendererID() const->uint32_t;
-			auto GetEditorViewSize() const->const Vec2i&;
+			auto GetEditorViewRendererID() const -> uint32_t;
+			auto GetEditorViewSize() const -> const Vec2i&;
 			void SetEditorViewSize(const Vec2i& size) const;
 
 			void OpenProject(const std::filesystem::path& projectFile);
@@ -69,7 +69,7 @@ namespace Arg
 			void DeselectActor();
 
 			auto HasSelectedResource() const -> bool { return m_SelectedResourceID != GUID::Empty; }
-			auto GetSelectedResource() const-> std::shared_ptr<Content::Resource>&;
+			auto GetSelectedResource() const -> std::shared_ptr<Content::Resource>&;
 			void SelectResource(const GUID resourceID);
 			void DeselectResource();
 
@@ -79,6 +79,11 @@ namespace Arg
 
 			auto IsGameFocused() const -> bool { return m_bIsGameFocused; }
 			void SetGameFocused(const bool bFocused);
+
+			auto GetGuizmoOperation() const -> const GUI::EditorGizmoOperation& { return m_GuizmoOperation; }
+			void SetGuizmoOperation(const GUI::EditorGizmoOperation& operation) { m_GuizmoOperation = operation; }
+			auto GetGuizmoMode() const -> const GUI::EditorGizmoMode& { return m_GuizmoMode; }
+			void SetGuizmoMode(const GUI::EditorGizmoMode& mode) { m_GuizmoMode = mode; }
 
 		private:
 			std::filesystem::path m_ConfigPath;
@@ -99,6 +104,9 @@ namespace Arg
 			std::shared_ptr<Renderer::Renderer> m_pRenderer = nullptr;
 			std::unique_ptr<Renderer::RenderTarget> m_pEditorViewRenderTarget = nullptr;
 			std::unique_ptr<Renderer::RenderTarget> m_pGameViewRenderTarget = nullptr;
+
+			GUI::EditorGizmoOperation m_GuizmoOperation = GUI::EditorGizmoOperation::Translate;
+			GUI::EditorGizmoMode m_GuizmoMode = GUI::EditorGizmoMode::Global;
 
 			GUID m_SelectedActorID = GUID::Empty;
 			GUID m_SelectedResourceID = GUID::Empty;

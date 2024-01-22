@@ -95,6 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Libraries\Include\imgui\imgui.cpp" />
+    <ClCompile Include="Libraries\Include\imgui\ImGuizmo.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_demo.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_draw.cpp" />
     <ClCompile Include="Libraries\Include\imgui\imgui_impl_glfw.cpp" />
@@ -120,6 +121,8 @@
   <ItemGroup>
     <ClInclude Include="Libraries\Include\imgui\imconfig.h" />
     <ClInclude Include="Libraries\Include\imgui\imgui.h" />
+    <ClInclude Include="Libraries\Include\imgui\ImGui.hpp" />
+    <ClInclude Include="Libraries\Include\imgui\ImGuizmo.h" />
     <ClInclude Include="Libraries\Include\imgui\imgui_impl_glfw.h" />
     <ClInclude Include="Libraries\Include\imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="Libraries\Include\imgui\imgui_impl_opengl3_loader.h" />

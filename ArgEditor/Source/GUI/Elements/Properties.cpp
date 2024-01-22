@@ -1,7 +1,7 @@
 ﻿#include <arg_pch.hpp>
 #include "Properties.hpp"
 
-#include <imgui/imgui.h>
+#include <imgui/ImGui.hpp>
 
 void Arg::Editor::GUI::ResourceHandleProperty(
 	const char* ID,
