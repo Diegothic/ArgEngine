@@ -47,15 +47,17 @@
     <OutDir>$(SolutionDir)Bin\Editor_$(Configuration)_$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Temp\Editor\$(Configuration)_$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)Source;$(ProjectDir)Libraries\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <ReferencePath>$(SolutionDir)ArgEngine\DLL;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Bin\Editor_$(Configuration)_$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)Temp\Editor\$(Configuration)_$(Platform)\</IntDir>
     <IncludePath>$(ProjectDir)Source;$(ProjectDir)Libraries\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)\Libraries\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>$(SolutionDir)ArgEngine\Source;$(SolutionDir)ArgEngine\Libraries\Include;$(ExternalIncludePath)</ExternalIncludePath>
+    <ReferencePath>$(SolutionDir)ArgEngine\DLL;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

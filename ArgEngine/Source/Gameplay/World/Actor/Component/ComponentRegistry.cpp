@@ -8,6 +8,7 @@
 #include "Components/Graphics/SpotLightComponent.hpp"
 #include "Components/Graphics/StaticModelComponent.hpp"
 #include "Components/Physics/PhysicsBodyComponent.hpp"
+#include "Components/Sound/SoundPlayerComponent.hpp"
 
 auto Arg::Gameplay::ComponentRegistry::CreateComponent(
 	const std::string& componentID
@@ -71,6 +72,7 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 	RegisterComponent(new PointLightComponent());
 	RegisterComponent(new SpotLightComponent());
 	RegisterComponent(new PhysicsBodyComponent());
+	RegisterComponent(new SoundPlayerComponent());
 }
 
 void Arg::Gameplay::ComponentRegistry::RegisterComponent(ActorComponent* prototype)

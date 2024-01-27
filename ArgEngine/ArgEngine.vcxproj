@@ -75,7 +75,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimpd.lib;lua54.lib;BulletLinearMathd.lib;BulletCollisiond.lib;BulletDynamicsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cppd.lib;zlibstaticd.lib;assimpd.lib;lua54.lib;BulletLinearMathd.lib;BulletCollisiond.lib;BulletDynamicsd.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
     </Lib>
@@ -105,7 +105,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cpp.lib;zlibstatic.lib;assimp.lib;lua54.lib;BulletLinearMath.lib;BulletCollision.lib;BulletDynamics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;yaml-cpp.lib;zlibstatic.lib;assimp.lib;lua54.lib;BulletLinearMath.lib;BulletCollision.lib;BulletDynamics.lib;irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
     </Lib>
   </ItemDefinitionGroup>
@@ -124,6 +124,7 @@
     <ClCompile Include="Source\Content\Import\SkeletalMeshImporter.cpp" />
     <ClCompile Include="Source\Content\Import\SkeletalModelImporter.cpp" />
     <ClCompile Include="Source\Content\Import\SkeletonImporter.cpp" />
+    <ClCompile Include="Source\Content\Import\SoundImporter.cpp" />
     <ClCompile Include="Source\Content\Import\StaticModelImporter.cpp" />
     <ClCompile Include="Source\Content\Import\TextureImporter.cpp" />
     <ClCompile Include="Source\Content\ResourceCache.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="Source\Content\Resource\GameResources\SkeletalAnimationResource.cpp" />
     <ClCompile Include="Source\Content\Resource\GameResources\SkeletalModelResource.cpp" />
     <ClCompile Include="Source\Content\Resource\GameResources\SkeletonResource.cpp" />
+    <ClCompile Include="Source\Content\Resource\GameResources\SoundResource.cpp" />
     <ClCompile Include="Source\Content\Resource\GameResources\StaticModelResource.cpp" />
     <ClCompile Include="Source\Content\Resource\GameResources\WorldResource.cpp" />
     <ClCompile Include="Source\Content\Resource\Resource.cpp" />
@@ -152,6 +154,7 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Sound\SoundPlayerComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
     <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
     <ClCompile Include="Source\Physics\PhysicsWorld.cpp" />
@@ -181,6 +184,7 @@
     <ClCompile Include="Source\Script\ScriptEngine.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueCore.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueGameplay.cpp" />
+    <ClCompile Include="Source\Sound\SoundEngine.cpp" />
     <ClInclude Include="Libraries\Include\sol\sol.hpp" />
     <ClInclude Include="Source\Content\Content.hpp" />
     <ClInclude Include="Source\Content\Import\ImporterDataConversion.hpp" />
@@ -189,6 +193,7 @@
     <ClInclude Include="Source\Content\Import\SkeletalMeshImporter.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletalModelImporter.hpp" />
     <ClInclude Include="Source\Content\Import\SkeletonImporter.hpp" />
+    <ClInclude Include="Source\Content\Import\SoundImporter.hpp" />
     <ClInclude Include="Source\Content\Import\StaticModelImporter.hpp" />
     <ClInclude Include="Source\Content\Import\TextureImporter.hpp" />
     <ClInclude Include="Source\Content\ResourceCache.hpp" />
@@ -199,6 +204,7 @@
     <ClInclude Include="Source\Content\Resource\GameResources\SkeletalAnimationResource.hpp" />
     <ClInclude Include="Source\Content\Resource\GameResources\SkeletalModelResource.hpp" />
     <ClInclude Include="Source\Content\Resource\GameResources\SkeletonResource.hpp" />
+    <ClInclude Include="Source\Content\Resource\GameResources\SoundResource.hpp" />
     <ClInclude Include="Source\Content\Resource\GameResources\StaticModelResource.hpp" />
     <ClInclude Include="Source\Content\Resource\GameResources\WorldResource.hpp" />
     <ClInclude Include="Source\Content\Resource\ResourceFolder.hpp" />
@@ -239,6 +245,7 @@
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Sound\SoundPlayerComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
     <ClInclude Include="Source\Gameplay\World\GameWorld.hpp" />
     <ClInclude Include="Source\Physics\PhysicsBody.hpp" />
@@ -270,6 +277,7 @@
     <ClInclude Include="Source\Script\ScriptEngine.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueCore.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueGameplay.hpp" />
+    <ClInclude Include="Source\Sound\SoundEngine.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Core\Application.hpp" />

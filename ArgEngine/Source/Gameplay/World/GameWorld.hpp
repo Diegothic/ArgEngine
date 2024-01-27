@@ -9,6 +9,7 @@
 #include "Gameplay/GameContext.hpp"
 #include "Physics/PhysicsWorld.hpp"
 #include "Renderer/RenderContext.hpp"
+#include "Sound/SoundEngine.hpp"
 
 namespace Arg
 {
@@ -78,6 +79,7 @@ namespace Arg
 
 		public:
 			auto GetPhysicsWorld() const -> Physics::PhysicsWorld* { return m_pPhysicsWorld.get(); }
+			auto GetSound() const -> Sound::SoundEngine&;
 
 		public:
 			void BeginPlay();

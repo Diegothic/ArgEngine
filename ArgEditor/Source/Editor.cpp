@@ -3,6 +3,8 @@
 
 #include "Renderer/RenderContext.hpp"
 #include "Content/Resource/GameResources/ShaderResource.hpp"
+#include "Content/Resource/GameResources/SoundResource.hpp"
+#include "Sound/SoundEngine.hpp"
 
 auto Arg::Editor::EditorConfig::VOnSerialize(YAML::Node& node) const -> bool
 {

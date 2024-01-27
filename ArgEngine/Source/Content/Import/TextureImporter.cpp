@@ -3,6 +3,7 @@
 
 #include <stb/stb_image.h>
 
+#include "Content/Resource/GameResources/TextureResource.hpp"
 #include "Debug/Log.hpp"
 #include "Content/Yaml/Yaml.hpp"
 
@@ -33,9 +34,9 @@ auto Arg::Import::TextureImporter::ImportFile(const std::string& file) -> bool
 void Arg::Import::TextureImporter::Save(const std::string& fileName, const std::filesystem::path& destination)
 {
 	auto filePath = destination / fileName;
-	filePath.replace_extension("atex");
+	filePath.replace_extension(Content::TEXTURE_RESOURCE_FILE_EXTENSION);
 	std::string dataFileName = fileName;
-	dataFileName.append(".data");
+	dataFileName.append(Content::RESOURCE_DATA_FILE_EXTENSION);
 
 	YAML::Node resourceData;
 	if (std::filesystem::exists(filePath))

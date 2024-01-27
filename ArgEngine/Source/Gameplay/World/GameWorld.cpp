@@ -239,6 +239,11 @@ void Arg::Gameplay::GameWorld::SetGravity(const Vec3& gravity)
 	}
 }
 
+auto Arg::Gameplay::GameWorld::GetSound() const -> Sound::SoundEngine&
+{
+	return s_pEngine->GetSoundEngine();
+}
+
 void Arg::Gameplay::GameWorld::BeginPlay()
 {
 	m_pPhysicsWorld = std::make_unique<Physics::PhysicsWorld>(this);

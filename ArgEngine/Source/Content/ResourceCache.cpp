@@ -11,6 +11,7 @@
 #include "Resource/GameResources/SkeletalAnimationResource.hpp"
 #include "Resource/GameResources/SkeletalModelResource.hpp"
 #include "Resource/GameResources/SkeletonResource.hpp"
+#include "Resource/GameResources/SoundResource.hpp"
 
 void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& resource)
 {
@@ -56,6 +57,11 @@ void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& r
 		case ResourceType::ResourceTypeSkeletalAnimation:
 			{
 				m_pGameResources[resource->GetID()] = std::make_shared<SkeletalAnimationResource>(resource);
+				break;
+			}
+		case ResourceType::ResourceTypeSound:
+			{
+				m_pGameResources[resource->GetID()] = std::make_shared<SoundResource>(resource);
 				break;
 			}
 		case ResourceType::ResourceTypeWorld:

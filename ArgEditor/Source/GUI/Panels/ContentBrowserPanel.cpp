@@ -8,6 +8,7 @@
 #include "Content/Import/SkeletalAnimationImporter.hpp"
 #include "Content/Import/SkeletalModelImporter.hpp"
 #include "Content/Import/SkeletonImporter.hpp"
+#include "Content/Import/SoundImporter.hpp"
 #include "Content/Import/TextureImporter.hpp"
 #include "Content/Import/StaticModelImporter.hpp"
 #include "Dialog/FileDialog/FileOpenDialog.hpp"
@@ -256,6 +257,19 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 							animationImporter.get(),
 							Content::ResourceType::ResourceTypeSkeletalAnimation,
 							{".fbx", ".gltf", ".glb"}
+						);
+					}
+
+					ImGui::Separator();
+
+					if (ImGui::MenuItem("Sound"))
+					{
+						auto soundImporter = std::make_unique<Import::SoundImporter>();
+						ImportResource(
+							context,
+							soundImporter.get(),
+							Content::ResourceType::ResourceTypeSound,
+							{".wav", ".ogg"}
 						);
 					}
 

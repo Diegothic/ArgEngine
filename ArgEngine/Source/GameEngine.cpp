@@ -56,6 +56,9 @@ void Arg::GameEngine::Initialize(
 	};
 	m_pScriptEngine = std::make_unique<Script::ScriptEngine>(scriptEngineSpec);
 	m_pScriptEngine->Initialize();
+
+	m_pSoundEngine = std::make_unique<Sound::SoundEngine>();
+	m_pSoundEngine->Initialize();
 }
 
 void Arg::GameEngine::Deinitialize()
@@ -69,6 +72,8 @@ void Arg::GameEngine::Deinitialize()
 
 		m_pLoadedWorld = nullptr;
 	}
+
+	m_pSoundEngine->CleanUp();
 
 	m_ComponentRegistry.Clear();
 	m_pResourceCache = nullptr;
@@ -127,6 +132,16 @@ void Arg::GameEngine::Stop()
 	{
 		m_pLoadedWorld->EndPlay();
 	}
+
+	if (m_pSoundEngine != nullptr)
+	{
+		m_pSoundEngine->StopAllSounds();
+		m_pSoundEngine->SetListenerPosition(
+			Vec3(0.0f),
+			Vec3(1.0f, 0.0f, 0.0f),
+			Vec3(0.0f, 0.0f, 1.0f)
+		);
+	}
 }
 
 void Arg::GameEngine::Update(const float& deltaTime)
@@ -147,6 +162,28 @@ void Arg::GameEngine::Update(const float& deltaTime)
 
 	if (m_bIsPlaying)
 	{
+		if (m_pSoundEngine != nullptr)
+		{
+			const auto mainCamera = m_pLoadedWorld->GetMainCamera();
+			if (mainCamera.IsValid())
+			{
+				const Renderer::Camera* pCamera = mainCamera.Get().GetCamera();
+				m_pSoundEngine->SetListenerPosition(
+					pCamera->GetPosition(),
+					pCamera->GetForwardVector(),
+					pCamera->GetUpVector()
+				);
+			}
+			else
+			{
+				m_pSoundEngine->SetListenerPosition(
+					Vec3(0.0f),
+					Vec3(1.0f, 0.0f, 0.0f),
+					Vec3(0.0f, 0.0f, 1.0f)
+				);
+			}
+		}
+
 		m_pLoadedWorld->Tick(m_GameTime);
 	}
 }
@@ -178,6 +215,11 @@ void Arg::GameEngine::ClearGarbage()
 	if (IsWorldLoaded())
 	{
 		m_pLoadedWorld->ClearGarbage();
+	}
+
+	if (m_pSoundEngine != nullptr)
+	{
+		m_pSoundEngine->ClearGarbage();
 	}
 }
 

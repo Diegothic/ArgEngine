@@ -4,7 +4,6 @@
 #include <imgui/ImGui.hpp>
 
 #include "Editor.hpp"
-#include "Gameplay/World/Actor/Component/Components/Physics/PhysicsBodyComponent.hpp"
 #include "GUI/Elements/Properties.hpp"
 
 void Arg::Editor::GUI::DetailsPanel::OnInitialize(const EditorGUIContext& context)
@@ -308,6 +307,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			else if (component->VGetID() == Gameplay::PhysicsBodyComponent::COMPONENT_ID)
 			{
 				auto actorComponent = dynamic_pointer_cast<Gameplay::PhysicsBodyComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
+			else if (component->VGetID() == Gameplay::SoundPlayerComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::SoundPlayerComponent>(component);
 				DrawActorComponentProperties(context, actor, actorComponent);
 			}
 			else
@@ -1359,6 +1363,206 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 					}
 					break;
 				}
+			}
+		}
+
+		ImGui::EndTable();
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::SoundPlayerComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpen = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpen
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpen
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##SoundPlayerComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Sound");
+
+			ImGui::TableNextColumn();
+
+			const auto& sound = pComponent->GetSound();
+			ResourceHandleProperty(
+				"##SoundHandle",
+				Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+				sound.IsValid() ? sound.Get()->GetName().c_str() : nullptr,
+				[&](GUID droppedResourceID)
+				{
+					const auto& resource = pResourceCache->GetResource(droppedResourceID);
+					if (resource->GetType() == Content::ResourceType::ResourceTypeSound)
+					{
+						pComponent->SetSound(pResourceCache->CreateHandle<Content::SoundResource>(
+							droppedResourceID
+						));
+					}
+				},
+				[&]
+				{
+					pComponent->SetSound(pResourceCache->CreateHandle<Content::SoundResource>(
+						GUID::Empty
+					));
+				}
+			);
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Play");
+			ImGui::Text("on Start");
+
+			ImGui::TableNextColumn();
+
+			bool bPlayOnStart = pComponent->GetPlayOnStart();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::Checkbox("##PlayOnStart", &bPlayOnStart);
+			if (bPlayOnStart != pComponent->GetPlayOnStart())
+			{
+				pComponent->SetPlayOnStart(bPlayOnStart);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Volume");
+
+			ImGui::TableNextColumn();
+
+			float volume = pComponent->GetVolume();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##Volume", &volume);
+			if (volume != pComponent->GetVolume())
+			{
+				pComponent->SetVolume(volume);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Volume");
+			ImGui::Text("Variance");
+
+			ImGui::TableNextColumn();
+
+			float volumeVariance = pComponent->GetVolumeVariance();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##VolumeVariance", &volumeVariance);
+			if (volumeVariance != pComponent->GetVolumeVariance())
+			{
+				pComponent->SetVolumeVariance(volumeVariance);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Pitch");
+
+			ImGui::TableNextColumn();
+
+			float pitch = pComponent->GetPitch();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##Pitch", &pitch);
+			if (pitch != pComponent->GetPitch())
+			{
+				pComponent->SetPitch(pitch);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Pitch");
+			ImGui::Text("Variance");
+
+			ImGui::TableNextColumn();
+
+			float pitchVariance = pComponent->GetPitchVariance();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##PitchVariance", &pitchVariance);
+			if (pitchVariance != pComponent->GetPitchVariance())
+			{
+				pComponent->SetPitchVariance(pitchVariance);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Loop");
+
+			ImGui::TableNextColumn();
+
+			bool isLooping = pComponent->GetIsLooping();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::Checkbox("##IsLooping", &isLooping);
+			if (isLooping != pComponent->GetIsLooping())
+			{
+				pComponent->SetIsLooping(isLooping);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Is 3D");
+
+			ImGui::TableNextColumn();
+
+			bool is3D = pComponent->GetIs3D();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::Checkbox("##Is3D", &is3D);
+			if (is3D != pComponent->GetIs3D())
+			{
+				pComponent->SetIs3D(is3D);
+			}
+		}
+
+		if (pComponent->GetIs3D())
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Distance");
+
+			ImGui::TableNextColumn();
+
+			float distance = pComponent->GetDistance();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::InputFloat("##Distance", &distance);
+			if (distance != pComponent->GetDistance())
+			{
+				pComponent->SetDistance(distance);
 			}
 		}
 

@@ -32,6 +32,14 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 		{
 			return lhs + rhs;
 		}),
+		sol::meta_function::subtraction, sol::overload([](const Vec3& lhs, const Vec3& rhs)
+			{
+				return lhs - rhs;
+			}),
+		sol::meta_function::multiplication, sol::overload([](const Vec3& lhs, const float& rhs)
+		{
+			return lhs * rhs;
+		}),
 		"normalize", [](const Vec3& v) -> Vec3 { return Math::normalize(v); },
 		"length", [](const Vec3& v) -> float { return Math::length(v); },
 		"dot", [](const Vec3& lhs, const Vec3& rhs) -> float { return Math::dot(lhs, rhs); },

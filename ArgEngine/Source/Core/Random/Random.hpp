@@ -20,6 +20,7 @@ namespace Arg
 
 			auto Next() -> uint64_t;
 			auto NextInt() -> int32_t;
+			auto NextFloat() -> float;
 
 		private:
 			LCG m_LCG;

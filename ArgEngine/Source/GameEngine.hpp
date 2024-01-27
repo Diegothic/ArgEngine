@@ -9,6 +9,7 @@
 #include "Content/Resource/GameResources/WorldResource.hpp"
 #include "Renderer/RenderContext.hpp"
 #include "Script\ScriptEngine.hpp"
+#include "Sound/SoundEngine.hpp"
 
 namespace Arg
 {
@@ -47,6 +48,8 @@ namespace Arg
 
 		auto GetGameTime() const -> const Gameplay::GameTime& { return m_GameTime; }
 
+		auto GetSoundEngine() const -> Sound::SoundEngine& {return *m_pSoundEngine;}
+
 		void LoadWorld(const std::string& worldName);
 		void LoadWorld(const GUID& worldID);
 
@@ -74,6 +77,7 @@ namespace Arg
 
 		std::shared_ptr<Content::ResourceCache> m_pResourceCache = nullptr;
 		std::unique_ptr<Script::ScriptEngine> m_pScriptEngine = nullptr;
+		std::unique_ptr<Sound::SoundEngine> m_pSoundEngine = nullptr;
 
 		WorldHandle m_WorldHandle;
 		std::shared_ptr<Gameplay::GameWorld> m_pLoadedWorld = nullptr;

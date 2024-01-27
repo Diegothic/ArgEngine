@@ -28,3 +28,9 @@ auto Arg::Random::Random::NextInt() -> int32_t
 {
 	return static_cast<int32_t>(m_LCG.Next());
 }
+
+auto Arg::Random::Random::NextFloat() -> float
+{
+	const int32_t random = static_cast<int32_t>(m_LCG.Next());
+	return static_cast<float>(random % 1000) / 1000.0f;
+}

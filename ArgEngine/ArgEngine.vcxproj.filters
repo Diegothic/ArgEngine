@@ -240,9 +240,6 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Physics\PhysicsBody.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Physics\PhysicsWorld.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
