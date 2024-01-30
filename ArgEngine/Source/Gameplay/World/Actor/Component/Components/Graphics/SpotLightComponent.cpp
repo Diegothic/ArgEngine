@@ -27,6 +27,29 @@ void Arg::Gameplay::SpotLightComponent::VRender(Renderer::RenderContext& context
 	context.AddSpotLight(m_SpotLight);
 }
 
+void Arg::Gameplay::SpotLightComponent::VDrawDebug(Renderer::RenderContext& context)
+{
+	ActorComponent::VDrawDebug(context);
+
+	const Vec3& ownerPosition = GetOwner()->GetPosition();
+	const Vec3& ownerRotation = GetOwner()->GetRotation();
+
+	context.DrawDebugSphere(
+		ownerPosition,
+		ownerRotation,
+		0.3f,
+		Vec3(1.0f, 0.8f, 0.3f)
+	);
+
+	context.DrawDebugCylinder(
+		ownerPosition + (GetOwner()->GetForwardVec() * 0.3f),
+		Vec3(0.0f, ownerRotation.y - 90.0f, ownerRotation.z),
+		0.3f,
+		0.6f,
+		Vec3(1.0f, 0.8f, 0.3f)
+	);
+}
+
 void Arg::Gameplay::SpotLightComponent::VOnComponentAdded()
 {
 }

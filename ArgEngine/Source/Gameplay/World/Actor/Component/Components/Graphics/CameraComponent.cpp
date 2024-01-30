@@ -34,6 +34,19 @@ void Arg::Gameplay::CameraComponent::VTick(const GameTime& gameTime)
 	m_pCamera->SetRoll(rotation.x);
 }
 
+void Arg::Gameplay::CameraComponent::VDrawDebug(Renderer::RenderContext& context)
+{
+	ActorComponent::VDrawDebug(context);
+
+	const Vec3& ownerPosition = GetOwner()->GetPosition();
+	const Vec3& ownerRotation = GetOwner()->GetRotation();
+	context.DrawDebugCamera(
+		ownerPosition,
+		ownerRotation,
+		Vec3(0.4f, 0.0f, 1.0f)
+	);
+}
+
 void Arg::Gameplay::CameraComponent::VOnComponentAdded()
 {
 	SetMode(m_Mode);

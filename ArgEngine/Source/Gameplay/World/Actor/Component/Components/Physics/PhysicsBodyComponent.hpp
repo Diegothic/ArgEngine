@@ -25,6 +25,7 @@ namespace Arg
 
 			void VBeginPlay() override;
 			void VTick(const GameTime& gameTime) override;
+			void VDrawDebug(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
@@ -70,7 +71,7 @@ namespace Arg
 			void SetRotationLockZ(bool bLockRotation);
 
 			void Wake() const;
-		
+
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;

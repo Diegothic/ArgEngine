@@ -122,6 +122,10 @@ void Arg::Editor::Editor::Initialize()
 		auto skyboxShaderHandle = m_pResourceCache
 			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\Skybox");
 		skyboxShaderHandle.AddRef();
+
+		auto debugShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\Debug");
+		debugShaderHandle.AddRef();
 	}
 
 	// Load engine content
@@ -129,6 +133,26 @@ void Arg::Editor::Editor::Initialize()
 		auto skyboxMeshHandle = m_pResourceCache
 			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Skybox");
 		skyboxMeshHandle.AddRef();
+
+		auto lineMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Line");
+		lineMeshHandle.AddRef();
+
+		auto boxMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Box");
+		boxMeshHandle.AddRef();
+
+		auto sphereMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Sphere");
+		sphereMeshHandle.AddRef();
+
+		auto cylinderMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Cylinder");
+		cylinderMeshHandle.AddRef();
+
+		auto cameraMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Camera");
+		cameraMeshHandle.AddRef();
 	}
 }
 
@@ -272,19 +296,64 @@ void Arg::Editor::Editor::Render()
 			                          ? skyboxShaderHandle.Get()->GetShader()
 			                          : nullptr;
 
+		const auto debugShaderHandle = m_pResourceCache
+			->CreateHandle<Content::ShaderResource>("_Engine\\Shaders\\Debug");
+		const auto debugShader = debugShaderHandle.IsValid()
+			                         ? debugShaderHandle.Get()->GetShader()
+			                         : nullptr;
+
 		const auto skyboxMeshHandle = m_pResourceCache
 			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Skybox");
 		const auto skyboxMesh = skyboxMeshHandle.IsValid()
 			                        ? skyboxMeshHandle.Get()->GetStaticModel()
 			                        : nullptr;
 
+		const auto lineMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Line");
+		const auto lineMesh = lineMeshHandle.IsValid()
+			                      ? lineMeshHandle.Get()->GetStaticModel()
+			                      : nullptr;
+
+		const auto boxMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Box");
+		const auto boxMesh = boxMeshHandle.IsValid()
+			                     ? boxMeshHandle.Get()->GetStaticModel()
+			                     : nullptr;
+
+		const auto sphereMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Sphere");
+		const auto sphereMesh = sphereMeshHandle.IsValid()
+			                        ? sphereMeshHandle.Get()->GetStaticModel()
+			                        : nullptr;
+
+		const auto cylinderMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Cylinder");
+		const auto cylinderMesh = cylinderMeshHandle.IsValid()
+			                          ? cylinderMeshHandle.Get()->GetStaticModel()
+			                          : nullptr;
+
+		const auto cameraMeshHandle = m_pResourceCache
+			->CreateHandle<Content::StaticModelResource>("_Engine\\Meshes\\Camera");
+		const auto cameraMesh = cameraMeshHandle.IsValid()
+			                        ? cameraMeshHandle.Get()->GetStaticModel()
+			                        : nullptr;
+
 		const Renderer::RenderContextSpec renderContextSpec{
 			.pCamera = camera.get(),
 			.ViewportSize = viewportSize,
+			.bDebugEnabled = true,
+
 			.pBasicShader = basicShader.get(),
 			.pShadowMapShader = shadowMapShader.get(),
 			.pSkyboxShader = skyboxShader.get(),
-			.pSkyboxMesh = skyboxMesh.get()
+			.pDebugShader = debugShader.get(),
+
+			.pSkyboxMesh = skyboxMesh.get(),
+			.pLineMesh = lineMesh.get(),
+			.pBoxMesh = boxMesh.get(),
+			.pSphereMesh = sphereMesh.get(),
+			.pCylinderMesh = cylinderMesh.get(),
+			.pCameraMesh = cameraMesh.get()
 		};
 		Renderer::RenderContext renderContext(renderContextSpec);
 
@@ -295,6 +364,11 @@ void Arg::Editor::Editor::Render()
 		else
 		{
 			m_pGameEngine->RenderEditor(renderContext);
+		}
+
+		if (m_bDrawDebug)
+		{
+			m_pGameEngine->RenderDebug(renderContext);
 		}
 
 		m_pEditorViewRenderTarget->Begin();

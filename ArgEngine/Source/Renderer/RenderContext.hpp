@@ -23,10 +23,25 @@ namespace Arg
 		{
 			Camera* pCamera = nullptr;
 			Vec2i ViewportSize = Vec2i(1920, 1080);
+			bool bDebugEnabled = false;
+
 			ShaderProgram* pBasicShader = nullptr;
 			ShaderProgram* pShadowMapShader = nullptr;
 			ShaderProgram* pSkyboxShader = nullptr;
+			ShaderProgram* pDebugShader = nullptr;
+
 			StaticModel* pSkyboxMesh = nullptr;
+			StaticModel* pLineMesh = nullptr;
+			StaticModel* pBoxMesh = nullptr;
+			StaticModel* pSphereMesh = nullptr;
+			StaticModel* pCylinderMesh = nullptr;
+			StaticModel* pCameraMesh = nullptr;
+		};
+
+		struct TransformColor
+		{
+			Mat4 Transform;
+			Vec3 Color;
 		};
 
 		class RenderContext
@@ -41,7 +56,7 @@ namespace Arg
 
 		public:
 			RenderContext(const RenderContextSpec& spec);
-			
+
 			void SetCamera(Camera* pCamera);
 
 			void DrawModel(
@@ -68,6 +83,48 @@ namespace Arg
 			void SetBackgroundColor(const Vec3& color);
 			void SetSkybox(CubeMap* cubeMap);
 
+			void DrawDebugLine(
+				const Vec3& from,
+				const Vec3& to,
+				const Vec3& color
+			);
+
+			void DrawDebugBox(
+				const Vec3& position,
+				const Vec3& rotation,
+				const Vec3& scale,
+				const Vec3& color
+			);
+
+			void DrawDebugSphere(
+				const Vec3& position,
+				const Vec3& rotation,
+				const float& radius,
+				const Vec3& color
+			);
+
+			void DrawDebugCylinder(
+				const Vec3& position,
+				const Vec3& rotation,
+				const float& radius,
+				const float& height,
+				const Vec3& color
+			);
+
+			void DrawDebugCapsule(
+				const Vec3& position,
+				const Vec3& rotation,
+				const float& radius,
+				const float& height,
+				const Vec3& color
+			);
+
+			void DrawDebugCamera(
+				const Vec3& position,
+				const Vec3& rotation,
+				const Vec3& color
+			);
+
 			void Render(
 				Renderer& renderer,
 				RenderTarget* renderTarget
@@ -91,6 +148,12 @@ namespace Arg
 			std::unordered_map<GUID, Material*> m_Materials;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialStaticMeshIndices;
 			std::unordered_map<GUID, std::vector<size_t>> m_MaterialSkeletalMeshIndices;
+
+			std::vector<TransformColor> m_DebugLines;
+			std::vector<TransformColor> m_DebugBoxes;
+			std::vector<TransformColor> m_DebugSpheres;
+			std::vector<TransformColor> m_DebugCylinders;
+			std::vector<TransformColor> m_DebugCameras;
 
 			Vec3 m_BackgroundColor = Vec3(0.5f);
 			CubeMap* m_pCubeMap = nullptr;

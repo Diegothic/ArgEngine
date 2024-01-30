@@ -434,6 +434,22 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					}
 				}
 
+				ImGui::SetCursorPos(ImVec2(425.0f, 5.0f));
+				if (pEditor->GetDrawDebug())
+				{
+					if (ImGui::Button("Debug-", ImVec2(40.0f, 40.0f)))
+					{
+						pEditor->SetDrawDebug(false);
+					}
+				}
+				else
+				{
+					if (ImGui::Button("Debug+", ImVec2(40.0f, 40.0f)))
+					{
+						pEditor->SetDrawDebug(true);
+					}
+				}
+
 				ImGui::SetCursorPos(ImVec2((viewportSize.x * 0.5f) - 20.0f, 5.0f));
 				if (!pGameEngine->IsPlaying())
 				{
@@ -624,7 +640,6 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 							2.0f
 						);
 
-
 						ImGui::GetForegroundDrawList()->AddLine(
 							orientationCenter,
 							ImVec2(
@@ -701,9 +716,16 @@ void Arg::Editor::GUI::EditorGUI::EditTransform(
 
 	const ImVec2 windowPos = ImGui::GetWindowPos();
 	const ImVec2 windowSize = ImGui::GetWindowSize();
-	ImGuizmo::SetRect(windowPos.x, windowPos.y, windowSize.x, windowSize.y);
+	const Vec2 windowViewportSize = Vec2(
+		windowSize.x,
+		windowSize.y - ImGui::GetFrameHeight()
+	);
+	ImGuizmo::SetRect(
+		windowPos.x, windowPos.y + ImGui::GetFrameHeight(),
+		windowViewportSize.x, windowViewportSize.y
+	);
 	const Mat4 view = pCamera->GetView();
-	const Mat4 projection = pCamera->VGetProjection(windowSize.x / windowSize.y);
+	const Mat4 projection = pCamera->VGetProjection(windowViewportSize.x / windowViewportSize.y);
 	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 	ImGuizmo::Manipulate(
 		Math::ValuePtr(view),

@@ -86,16 +86,44 @@ namespace Arg
 			outRotation = Math::eulerAngles(rotationQuaternion);
 		}
 
+		inline auto CalculateTransform(
+			const Vec3& translation,
+			const Vec3& rotation,
+			const Vec3& scale
+		) -> Mat4
+		{
+			Mat4 transform = Mat4(1.0f);
+			transform = Math::translate(transform, translation);
+			transform = Math::rotate(transform, Math::radians(rotation.z), Vec3(0.0f, 0.0f, 1.0f));
+			transform = Math::rotate(transform, Math::radians(rotation.y), Vec3(0.0f, 1.0f, 0.0f));
+			transform = Math::rotate(transform, Math::radians(rotation.x), Vec3(1.0f, 0.0f, 0.0f));
+			transform = Math::scale(transform, scale);
+			return transform;
+		}
+
+		inline auto CalculateTransform(
+			const Vec3& translation,
+			const Quat& rotation,
+			const Vec3& scale
+		) -> Mat4
+		{
+			Mat4 transform = Mat4(1.0f);
+			transform = Math::translate(transform, translation);
+			transform = transform * Math::mat4_cast(rotation);
+			transform = Math::scale(transform, scale);
+			return transform;
+		}
+
 		inline auto ForwardVecFromRotation(float pitch, float yaw, float roll) -> Vec3
 		{
 			return Math::normalize(Vec3(
 				Math::cos(yaw)
-				* Math::cos(pitch),
+				* Math::cos(-pitch),
 
 				Math::sin(yaw)
-				* Math::cos(pitch),
+				* Math::cos(-pitch),
 
-				Math::sin(pitch)
+				Math::sin(-pitch)
 			));
 		}
 
@@ -103,18 +131,18 @@ namespace Arg
 		{
 			return -Math::normalize(Vec3(
 				-Math::cos(yaw)
-				* Math::sin(pitch)
+				* Math::sin(-pitch)
 				* Math::sin(roll)
 				- Math::sin(yaw)
 				* Math::cos(roll),
 
 				-Math::sin(yaw)
-				* Math::sin(pitch)
+				* Math::sin(-pitch)
 				* Math::sin(roll)
 				+ Math::cos(yaw)
 				* Math::cos(roll),
 
-				Math::cos(pitch)
+				Math::cos(-pitch)
 				* Math::sin(roll)
 			));
 		}
@@ -123,18 +151,18 @@ namespace Arg
 		{
 			return Math::normalize(Vec3(
 				-Math::cos(yaw)
-				* Math::sin(pitch)
+				* Math::sin(-pitch)
 				* Math::cos(roll)
 				+ Math::sin(yaw)
 				* Math::sin(roll),
 
 				-Math::sin(yaw)
-				* Math::sin(pitch)
+				* Math::sin(-pitch)
 				* Math::cos(roll)
 				- Math::cos(yaw)
 				* Math::sin(roll),
 
-				Math::cos(pitch)
+				Math::cos(-pitch)
 				* Math::cos(roll)
 			));
 		}

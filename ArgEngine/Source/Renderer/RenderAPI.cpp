@@ -52,3 +52,30 @@ void Arg::Renderer::RenderAPI::SetDrawingBackground(bool bDrawingBackground)
 		glDepthFunc(GL_LESS);
 	}
 }
+
+void Arg::Renderer::RenderAPI::SetWireframe(bool bWireframe, float lineWidth)
+{
+	if (bWireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(lineWidth);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glLineWidth(1.0f);
+	}
+}
+
+void Arg::Renderer::RenderAPI::SetCullBackFace(bool bCull)
+{
+	if (bCull)
+	{
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
+	else
+	{
+		glDisable(GL_CULL_FACE);
+	}
+}

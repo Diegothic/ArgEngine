@@ -31,6 +31,9 @@ namespace Arg
 			void BeginSkybox() const;
 			void EndSkybox() const;
 
+			void BeginDebug(float lineWidth = 1.0f) const;
+			void EndDebug() const;
+
 		private:
 			std::unique_ptr<Texture> m_pWhiteTexture = nullptr;
 			std::unique_ptr<Texture> m_pBlackTexture = nullptr;

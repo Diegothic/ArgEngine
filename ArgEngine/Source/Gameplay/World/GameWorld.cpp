@@ -299,6 +299,25 @@ void Arg::Gameplay::GameWorld::Render(Renderer::RenderContext& context)
 	}
 }
 
+void Arg::Gameplay::GameWorld::DrawDebug(Renderer::RenderContext& context)
+{
+	GUID mainCameraOwnerID = GUID::Empty;
+	if (s_pEngine->IsPlaying())
+	{
+		mainCameraOwnerID = GetMainCamera().GetOwnerID();
+	}
+
+	for (const auto& actor : m_Actors)
+	{
+		if (actor->GetID() == mainCameraOwnerID)
+		{
+			continue;
+		}
+
+		actor->DrawDebug(context);
+	}
+}
+
 void Arg::Gameplay::GameWorld::ClearGarbage()
 {
 	std::vector<GUID> actorsToDestroy;

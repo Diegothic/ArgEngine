@@ -23,6 +23,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VRender(Renderer::RenderContext& context) override;
+			void VDrawDebug(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;

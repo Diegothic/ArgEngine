@@ -86,6 +86,7 @@ namespace Arg
 			void EndPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
+			void DrawDebug(Renderer::RenderContext& context);
 			void ClearGarbage();
 
 			auto GetResourceCache() const -> Content::ResourceCache* { return m_pResource->GetResourceCache(); }

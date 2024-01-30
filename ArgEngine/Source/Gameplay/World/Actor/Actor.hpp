@@ -76,6 +76,7 @@ namespace Arg
 			void BeginPlay();
 			void Tick(const GameTime& gameTime);
 			void Render(Renderer::RenderContext& context);
+			void DrawDebug(Renderer::RenderContext& context);
 
 			void MarkForDestruction() { m_bIsDestroyed = true; }
 			auto IsMarkedForDestruction() const -> bool { return m_bIsDestroyed; }

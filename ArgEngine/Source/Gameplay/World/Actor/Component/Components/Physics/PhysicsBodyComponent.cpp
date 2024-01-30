@@ -31,6 +31,47 @@ void Arg::Gameplay::PhysicsBodyComponent::VTick(const GameTime& gameTime)
 	ActorComponent::VTick(gameTime);
 }
 
+void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& context)
+{
+	ActorComponent::VDrawDebug(context);
+
+	const Vec3& ownerPosition = GetOwner()->GetPosition();
+	const Vec3& ownerRotation = GetOwner()->GetRotation();
+
+	switch (m_PhysicsBody.Shape)
+	{
+	case Physics::PhysicsBodyShape::Box:
+		context.DrawDebugBox(
+			ownerPosition,
+			ownerRotation,
+			m_PhysicsBody.Size,
+			Vec3(0.0f, 1.0f, 0.0f)
+		);
+		break;
+	case Physics::PhysicsBodyShape::Sphere:
+		context.DrawDebugSphere(
+			ownerPosition,
+			ownerRotation,
+			m_PhysicsBody.Size.x,
+			Vec3(0.0f, 1.0f, 0.0f)
+		);
+		break;
+	case Physics::PhysicsBodyShape::Capsule:
+		context.DrawDebugCapsule(
+			ownerPosition,
+			ownerRotation,
+			m_PhysicsBody.Size.x,
+			m_PhysicsBody.Size.z,
+			Vec3(0.0f, 1.0f, 0.0f)
+		);
+		break;
+	}
+
+	context.DrawDebugLine(ownerPosition, ownerPosition + GetOwner()->GetForwardVec(), Vec3(1.0f, 0.0f, 0.0f));
+	context.DrawDebugLine(ownerPosition, ownerPosition + GetOwner()->GetUpVec(), Vec3(0.0f, 0.0f, 1.0f));
+	context.DrawDebugLine(ownerPosition, ownerPosition + GetOwner()->GetRightVec(), Vec3(0.0f, 1.0f, 0.0f));
+}
+
 void Arg::Gameplay::PhysicsBodyComponent::VOnComponentAdded()
 {
 	m_PhysicsBody.ID = GetOwner()->GetID();

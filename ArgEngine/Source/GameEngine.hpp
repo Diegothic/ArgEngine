@@ -22,7 +22,7 @@ namespace Arg
 		int32_t WindowHeight = 1080;
 		bool bIsFullscreen = true;
 		bool bIsWindowVSync = true;
-		
+
 		std::string StartingMap;
 
 	protected:
@@ -48,7 +48,7 @@ namespace Arg
 
 		auto GetGameTime() const -> const Gameplay::GameTime& { return m_GameTime; }
 
-		auto GetSoundEngine() const -> Sound::SoundEngine& {return *m_pSoundEngine;}
+		auto GetSoundEngine() const -> Sound::SoundEngine& { return *m_pSoundEngine; }
 
 		void LoadWorld(const std::string& worldName);
 		void LoadWorld(const GUID& worldID);
@@ -64,6 +64,7 @@ namespace Arg
 		void Update(const float& deltaTime);
 		void RenderGame(Renderer::RenderContext& context) const;
 		void RenderEditor(Renderer::RenderContext& context) const;
+		void RenderDebug(Renderer::RenderContext& context) const;
 
 		void ClearGarbage();
 

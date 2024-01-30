@@ -85,6 +85,9 @@ namespace Arg
 			auto GetGuizmoMode() const -> const GUI::EditorGizmoMode& { return m_GuizmoMode; }
 			void SetGuizmoMode(const GUI::EditorGizmoMode& mode) { m_GuizmoMode = mode; }
 
+			auto GetDrawDebug() const -> bool { return m_bDrawDebug; }
+			void SetDrawDebug(bool bDrawDebug) { m_bDrawDebug = bDrawDebug; }
+
 		private:
 			std::filesystem::path m_ConfigPath;
 			EditorConfig m_Config;
@@ -94,6 +97,7 @@ namespace Arg
 			std::shared_ptr<GameEngine> m_pGameEngine = nullptr;
 			std::unique_ptr<YAML::Node> m_pWorldCacheNode = nullptr;
 			bool m_bIsGameFocused = false;
+			bool m_bDrawDebug = true;
 
 			std::shared_ptr<Window> m_pWindow = nullptr;
 			std::shared_ptr<Content::ResourceCache> m_pResourceCache = nullptr;

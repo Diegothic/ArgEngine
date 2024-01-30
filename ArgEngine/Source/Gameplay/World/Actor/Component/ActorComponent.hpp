@@ -42,6 +42,10 @@ namespace Arg
 			{
 			}
 
+			virtual void VDrawDebug(Renderer::RenderContext& context)
+			{
+			}
+
 			virtual void VOnComponentAdded() = 0;
 			virtual void VOnComponentRemoved() = 0;
 

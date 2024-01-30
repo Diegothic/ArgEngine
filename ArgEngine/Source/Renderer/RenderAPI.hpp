@@ -17,6 +17,8 @@ namespace Arg
 
 			void SetBlendingEnabled(bool bIsEnabled);
 			void SetDrawingBackground(bool bDrawingBackground);
+			void SetWireframe(bool bWireframe, float lineWidth = 1.0f);
+			void SetCullBackFace(bool bCull);
 		}
 	}
 }

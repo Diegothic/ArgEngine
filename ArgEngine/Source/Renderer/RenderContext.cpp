@@ -113,6 +113,104 @@ void Arg::Renderer::RenderContext::SetSkybox(CubeMap* cubeMap)
 	m_pCubeMap = cubeMap;
 }
 
+void Arg::Renderer::RenderContext::DrawDebugLine(
+	const Vec3& from,
+	const Vec3& to,
+	const Vec3& color
+)
+{
+	const Vec3 lineVec = to - from;
+	const float lineLength = Math::length(lineVec);
+	const Vec3 lineVecNormalized = Math::normalize(lineVec);
+	const float rotZ = Math::atan(
+		lineVecNormalized.y,
+		lineVecNormalized.x
+	);
+	const Vec3 forwardVec = Vec3(lineVecNormalized.x, lineVecNormalized.y, 0.0f);
+	const float dotForward = Math::length(forwardVec) > 0.0f
+		                         ? Math::dot(
+			                         lineVecNormalized,
+			                         Math::normalize(forwardVec)
+		                         )
+		                         : 0.0f;
+	const float dotUp = Math::dot(lineVecNormalized, Vec3(0.0f, 0.0f, 1.0f));
+	const float rotY = -Math::atan(
+		dotUp,
+		dotForward
+	);
+
+	const Mat4 transform = Math::CalculateTransform(
+		from,
+		Quat(Vec3(0.0f, rotY, rotZ)),
+		Vec3(lineLength, 1.0f, 1.0f)
+	);
+	m_DebugLines.push_back({transform, color});
+}
+
+void Arg::Renderer::RenderContext::DrawDebugBox(
+	const Vec3& position,
+	const Vec3& rotation,
+	const Vec3& scale,
+	const Vec3& color
+)
+{
+	const Mat4 transform = Math::CalculateTransform(position, rotation, scale);
+	m_DebugBoxes.push_back({transform, color});
+}
+
+void Arg::Renderer::RenderContext::DrawDebugSphere(
+	const Vec3& position,
+	const Vec3& rotation,
+	const float& radius,
+	const Vec3& color
+)
+{
+	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius));
+	m_DebugSpheres.push_back({transform, color});
+}
+
+void Arg::Renderer::RenderContext::DrawDebugCylinder(
+	const Vec3& position,
+	const Vec3& rotation,
+	const float& radius,
+	const float& height,
+	const Vec3& color
+)
+{
+	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius, radius, height));
+	m_DebugCylinders.push_back({transform, color});
+}
+
+void Arg::Renderer::RenderContext::DrawDebugCapsule(
+	const Vec3& position,
+	const Vec3& rotation,
+	const float& radius,
+	const float& height,
+	const Vec3& color
+)
+{
+	const float cylinderHeight = Math::max(height, 0.0f);
+	DrawDebugCylinder(position, rotation, radius, cylinderHeight, color);
+	const Vec3 upVec = Math::normalize(Math::UpVecFromRotation(
+		Math::radians(rotation.y),
+		Math::radians(rotation.z),
+		Math::radians(rotation.x)
+	));
+	const Vec3 offsetVec = (upVec * cylinderHeight * 0.5f);
+	DrawDebugSphere(position + offsetVec, rotation, radius, color);
+	DrawDebugSphere(position - offsetVec, rotation, radius, color);
+}
+
+void Arg::Renderer::RenderContext::DrawDebugCamera(
+	const Vec3& position,
+	const Vec3& rotation,
+	const Vec3& color
+)
+{
+	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(0.5f));
+	m_DebugCameras.push_back({transform, color});
+}
+
 void Arg::Renderer::RenderContext::Render(
 	Renderer& renderer,
 	RenderTarget* renderTarget
@@ -364,6 +462,64 @@ void Arg::Renderer::RenderContext::Render(
 		m_pCubeMap->Unbind();
 
 		renderer.EndSkybox();
+	}
+
+	{
+		renderer.BeginDebug(2.0f);
+
+		auto debugShader = m_Spec.pDebugShader;
+
+		debugShader->Use();
+
+		debugShader->SetUniform("u_Proj", proj);
+		debugShader->SetUniform("u_View", view);
+
+		const StaticMesh* pLineMesh = m_Spec.pLineMesh->GetMesh(0).get();
+		for (const auto& transformColor : m_DebugLines)
+		{
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pLineMesh->Draw();
+		}
+
+		const StaticMesh* pBoxMesh = m_Spec.pBoxMesh->GetMesh(0).get();
+		for (const auto& transformColor : m_DebugBoxes)
+		{
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pBoxMesh->Draw();
+		}
+
+		const StaticMesh* pSphereMesh = m_Spec.pSphereMesh->GetMesh(0).get();
+		for (const auto& transformColor : m_DebugSpheres)
+		{
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pSphereMesh->Draw();
+		}
+
+		const StaticMesh* pCylinderMesh = m_Spec.pCylinderMesh->GetMesh(0).get();
+		for (const auto& transformColor : m_DebugCylinders)
+		{
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pCylinderMesh->Draw();
+		}
+
+		const StaticMesh* pCameraMesh = m_Spec.pCameraMesh->GetMesh(0).get();
+		for (const auto& transformColor : m_DebugCameras)
+		{
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pCameraMesh->Draw();
+		}
+
+		renderer.EndDebug();
 	}
 
 	renderer.EndFrame();

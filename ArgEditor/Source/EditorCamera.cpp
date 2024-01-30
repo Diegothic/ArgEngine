@@ -92,7 +92,7 @@ void Arg::Editor::EditorCamera::Update(
 		const Vec2 mouseDelta = mouseState.GetPositionDelta();
 
 		float cameraPitch = m_pCamera->GetPitch();
-		cameraPitch += mouseDelta.y * -10.0f * m_Speed * deltaTime;
+		cameraPitch += mouseDelta.y * 10.0f * m_Speed * deltaTime;
 		cameraPitch = Math::clamp(cameraPitch, -89.0f, 89.0f);
 		m_pCamera->SetPitch(cameraPitch);
 

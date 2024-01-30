@@ -322,6 +322,19 @@ void Arg::Gameplay::Actor::Render(Renderer::RenderContext& context)
 	}
 }
 
+void Arg::Gameplay::Actor::DrawDebug(Renderer::RenderContext& context)
+{
+	if (m_bIsDestroyed)
+	{
+		return;
+	}
+
+	for (const auto& component : m_Components)
+	{
+		component->VDrawDebug(context);
+	}
+}
+
 void Arg::Gameplay::Actor::Destroy()
 {
 	std::vector<GUID> componentsToRemove;

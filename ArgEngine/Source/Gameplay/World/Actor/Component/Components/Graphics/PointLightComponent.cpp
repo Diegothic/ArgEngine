@@ -26,6 +26,21 @@ void Arg::Gameplay::PointLightComponent::VRender(Renderer::RenderContext& contex
 	context.AddPointLight(m_PointLight);
 }
 
+void Arg::Gameplay::PointLightComponent::VDrawDebug(Renderer::RenderContext& context)
+{
+	ActorComponent::VDrawDebug(context);
+
+	const Vec3& ownerPosition = GetOwner()->GetPosition();
+	const Vec3& ownerRotation = GetOwner()->GetRotation();
+
+	context.DrawDebugSphere(
+		ownerPosition,
+		ownerRotation,
+		0.3f,
+		Vec3(1.0f, 0.8f, 0.3f)
+	);
+}
+
 void Arg::Gameplay::PointLightComponent::VOnComponentAdded()
 {
 }

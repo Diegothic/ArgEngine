@@ -210,6 +210,14 @@ void Arg::GameEngine::RenderEditor(Renderer::RenderContext& context) const
 	}
 }
 
+void Arg::GameEngine::RenderDebug(Renderer::RenderContext& context) const
+{
+	if (IsWorldLoaded())
+	{
+		m_pLoadedWorld->DrawDebug(context);
+	}
+}
+
 void Arg::GameEngine::ClearGarbage()
 {
 	if (IsWorldLoaded())

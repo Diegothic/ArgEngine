@@ -72,3 +72,15 @@ void Arg::Renderer::Renderer::EndSkybox() const
 {
 	RenderAPI::SetDrawingBackground(false);
 }
+
+void Arg::Renderer::Renderer::BeginDebug(float lineWidth) const
+{
+	RenderAPI::SetWireframe(true, lineWidth);
+	RenderAPI::SetCullBackFace(false);
+}
+
+void Arg::Renderer::Renderer::EndDebug() const
+{
+	RenderAPI::SetWireframe(false);
+	RenderAPI::SetCullBackFace(true);
+}
