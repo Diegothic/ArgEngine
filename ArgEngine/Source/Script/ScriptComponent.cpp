@@ -48,9 +48,9 @@ void Arg::Script::ScriptComponent::VBeginPlay()
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	if (state[m_Name]["_begin_play"].valid())
+	if (state[m_Name]["_BeginPlay"].valid())
 	{
-		state[m_Name]["_begin_play"](scriptInstances[m_OwnerIDString]);
+		state[m_Name]["_BeginPlay"](scriptInstances[m_OwnerIDString]);
 	}
 }
 
@@ -61,9 +61,22 @@ void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime)
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	if (state[m_Name]["_tick"].valid())
+	if (state[m_Name]["_Tick"].valid())
 	{
-		state[m_Name]["_tick"](scriptInstances[m_OwnerIDString], gameTime.GetDeltaTime());
+		state[m_Name]["_Tick"](scriptInstances[m_OwnerIDString], gameTime.GetDeltaTime());
+	}
+}
+
+void Arg::Script::ScriptComponent::VDrawDebug(Renderer::RenderContext& context)
+{
+	ActorComponent::VDrawDebug(context);
+
+	auto& state = m_pScriptEngine->GetState();
+	sol::table scriptInstances = state[m_Name]["_instances"];
+
+	if (state[m_Name]["_OnDrawDebug"].valid())
+	{
+		state[m_Name]["_OnDrawDebug"](scriptInstances[m_OwnerIDString], context);
 	}
 }
 
@@ -84,9 +97,9 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 
 	componentTable[sol::metatable_key] = state[m_Name];
 	{
-		componentTable.set_function("get_owner", [&](sol::table self)
+		componentTable.set_function("Owner", [&](sol::table self)
 		{
-			return state["ScriptComponent"]["get_owner"](self["__component"]);
+			return state["ScriptComponent"]["Owner"](self["__component"]);
 		});
 		componentTable.set_function(
 			sol::meta_function::new_index,
@@ -105,9 +118,9 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 			                                              : m_pBase->m_FloatFieldValues.at(fieldName);
 	}
 
-	if (state[m_Name]["_on_create"].valid())
+	if (state[m_Name]["_OnCreate"].valid())
 	{
-		state[m_Name]["_on_create"](scriptInstances[m_OwnerIDString]);
+		state[m_Name]["_OnCreate"](scriptInstances[m_OwnerIDString]);
 	}
 }
 
@@ -116,9 +129,9 @@ void Arg::Script::ScriptComponent::VOnComponentRemoved()
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	if (state[m_Name]["_on_destroy"].valid())
+	if (state[m_Name]["_OnDestroy"].valid())
 	{
-		state[m_Name]["_on_destroy"](scriptInstances[m_OwnerIDString]);
+		state[m_Name]["_OnDestroy"](scriptInstances[m_OwnerIDString]);
 	}
 
 	scriptInstances[m_OwnerIDString] = sol::nil;

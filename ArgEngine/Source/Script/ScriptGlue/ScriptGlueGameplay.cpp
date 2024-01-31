@@ -19,73 +19,73 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 			{
 				return lhs == rhs;
 			}),
-		"get_name",
+		"Name",
 		[](Gameplay::ActorHandle& self) -> std::string
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetName();
 		},
-		"get_parent",
+		"Parent",
 		[](Gameplay::ActorHandle& self) -> Gameplay::ActorHandle
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return Gameplay::ActorHandle(actor.GetWorld(), actor.GetParentActor()->GetID());
 		},
-		"get_position",
+		"Position",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetPosition();
 		},
-		"set_position",
+		"SetPosition",
 		[](Gameplay::ActorHandle& self, const Vec3& position)
 		{
 			Gameplay::Actor& actor = self.Get();
 			return actor.SetPosition(position);
 		},
-		"get_rotation",
+		"Rotation",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return Math::degrees(actor.GetRotationEuler());
 		},
-		"set_rotation",
+		"SetRotation",
 		[](Gameplay::ActorHandle& self, const Vec3& rotation)
 		{
 			Gameplay::Actor& actor = self.Get();
 			return actor.SetRotationEuler(Math::radians(rotation));
 		},
-		"get_scale",
+		"Scale",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetScale();
 		},
-		"set_scale",
+		"SetScale",
 		[](Gameplay::ActorHandle& self, const Vec3& scale)
 		{
 			Gameplay::Actor& actor = self.Get();
 			return actor.SetScale(scale);
 		},
-		"get_forward",
+		"Forward",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetForwardVec();
 		},
-		"get_right",
+		"Right",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetRightVec();
 		},
-		"get_up",
+		"Up",
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
 			return actor.GetUpVec();
 		},
-		"get_component",
+		"GetComponent",
 		[&](
 		Gameplay::ActorHandle& self,
 		const std::string& componentID,
@@ -132,7 +132,7 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 	);
 }
 
-void Arg::Script::ScriptExport_ActorComponents(const ScriptEngine& scriptEngine)
+void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scriptEngine)
 {
 	auto& scriptState = scriptEngine.GetState();
 
@@ -145,37 +145,37 @@ void Arg::Script::ScriptExport_ActorComponents(const ScriptEngine& scriptEngine)
 			{
 				return lhs == rhs;
 			}),
-		"get_color",
+		"Color",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self) -> Vec3
 		{
 			const Gameplay::PointLightComponent& component = self.Get();
 			return component.GetLightColor();
 		},
-		"set_color",
+		"SetColor",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self, const Vec3& color)
 		{
 			Gameplay::PointLightComponent& component = self.Get();
 			return component.SetLightColor(color);
 		},
-		"get_range",
+		"Range",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self) -> float
 		{
 			const Gameplay::PointLightComponent& component = self.Get();
 			return component.GetLightRange();
 		},
-		"set_range",
+		"SetRange",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self, float range)
 		{
 			Gameplay::PointLightComponent& component = self.Get();
 			return component.SetLightRange(range);
 		},
-		"get_intensity",
+		"Intensity",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self) -> float
 		{
 			const Gameplay::PointLightComponent& component = self.Get();
 			return component.GetLightIntensity();
 		},
-		"set_intensity",
+		"SetIntensity",
 		[](Gameplay::ActorComponentHandle<Gameplay::PointLightComponent>& self, float intensity)
 		{
 			Gameplay::PointLightComponent& component = self.Get();
@@ -192,61 +192,61 @@ void Arg::Script::ScriptExport_ActorComponents(const ScriptEngine& scriptEngine)
 			{
 				return lhs == rhs;
 			}),
-		"get_color",
+		"Color",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self) -> Vec3
 		{
 			const Gameplay::SpotLightComponent& component = self.Get();
 			return component.GetLightColor();
 		},
-		"set_color",
+		"SetColor",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self, const Vec3& color)
 		{
 			Gameplay::SpotLightComponent& component = self.Get();
 			return component.SetLightColor(color);
 		},
-		"get_range",
+		"Range",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self) -> float
 		{
 			const Gameplay::SpotLightComponent& component = self.Get();
 			return component.GetLightRange();
 		},
-		"set_range",
+		"SetRange",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self, float range)
 		{
 			Gameplay::SpotLightComponent& component = self.Get();
 			return component.SetLightRange(range);
 		},
-		"get_intensity",
+		"Intensity",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self) -> float
 		{
 			const Gameplay::SpotLightComponent& component = self.Get();
 			return component.GetLightIntensity();
 		},
-		"set_intensity",
+		"SetIntensity",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self, float intensity)
 		{
 			Gameplay::SpotLightComponent& component = self.Get();
 			return component.SetLightIntensity(intensity);
 		},
-		"get_inner_cone_angle",
+		"InnerCone",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self) -> float
 		{
 			const Gameplay::SpotLightComponent& component = self.Get();
 			return component.GetInnerConeAngle();
 		},
-		"set_inner_cone_angle",
+		"SetInnerCone",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self, float angle)
 		{
 			Gameplay::SpotLightComponent& component = self.Get();
 			return component.SetInnerConeAngle(angle);
 		},
-		"get_outer_cone_angle",
+		"OuterCone",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self) -> float
 		{
 			const Gameplay::SpotLightComponent& component = self.Get();
 			return component.GetOuterConeAngle();
 		},
-		"set_outer_cone_angle",
+		"SetOuterCone",
 		[](Gameplay::ActorComponentHandle<Gameplay::SpotLightComponent>& self, float angle)
 		{
 			Gameplay::SpotLightComponent& component = self.Get();

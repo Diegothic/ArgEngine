@@ -22,6 +22,7 @@ namespace Arg
 		constexpr Vec3 DEBUG_COLOR_PHYSICS = Vec3(0.0f, 1.0f, 0.0f);
 		constexpr Vec3 DEBUG_COLOR_LIGHT = Vec3(1.0f, 0.8f, 0.3f);
 		constexpr Vec3 DEBUG_COLOR_SPECIAL = Vec3(0.4f, 0.0f, 1.0f);
+		constexpr Vec3 DEBUG_COLOR_USER = Vec3(1.0f, 1.0f, 1.0f);
 
 		struct RenderContextSpec
 		{
@@ -96,7 +97,7 @@ namespace Arg
 			void DrawDebugBox(
 				const Vec3& position,
 				const Vec3& rotation,
-				const Vec3& scale,
+				const Vec3& size,
 				const Vec3& color
 			);
 

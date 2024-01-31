@@ -150,11 +150,11 @@ void Arg::Renderer::RenderContext::DrawDebugLine(
 void Arg::Renderer::RenderContext::DrawDebugBox(
 	const Vec3& position,
 	const Vec3& rotation,
-	const Vec3& scale,
+	const Vec3& size,
 	const Vec3& color
 )
 {
-	const Mat4 transform = Math::CalculateTransform(position, rotation, scale);
+	const Mat4 transform = Math::CalculateTransform(position, rotation, size);
 	m_DebugBoxes.push_back({transform, color});
 }
 

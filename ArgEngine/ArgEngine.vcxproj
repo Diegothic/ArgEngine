@@ -184,6 +184,7 @@
     <ClCompile Include="Source\Script\ScriptEngine.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueCore.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueGameplay.cpp" />
+    <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueRenderer.cpp" />
     <ClCompile Include="Source\Sound\SoundEngine.cpp" />
     <ClInclude Include="Libraries\Include\sol\sol.hpp" />
     <ClInclude Include="Source\Content\Content.hpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="Source\Script\ScriptEngine.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueCore.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueGameplay.hpp" />
+    <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueRenderer.hpp" />
     <ClInclude Include="Source\Sound\SoundEngine.hpp" />
   </ItemGroup>
   <ItemGroup>

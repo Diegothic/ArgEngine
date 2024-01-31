@@ -42,6 +42,7 @@ namespace Arg
 
 			void VBeginPlay() override;
 			void VTick(const Gameplay::GameTime& gameTime) override;
+			void VDrawDebug(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;

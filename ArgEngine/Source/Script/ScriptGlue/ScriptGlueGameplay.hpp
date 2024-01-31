@@ -9,7 +9,7 @@ namespace Arg
 	namespace Script
 	{
 		void ScriptExport_Actor(const ScriptEngine& scriptEngine);
-		void ScriptExport_ActorComponents(const ScriptEngine& scriptEngine);
+		void ScriptExport_ActorComponents_Graphics(const ScriptEngine& scriptEngine);
 		void ScriptExport_World(const ScriptEngine& scriptEngine);
 	}
 }

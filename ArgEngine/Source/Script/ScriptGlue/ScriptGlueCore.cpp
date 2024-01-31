@@ -25,9 +25,9 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 		{
 			return lhs == rhs;
 		}),
-		"x", &Vec3::x,
-		"y", &Vec3::y,
-		"z", &Vec3::z,
+		"X", &Vec3::x,
+		"Y", &Vec3::y,
+		"Z", &Vec3::z,
 		sol::meta_function::addition, sol::overload([](const Vec3& lhs, const Vec3& rhs)
 		{
 			return lhs + rhs;
@@ -40,9 +40,9 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 		{
 			return lhs * rhs;
 		}),
-		"normalize", [](const Vec3& v) -> Vec3 { return Math::normalize(v); },
-		"length", [](const Vec3& v) -> float { return Math::length(v); },
-		"dot", [](const Vec3& lhs, const Vec3& rhs) -> float { return Math::dot(lhs, rhs); },
-		"cross", [](const Vec3& lhs, const Vec3& rhs) -> Vec3 { return Math::cross(lhs, rhs); }
+		"Normalize", [](const Vec3& v) -> Vec3 { return Math::normalize(v); },
+		"Length", [](const Vec3& v) -> float { return Math::length(v); },
+		"Dot", [](const Vec3& lhs, const Vec3& rhs) -> float { return Math::dot(lhs, rhs); },
+		"Cross", [](const Vec3& lhs, const Vec3& rhs) -> Vec3 { return Math::cross(lhs, rhs); }
 	);
 }

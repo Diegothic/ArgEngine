@@ -6,6 +6,7 @@
 #include "Gameplay/World/Actor/Component/ActorComponentHandle.hpp"
 #include "ScriptGlue/ScriptGlueCore.hpp"
 #include "ScriptGlue/ScriptGlueGameplay.hpp"
+#include "ScriptGlue/ScriptGlueRenderer.hpp"
 
 using ScriptComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Script::ScriptComponent>;
 
@@ -89,7 +90,9 @@ void Arg::Script::ScriptEngine::Load()
 
 	ScriptExport_World(*this);
 	ScriptExport_Actor(*this);
-	ScriptExport_ActorComponents(*this);
+	ScriptExport_ActorComponents_Graphics(*this);
+
+	ScriptExport_Renderer(*this);
 
 	(*m_pLuaState)["DEF_COMPONENT"] = [&](const std::string& componentName)
 	{
@@ -108,19 +111,22 @@ void Arg::Script::ScriptEngine::Load()
 
 	m_pLuaState->new_usertype<ScriptComponentHandle>(
 		"ScriptComponent",
-		"_on_create", [](ScriptComponentHandle&)
+		"_OnCreate", [](ScriptComponentHandle&)
 		{
 		},
-		"_begin_play", [](ScriptComponentHandle&)
+		"_BeginPlay", [](ScriptComponentHandle&)
 		{
 		},
-		"_tick", [](ScriptComponentHandle&, float)
+		"_Tick", [](ScriptComponentHandle&, float)
 		{
 		},
-		"_on_destroy", [](ScriptComponentHandle&)
+		"_OnDrawDebug", [](ScriptComponentHandle&, Renderer::RenderContext& context)
 		{
 		},
-		"get_owner",
+		"_OnDestroy", [](ScriptComponentHandle&)
+		{
+		},
+		"Owner",
 		[](ScriptComponentHandle& self) -> Gameplay::ActorHandle
 		{
 			const ScriptComponent& component = self.Get();
