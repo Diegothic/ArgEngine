@@ -55,17 +55,21 @@ namespace Arg
 			void UpdateTransform(const Mat4& parentTransform);
 			void ReparentTransform(const Actor& newParentActor);
 
-			auto GetLocalPosition() const -> const Vec3& { return m_Transform.GetTranslation(); }
+			auto GetLocalPosition() const -> const Vec3& { return m_Transform.GetPosition(); }
 			void SetLocalPosition(const Vec3& position);
-			auto GetLocalRotation() const -> const Vec3& { return m_Transform.GetRotation(); }
-			void SetLocalRotation(const Vec3& rotation);
+			auto GetLocalRotation() const -> const Quat& { return m_Transform.GetRotation(); }
+			void SetLocalRotation(const Quat& rotation);
+			auto GetLocalRotationEuler() const -> const Vec3& { return m_Transform.GetRotationEuler(); }
+			void SetLocalRotationEuler(const Vec3& rotationEuler);
 			auto GetLocalScale() const -> const Vec3& { return m_Transform.GetScale(); }
 			void SetLocalScale(const Vec3& scale);
 
 			auto GetPosition() const -> Vec3;
 			void SetPosition(const Vec3& position);
-			auto GetRotation() const -> Vec3;
-			void SetRotation(const Vec3& rotation);
+			auto GetRotation() const -> Quat;
+			void SetRotation(const Quat& rotation);
+			auto GetRotationEuler() const -> Vec3;
+			void SetRotationEuler(const Vec3& rotationEuler);
 			auto GetScale() const -> Vec3;
 			void SetScale(const Vec3& scale);
 
@@ -96,7 +100,7 @@ namespace Arg
 			std::string m_Name = "Actor";
 
 			Transform m_Transform;
-			Mat4 m_GlobalTransform = Mat4(1.0f);
+			Mat4 m_GlobalTransform = Math::MAT4_IDENTITY;
 			bool m_bRefreshTransform = false;
 			bool m_bIsDestroyed = false;
 

@@ -16,7 +16,7 @@ void Arg::Renderer::PointLight::Apply(
 	int32_t lightIndex
 ) const
 {
-	ARG_ASSERT(lightIndex >= 0 && lightIndex <= POINT_LIGHTS_MAX, "Index out of range!");
+	ARG_ASSERT_M(lightIndex >= 0 && lightIndex <= POINT_LIGHTS_MAX, "Index out of range!");
 	const std::string lightName = std::format("u_PointLights[{}]", lightIndex);
 	shader->SetUniform(
 		std::format("{}.properties.ambient", lightName),
@@ -31,7 +31,7 @@ void Arg::Renderer::PointLight::Apply(
 		m_Color * m_Intensity
 	);
 
-	ARG_ASSERT(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid point light range!");
+	ARG_ASSERT_M(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid point light range!");
 	int32_t lightRangeIndex = 0;
 	for (auto i = 1; i < LIGHT_RANGE_STEPS_COUNT; i++)
 	{

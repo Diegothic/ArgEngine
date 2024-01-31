@@ -140,7 +140,7 @@ auto Arg::Renderer::ShaderProgram::FindUniformLocation(const std::string& name) 
 	}
 
 	const auto uniformLocation = glGetUniformLocation(m_RendererID, name.c_str());
-	ARG_ASSERT(uniformLocation != -1, "Uniform not found!");
+	ARG_ASSERT_M(uniformLocation != -1, "Uniform not found!");
 	m_UniformLocations[name] = uniformLocation;
 	return uniformLocation;
 }

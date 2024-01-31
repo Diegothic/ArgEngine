@@ -53,9 +53,9 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 	);
 	if (bIsTransformOpen)
 	{
-		const auto position = actor->GetLocalPosition();
-		const auto rotation = actor->GetLocalRotation();
-		const auto scale = actor->GetLocalScale();
+		const Vec3 position = actor->GetLocalPosition();
+		const Vec3 rotation = actor->GetLocalRotationEuler();
+		const Vec3 scale = actor->GetLocalScale();
 
 		if (ImGui::BeginTable(
 			"##TransformTable",
@@ -102,22 +102,17 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			ImGui::SameLine();
 			if (ImGui::Button("R##Pos"))
 			{
-				newPosition = Vec3(0.0f);
+				newPosition = Gameplay::Transform::POSITION_DEFAULT;
 			}
 
-			for (int i = 0; i < 3; i++)
+			if (newPosition != actor->GetLocalPosition())
 			{
-				if (newPosition[i] == position[i])
-				{
-					continue;
-				}
-
 				actor->SetLocalPosition(newPosition);
 			}
 
 			ImGui::TableNextColumn();
 
-			Vec3 newRotation = rotation;
+			Vec3 newRotation = Math::degrees(rotation);
 			ImGui::Text("Rotation");
 
 			ImGui::TableNextColumn();
@@ -150,17 +145,12 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			ImGui::SameLine();
 			if (ImGui::Button("R##Rot"))
 			{
-				newRotation = Vec3(0.0f);
+				newRotation = Math::degrees(Gameplay::Transform::ROTATION_EULER_DEFAULT);
 			}
 
-			for (int i = 0; i < 3; i++)
+			if (newRotation != Math::degrees(rotation))
 			{
-				if (newRotation[i] == rotation[i])
-				{
-					continue;
-				}
-
-				actor->SetLocalRotation(newRotation);
+				actor->SetLocalRotationEuler(Math::radians(newRotation));
 			}
 
 			ImGui::TableNextColumn();
@@ -202,33 +192,37 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			if (ImGui::Button("R##Sca"))
 			{
 				scaleProportionally = false;
-				newScale = Vec3(1.0f);
+				newScale = Gameplay::Transform::SCALE_DEFAULT;
 			}
 
 			for (int i = 0; i < 3; i++)
 			{
-				if (newScale[i] == scale[i])
-				{
-					continue;
-				}
+				newScale[i] = Math::max(newScale[i], 0.0f);
+			}
 
+			const Vec3 currentScale = actor->GetLocalScale();
+			if (newScale != currentScale)
+			{
 				if (scaleProportionally)
 				{
-					float proportion = 1.0f;
-					int proportionIndex = 0;
-					for (int j = 0; j < 3; j++)
+					for (int i = 0; i < 3; i++)
 					{
-						if (newScale[j] != scale[j])
+						if (newScale[i] != currentScale[i]
+							&& currentScale[i] > 0.0f)
 						{
-							proportionIndex = j;
-							proportion = newScale[j] / (scale[j] == 0.0f ? 1.0f : scale[j]);
+							const float diffPercent = newScale[i] / currentScale[i];
+							for (int j = 0; j < 3; j++)
+							{
+								if (j == i)
+								{
+									continue;
+								}
+
+								newScale[j] = currentScale[j] * diffPercent;
+							}
+
 							break;
 						}
-					}
-
-					for (int j = 0; j < 3; j++)
-					{
-						newScale[j] = (scale[j] == 0.0f ? newScale[proportionIndex] : scale[j] * proportion);
 					}
 				}
 

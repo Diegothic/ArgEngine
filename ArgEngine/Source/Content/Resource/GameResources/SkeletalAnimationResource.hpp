@@ -21,7 +21,7 @@ namespace Arg
 
 			auto GetAnimation() const -> const Renderer::SkeletalAnimation&
 			{
-				ARG_ASSERT(m_pAnimation != nullptr, "")
+				ARG_ASSERT(m_pAnimation != nullptr);
 				return *m_pAnimation;
 			}
 

@@ -20,7 +20,7 @@ void Arg::Content::GameResource::AddRef()
 
 void Arg::Content::GameResource::FreeRef()
 {
-	ARG_ASSERT(m_RefCount > 0, "Invalid ref count!");
+	ARG_ASSERT_M(m_RefCount > 0, "Invalid ref count!");
 	m_RefCount--;
 	if (m_RefCount == 0)
 	{

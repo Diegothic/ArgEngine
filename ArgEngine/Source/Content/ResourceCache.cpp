@@ -15,13 +15,13 @@
 
 void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& resource)
 {
-	ARG_ASSERT(!m_pResources.contains(resource->GetID()), "Invalid resource ID!");
+	ARG_ASSERT(!m_pResources.contains(resource->GetID()));
 	m_pResources[resource->GetID()] = resource;
 	m_pResourcesByPathID[resource->GetPathID()] = resource;
 
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-		ARG_ASSERT(!m_pGameResources.contains(resource->GetID()), "Invalid resource ID!");
+		ARG_ASSERT(!m_pGameResources.contains(resource->GetID()));
 		switch (resource->GetType())
 		{
 		case ResourceType::ResourceTypeShader:
@@ -77,11 +77,11 @@ void Arg::Content::ResourceCache::RemoveResource(const std::shared_ptr<Resource>
 {
 	const GUID resourceID = resource->GetID();
 	const GUID resourcePathID = resource->GetPathID();
-	ARG_ASSERT(m_pResources.contains(resourceID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(resourceID));
 
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-		ARG_ASSERT(m_pGameResources.contains(resourceID), "Invalid resource ID!");
+		ARG_ASSERT(m_pGameResources.contains(resourceID));
 		m_pGameResources.at(resourceID)->VRemoveFiles();
 	}
 
@@ -94,13 +94,13 @@ void Arg::Content::ResourceCache::RemoveResource(const std::shared_ptr<Resource>
 
 void Arg::Content::ResourceCache::SaveResource(const GUID ID) const
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources.at(ID);
 	resource->Save();
 
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		ARG_ASSERT(m_pGameResources.contains(ID));
 		const auto& gameResource = m_pGameResources.at(ID);
 		if (gameResource->VIsSaveable())
 		{
@@ -114,7 +114,7 @@ void Arg::Content::ResourceCache::RenameResource(
 	const std::string& name
 )
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources.at(ID);
 
 	if (resource->GetType() == ResourceType::ResourceTypeFolder)
@@ -126,7 +126,7 @@ void Arg::Content::ResourceCache::RenameResource(
 	}
 	else
 	{
-		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		ARG_ASSERT(m_pGameResources.contains(ID));
 		m_pGameResources.at(ID)->VRenameFiles(name);
 	}
 
@@ -138,54 +138,54 @@ void Arg::Content::ResourceCache::MoveResource(
 	const std::filesystem::path& destination
 )
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources.at(ID);
 	resource->Move(destination);
 
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		ARG_ASSERT(m_pGameResources.contains(ID));
 		m_pGameResources.at(ID)->VMoveFiles(destination);
 	}
 }
 
 void Arg::Content::ResourceCache::RemoveResource(const GUID ID)
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources[ID];
 	RemoveResource(resource);
 }
 
 auto Arg::Content::ResourceCache::GetResource(const GUID ID) -> std::shared_ptr<Resource>&
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	return m_pResources[ID];
 }
 
 auto Arg::Content::ResourceCache::GetGameResource(const GUID ID) -> std::shared_ptr<GameResource>&
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
-	ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
+	ARG_ASSERT(m_pGameResources.contains(ID));
 	return m_pGameResources.at(ID);
 }
 
 auto Arg::Content::ResourceCache::GetGameResource(const std::string& path) -> std::shared_ptr<GameResource>&
 {
 	const GUID pathID = std::hash<std::string>{}(path);
-	ARG_ASSERT(m_pResourcesByPathID.contains(pathID), "Invalid resource Path!");
+	ARG_ASSERT(m_pResourcesByPathID.contains(pathID));
 	const GUID ID = m_pResourcesByPathID.at(pathID)->GetID();
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
-	ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
+	ARG_ASSERT(m_pGameResources.contains(ID));
 	return m_pGameResources.at(ID);
 }
 
 void Arg::Content::ResourceCache::FreeResource(const GUID ID)
 {
-	ARG_ASSERT(m_pResources.contains(ID), "Invalid resource ID!");
+	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources[ID];
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
 	{
-		ARG_ASSERT(m_pGameResources.contains(ID), "Invalid resource ID!");
+		ARG_ASSERT(m_pGameResources.contains(ID));
 		m_pGameResources[ID] = nullptr;
 		m_pGameResources.erase(ID);
 	}
@@ -193,8 +193,8 @@ void Arg::Content::ResourceCache::FreeResource(const GUID ID)
 
 void Arg::Content::ResourceCache::SaveAll() const
 {
-	for (const auto& resourceKey : m_pResources
-	     | std::ranges::views::keys
+	for (const auto& resourceKey
+	     : m_pResources | std::ranges::views::keys
 	)
 	{
 		SaveResource(resourceKey);

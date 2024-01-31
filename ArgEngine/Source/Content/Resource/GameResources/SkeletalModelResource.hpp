@@ -22,7 +22,7 @@ namespace Arg
 
 			auto GetModel() const -> const Renderer::SkeletalModel&
 			{
-				ARG_ASSERT(m_pModel != nullptr, "")
+				ARG_ASSERT(m_pModel != nullptr);
 				return *m_pModel;
 			}
 

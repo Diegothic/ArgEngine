@@ -28,7 +28,7 @@ void Arg::Renderer::Camera::SetRoll(float angle)
 
 auto Arg::Renderer::Camera::GetView() const -> Mat4
 {
-	return Math::lookAtRH(
+	return Math::lookAt(
 		m_Position,
 		m_Position + m_Forward,
 		m_Up
@@ -38,20 +38,20 @@ auto Arg::Renderer::Camera::GetView() const -> Mat4
 void Arg::Renderer::Camera::Refresh()
 {
 	m_Forward = Math::ForwardVecFromRotation(
-		Math::radians(m_Pitch),
-		Math::radians(m_Yaw),
-		Math::radians(m_Roll)
+		m_Pitch,
+		m_Yaw,
+		m_Roll
 	);
 
 	m_Right = Math::RightVecFromRotation(
-		Math::radians(m_Pitch),
-		Math::radians(m_Yaw),
-		Math::radians(m_Roll)
+		m_Pitch,
+		m_Yaw,
+		m_Roll
 	);
 
 	m_Up = Math::UpVecFromRotation(
-		Math::radians(m_Pitch),
-		Math::radians(m_Yaw),
-		Math::radians(m_Roll)
+		m_Pitch,
+		m_Yaw,
+		m_Roll
 	);
 }

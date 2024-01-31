@@ -126,13 +126,13 @@ void Arg::Script::ScriptComponent::VOnComponentRemoved()
 
 auto Arg::Script::ScriptComponent::GetField(size_t index) const -> const ScriptComponentField&
 {
-	ARG_ASSERT(index < m_pBase->m_Fields.size(), "");
+	ARG_ASSERT(index < m_pBase->m_Fields.size());
 	return m_pBase->m_Fields[index];
 }
 
 void Arg::Script::ScriptComponent::SetFieldValue(const std::string& name, float value)
 {
-	ARG_ASSERT(m_pBase->m_FloatFieldValues.contains(name), "");
+	ARG_ASSERT(m_pBase->m_FloatFieldValues.contains(name));
 	m_FloatFieldValues[name] = value;
 
 	auto& state = m_pScriptEngine->GetState();
@@ -142,7 +142,7 @@ void Arg::Script::ScriptComponent::SetFieldValue(const std::string& name, float 
 
 void Arg::Script::ScriptComponent::GetFieldValue(const std::string& name, float& outValue) const
 {
-	ARG_ASSERT(m_pBase->m_FloatFieldValues.contains(name), "");
+	ARG_ASSERT(m_pBase->m_FloatFieldValues.contains(name));
 	outValue = m_FloatFieldValues.contains(name)
 		           ? m_FloatFieldValues.at(name)
 		           : m_pBase->m_FloatFieldValues.at(name);

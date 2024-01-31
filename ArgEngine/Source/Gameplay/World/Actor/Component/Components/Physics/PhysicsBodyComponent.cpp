@@ -36,7 +36,7 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 	ActorComponent::VDrawDebug(context);
 
 	const Vec3& ownerPosition = GetOwner()->GetPosition();
-	const Vec3& ownerRotation = GetOwner()->GetRotation();
+	const Vec3& ownerRotation = GetOwner()->GetRotationEuler();
 
 	switch (m_PhysicsBody.Shape)
 	{
@@ -45,7 +45,7 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 			ownerPosition,
 			ownerRotation,
 			m_PhysicsBody.Size,
-			Vec3(0.0f, 1.0f, 0.0f)
+			Renderer::DEBUG_COLOR_PHYSICS
 		);
 		break;
 	case Physics::PhysicsBodyShape::Sphere:
@@ -53,7 +53,7 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 			ownerPosition,
 			ownerRotation,
 			m_PhysicsBody.Size.x,
-			Vec3(0.0f, 1.0f, 0.0f)
+			Renderer::DEBUG_COLOR_PHYSICS
 		);
 		break;
 	case Physics::PhysicsBodyShape::Capsule:
@@ -62,7 +62,7 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 			ownerRotation,
 			m_PhysicsBody.Size.x,
 			m_PhysicsBody.Size.z,
-			Vec3(0.0f, 1.0f, 0.0f)
+			Renderer::DEBUG_COLOR_PHYSICS
 		);
 		break;
 	}
@@ -235,7 +235,7 @@ void Arg::Gameplay::PhysicsBodyComponent::SetRotationLockZ(bool bLockRotation)
 void Arg::Gameplay::PhysicsBodyComponent::Wake() const
 {
 	const GameWorld* pWorld = GetOwner()->GetWorld();
-	Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
+	const Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
 
 	if (pPhysicsWorld != nullptr && pPhysicsWorld->HasPhysicsBody(m_PhysicsBody.ID))
 	{

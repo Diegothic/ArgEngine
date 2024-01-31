@@ -80,25 +80,25 @@ void Arg::Gameplay::SoundPlayerComponent::Play()
 
 void Arg::Gameplay::SoundPlayerComponent::Pause()
 {
-	ARG_ASSERT(m_SoundHandle.IsValid(), "");
+	ARG_ASSERT(m_SoundHandle.IsValid());
 	m_SoundHandle.Pause();
 }
 
 void Arg::Gameplay::SoundPlayerComponent::Unpause()
 {
-	ARG_ASSERT(m_SoundHandle.IsValid(), "");
+	ARG_ASSERT(m_SoundHandle.IsValid());
 	m_SoundHandle.Play();
 }
 
 void Arg::Gameplay::SoundPlayerComponent::Stop()
 {
-	ARG_ASSERT(m_SoundHandle.IsValid(), "");
+	ARG_ASSERT(m_SoundHandle.IsValid());
 	m_SoundHandle.Stop();
 }
 
 auto Arg::Gameplay::SoundPlayerComponent::IsPlaying() const -> bool
 {
-	ARG_ASSERT(m_SoundHandle.IsValid(), "");
+	ARG_ASSERT(m_SoundHandle.IsValid());
 	return m_SoundHandle.IsPlaying();
 }
 

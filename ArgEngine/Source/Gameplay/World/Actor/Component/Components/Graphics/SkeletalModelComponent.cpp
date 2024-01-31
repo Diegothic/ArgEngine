@@ -171,7 +171,7 @@ void Arg::Gameplay::SkeletalModelComponent::SetModel(const SkeletalModelHandle& 
 
 auto Arg::Gameplay::SkeletalModelComponent::GetMaterial(size_t index) const -> const MaterialHandle&
 {
-	ARG_ASSERT(index < m_Materials.size(), "");
+	ARG_ASSERT(index < m_Materials.size());
 	return m_Materials[index];
 }
 

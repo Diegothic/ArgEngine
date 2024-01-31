@@ -47,13 +47,13 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 		[](Gameplay::ActorHandle& self) -> Vec3
 		{
 			const Gameplay::Actor& actor = self.Get();
-			return actor.GetRotation();
+			return Math::degrees(actor.GetRotationEuler());
 		},
 		"set_rotation",
 		[](Gameplay::ActorHandle& self, const Vec3& rotation)
 		{
 			Gameplay::Actor& actor = self.Get();
-			return actor.SetRotation(rotation);
+			return actor.SetRotationEuler(Math::radians(rotation));
 		},
 		"get_scale",
 		[](Gameplay::ActorHandle& self) -> Vec3
@@ -94,7 +94,7 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 		{
 			const sol::state_view lua(s);
 
-			Gameplay::Actor& actor = self.Get();
+			const Gameplay::Actor& actor = self.Get();
 			const GUID ownerID = actor.GetID();
 			const GUID ID = std::hash<std::string>{}(componentID);
 			if (!actor.HasComponent(ID))

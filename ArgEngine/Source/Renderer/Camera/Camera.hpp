@@ -44,7 +44,6 @@ namespace Arg
 			Vec3 m_Forward = Vec3(1.0f, 0.0f, 0.0f);
 			Vec3 m_Up = Vec3(0.0f, 0.0f, 1.0f);
 			Vec3 m_Right = Vec3(0.0f, -1.0f, 0.0f);
-			Vec3 m_WorldUp = Vec3(0.0f, 0.0f, 1.0f);
 
 			float m_Pitch = 0.0f;
 			float m_Yaw = 0.0f;

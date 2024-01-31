@@ -26,7 +26,7 @@ void Arg::Gameplay::CameraComponent::VTick(const GameTime& gameTime)
 
 	const Actor* owner = GetOwner();
 	const Vec3 position = owner->GetPosition();
-	const Vec3 rotation = owner->GetRotation();
+	const Vec3 rotation = owner->GetRotationEuler();
 
 	m_pCamera->SetPosition(position);
 	m_pCamera->SetPitch(rotation.y);
@@ -39,11 +39,11 @@ void Arg::Gameplay::CameraComponent::VDrawDebug(Renderer::RenderContext& context
 	ActorComponent::VDrawDebug(context);
 
 	const Vec3& ownerPosition = GetOwner()->GetPosition();
-	const Vec3& ownerRotation = GetOwner()->GetRotation();
+	const Vec3& ownerRotation = GetOwner()->GetRotationEuler();
 	context.DrawDebugCamera(
 		ownerPosition,
 		ownerRotation,
-		Vec3(0.4f, 0.0f, 1.0f)
+		Renderer::DEBUG_COLOR_SPECIAL
 	);
 }
 

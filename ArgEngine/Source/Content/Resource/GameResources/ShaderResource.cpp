@@ -46,11 +46,11 @@ void Arg::Content::ShaderResource::VPreLoad()
 void Arg::Content::ShaderResource::VOnLoad()
 {
 	const auto shaderSourcePath = GetResource()->GetPath() / "Source";
-	ARG_ASSERT(std::filesystem::exists(shaderSourcePath), "Shader source path does not exist!");
+	ARG_ASSERT_M(std::filesystem::exists(shaderSourcePath), "Shader source path does not exist!");
 	const auto vertexShaderFilePath = shaderSourcePath / m_pSpec->VertexSourceFile;
-	ARG_ASSERT(std::filesystem::exists(vertexShaderFilePath), "Shader source file does not exist!");
+	ARG_ASSERT_M(std::filesystem::exists(vertexShaderFilePath), "Shader source file does not exist!");
 	const auto fragmentShaderFilePath = shaderSourcePath / m_pSpec->FragmentSourceFile;
-	ARG_ASSERT(std::filesystem::exists(fragmentShaderFilePath), "Shader source file does not exist!");
+	ARG_ASSERT_M(std::filesystem::exists(fragmentShaderFilePath), "Shader source file does not exist!");
 
 	std::stringstream buffer;
 	std::ifstream vertexSourceFile(vertexShaderFilePath);

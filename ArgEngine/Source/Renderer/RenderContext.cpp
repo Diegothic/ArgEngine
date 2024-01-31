@@ -191,11 +191,7 @@ void Arg::Renderer::RenderContext::DrawDebugCapsule(
 {
 	const float cylinderHeight = Math::max(height, 0.0f);
 	DrawDebugCylinder(position, rotation, radius, cylinderHeight, color);
-	const Vec3 upVec = Math::normalize(Math::UpVecFromRotation(
-		Math::radians(rotation.y),
-		Math::radians(rotation.z),
-		Math::radians(rotation.x)
-	));
+	const Vec3 upVec = Math::UpVecFromRotation(rotation);
 	const Vec3 offsetVec = (upVec * cylinderHeight * 0.5f);
 	DrawDebugSphere(position + offsetVec, rotation, radius, color);
 	DrawDebugSphere(position - offsetVec, rotation, radius, color);

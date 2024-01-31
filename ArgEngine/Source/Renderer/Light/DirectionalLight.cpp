@@ -167,7 +167,7 @@ void Arg::Renderer::DirectionalLight::BeginShadowMap(
 	const Camera* camera
 )
 {
-	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMap != nullptr, "Shadow map missing!");
 	m_pShadowMap->Begin(
 		renderer,
 		CalculateLightSpace(camera)
@@ -179,7 +179,7 @@ void Arg::Renderer::DirectionalLight::DrawToShadowMap(
 	const Mat4& transform
 ) const
 {
-	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMap != nullptr, "Shadow map missing!");
 	m_pShadowMap->Draw(mesh, transform);
 }
 
@@ -189,13 +189,13 @@ void Arg::Renderer::DirectionalLight::DrawToShadowMap(
 	const SkeletonPose& pose
 ) const
 {
-	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMap != nullptr, "Shadow map missing!");
 	m_pShadowMap->Draw(mesh, transform, pose);
 }
 
 void Arg::Renderer::DirectionalLight::EndShadowMap()
 {
-	ARG_ASSERT(m_pShadowMap != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMap != nullptr, "Shadow map missing!");
 	m_pShadowMap->End();
 }
 
@@ -204,7 +204,7 @@ void Arg::Renderer::DirectionalLight::BeginShadowMapFar(
 	const Camera* camera
 ) const
 {
-	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMapFar != nullptr, "Shadow map missing!");
 	m_pShadowMapFar->Begin(
 		renderer,
 		CalculateLightSpaceFar(camera)
@@ -215,13 +215,13 @@ void Arg::Renderer::DirectionalLight::DrawToShadowMapFar(
 	const StaticMesh& mesh,
 	const Mat4& transform) const
 {
-	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMapFar != nullptr, "Shadow map missing!");
 	m_pShadowMapFar->Draw(mesh, transform);
 }
 
 void Arg::Renderer::DirectionalLight::EndShadowMapFar()
 {
-	ARG_ASSERT(m_pShadowMapFar != nullptr, "Shadow map missing!");
+	ARG_ASSERT_M(m_pShadowMapFar != nullptr, "Shadow map missing!");
 	m_pShadowMapFar->End();
 }
 

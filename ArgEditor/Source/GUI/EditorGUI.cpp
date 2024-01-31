@@ -576,11 +576,17 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 								pCamera->GetCamera().get(),
 								actorTransform
 							);
-							Vec3 position, rotation, scale;
-							Math::Decompose(actorTransform, position, rotation, scale);
-							pActor->SetPosition(position);
-							pActor->SetRotation(Math::degrees(rotation));
-							pActor->SetScale(scale);
+
+							if (ImGuizmo::IsUsing())
+							{
+								Vec3 position;
+								Quat rotation;
+								Vec3 scale;
+								Math::Decompose(actorTransform, position, rotation, scale);
+								pActor->SetPosition(position);
+								pActor->SetRotation(rotation);
+								pActor->SetScale(scale);
+							}
 						}
 
 						const Mat4 view = pCamera->GetView();

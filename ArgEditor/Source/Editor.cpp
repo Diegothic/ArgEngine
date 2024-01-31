@@ -163,7 +163,7 @@ void Arg::Editor::Editor::CleanUp()
 
 void Arg::Editor::Editor::PlayGame()
 {
-	ARG_ASSERT(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
+	ARG_ASSERT_M(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
 	if (m_pGameEngine->IsPlaying())
 	{
 		return;
@@ -182,7 +182,7 @@ void Arg::Editor::Editor::PlayGame()
 
 void Arg::Editor::Editor::StopGame()
 {
-	ARG_ASSERT(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
+	ARG_ASSERT_M(m_pGameEngine->IsWorldLoaded(), "No world loaded!");
 	if (!m_pGameEngine->IsPlaying())
 	{
 		return;
@@ -467,7 +467,7 @@ void Arg::Editor::Editor::DeselectActor()
 
 auto Arg::Editor::Editor::GetSelectedResource() const -> std::shared_ptr<Content::Resource>&
 {
-	ARG_ASSERT(m_SelectedResourceID != GUID::Empty, "No resource selected! Check first!");
+	ARG_ASSERT_M(m_SelectedResourceID != GUID::Empty, "No resource selected! Check first!");
 	return IsProjectOpened()
 		       ? m_pProject->GetResourceCache()->GetResource(m_SelectedResourceID)
 		       : m_pResourceCache->GetResource(m_SelectedResourceID);

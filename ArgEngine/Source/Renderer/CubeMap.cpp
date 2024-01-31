@@ -27,7 +27,7 @@ Arg::Renderer::CubeMap::~CubeMap()
 
 void Arg::Renderer::CubeMap::SetFaces(const std::vector<TextureHandle>& textures) const
 {
-	ARG_ASSERT(textures.size() == 6, "");
+	ARG_ASSERT(textures.size() == 6);
 	Bind();
 
 	for (size_t i = 0; i < 6; i++)
@@ -64,7 +64,7 @@ void Arg::Renderer::CubeMap::Bind() const
 
 void Arg::Renderer::CubeMap::Bind(int32_t unit) const
 {
-	ARG_ASSERT(unit >= 0 && unit < 16, "Invalid texture unit!");
+	ARG_ASSERT_M(unit >= 0 && unit < 16, "Invalid texture unit!");
 	glActiveTexture(GL_TEXTURE0 + unit);
 	Bind();
 }

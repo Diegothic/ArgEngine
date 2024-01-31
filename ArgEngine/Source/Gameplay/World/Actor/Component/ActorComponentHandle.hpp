@@ -87,7 +87,7 @@ namespace Arg
 		template <typename TComponentType>
 		auto ActorComponentHandle<TComponentType>::Get() const -> TComponentType&
 		{
-			ARG_ASSERT(IsValid(), "Invalid component handle!");
+			ARG_ASSERT(IsValid());
 			return *(std::dynamic_pointer_cast<TComponentType>(
 				m_pWorld->GetActor(m_OwnerID).GetComponent(m_ComponentID)
 			));

@@ -83,7 +83,7 @@ void Arg::GameEngine::Deinitialize()
 
 void Arg::GameEngine::RebuildScripts()
 {
-	ARG_ASSERT(m_pScriptEngine != nullptr, "");
+	ARG_ASSERT(m_pScriptEngine != nullptr);
 	m_pScriptEngine->Rebuild();
 
 	m_ComponentRegistry.Clear();
@@ -94,7 +94,7 @@ void Arg::GameEngine::RebuildScripts()
 
 void Arg::GameEngine::LoadScripts()
 {
-	ARG_ASSERT(m_pScriptEngine != nullptr, "");
+	ARG_ASSERT(m_pScriptEngine != nullptr);
 	m_pScriptEngine->Load();
 }
 

@@ -31,13 +31,13 @@ void Arg::Gameplay::PointLightComponent::VDrawDebug(Renderer::RenderContext& con
 	ActorComponent::VDrawDebug(context);
 
 	const Vec3& ownerPosition = GetOwner()->GetPosition();
-	const Vec3& ownerRotation = GetOwner()->GetRotation();
+	const Vec3& ownerRotation = GetOwner()->GetRotationEuler();
 
 	context.DrawDebugSphere(
 		ownerPosition,
 		ownerRotation,
 		0.3f,
-		Vec3(1.0f, 0.8f, 0.3f)
+		Renderer::DEBUG_COLOR_LIGHT
 	);
 }
 

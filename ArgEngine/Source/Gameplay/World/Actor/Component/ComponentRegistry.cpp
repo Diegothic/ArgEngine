@@ -15,14 +15,14 @@ auto Arg::Gameplay::ComponentRegistry::CreateComponent(
 ) const -> std::shared_ptr<ActorComponent>
 {
 	const GUID ID = std::hash<std::string>{}(componentID);
-	ARG_ASSERT(m_ComponentRegistry.contains(ID), "Invalid component ID!");
+	ARG_ASSERT(m_ComponentRegistry.contains(ID));
 	auto& componentPrototype = m_ComponentRegistry.at(ID);
 	return componentPrototype->VCreateDefault();
 }
 
 auto Arg::Gameplay::ComponentRegistry::CreateComponent(const GUID& componentID) const -> std::shared_ptr<ActorComponent>
 {
-	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "Invalid component ID!");
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID));
 	auto& componentPrototype = m_ComponentRegistry.at(componentID);
 	return componentPrototype->VCreateDefault();
 }
@@ -40,7 +40,7 @@ auto Arg::Gameplay::ComponentRegistry::ContainsComponent(const GUID& componentID
 
 auto Arg::Gameplay::ComponentRegistry::GetComponent(const GUID& componentID) const -> ActorComponent*
 {
-	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "");
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID));
 	return m_ComponentRegistry.at(componentID).get();
 }
 
@@ -51,14 +51,14 @@ auto Arg::Gameplay::ComponentRegistry::GetComponentCount() const -> size_t
 
 auto Arg::Gameplay::ComponentRegistry::GetComponentID(size_t index) const -> GUID
 {
-	ARG_ASSERT(index < m_ComponentIDs.size(), "Index out of range!");
+	ARG_ASSERT(index < m_ComponentIDs.size());
 	return m_ComponentIDs[index];
 }
 
 auto Arg::Gameplay::ComponentRegistry::GetComponentName(size_t index) const -> const std::string&
 {
 	const GUID componentID = GetComponentID(index);
-	ARG_ASSERT(m_ComponentRegistry.contains(componentID), "Invalid component ID!");
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID));
 	return m_ComponentRegistry.at(componentID)->VGetName();
 }
 
@@ -78,7 +78,7 @@ void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 void Arg::Gameplay::ComponentRegistry::RegisterComponent(ActorComponent* prototype)
 {
 	const GUID componentID = prototype->VGetID();
-	ARG_ASSERT(!m_ComponentRegistry.contains(componentID), "Component already registered!");
+	ARG_ASSERT_M(!m_ComponentRegistry.contains(componentID), "Component already registered!");
 	m_ComponentRegistry[componentID] = std::unique_ptr<ActorComponent>(prototype);
 	m_ComponentIDs.push_back(componentID);
 }

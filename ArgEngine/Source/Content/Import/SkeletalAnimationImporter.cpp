@@ -61,13 +61,13 @@ void Arg::Import::SkeletalAnimationImporter::ScanFile(const std::string& file)
 
 void Arg::Import::SkeletalAnimationImporter::SetIndex(size_t index)
 {
-	ARG_ASSERT(index < m_AnimationCount, "");
+	ARG_ASSERT(index < m_AnimationCount);
 	m_CurrentIndex = index;
 }
 
 auto Arg::Import::SkeletalAnimationImporter::GetAnimationName(size_t index) -> const std::string&
 {
-	ARG_ASSERT(index < m_AnimationCount, "");
+	ARG_ASSERT(index < m_AnimationCount);
 	return m_AnimationNames[index];
 }
 

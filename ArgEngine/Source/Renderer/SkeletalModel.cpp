@@ -5,31 +5,31 @@
 
 auto Arg::Renderer::SkeletalModel::GetMesh(size_t meshIndex) const -> const SkeletalMesh&
 {
-	ARG_ASSERT(meshIndex < m_Meshes.size(), "");
+	ARG_ASSERT(meshIndex < m_Meshes.size());
 	return *m_Meshes[meshIndex];
 }
 
 auto Arg::Renderer::SkeletalModel::GetMaterialIndex(size_t meshIndex) const -> int32_t
 {
-	ARG_ASSERT(meshIndex < m_Meshes.size(), "");
+	ARG_ASSERT(meshIndex < m_Meshes.size());
 	return m_Spec.MaterialIndices[meshIndex];
 }
 
 auto Arg::Renderer::SkeletalModel::GetVertexCount(size_t meshIndex) const -> size_t
 {
-	ARG_ASSERT(meshIndex < m_Meshes.size(), "");
+	ARG_ASSERT(meshIndex < m_Meshes.size());
 	return m_Spec.VertexCounts[meshIndex];
 }
 
 auto Arg::Renderer::SkeletalModel::GetIndexCount(size_t meshIndex) const -> size_t
 {
-	ARG_ASSERT(meshIndex < m_Meshes.size(), "");
+	ARG_ASSERT(meshIndex < m_Meshes.size());
 	return m_Spec.IndexCounts[meshIndex];
 }
 
 void Arg::Renderer::SkeletalModel::SetData(const SkeletalModelData& data)
 {
-	ARG_ASSERT(data.Meshes.size() == data.Spec.MaterialIndices.size(), "");
+	ARG_ASSERT(data.Meshes.size() == data.Spec.MaterialIndices.size());
 	m_Meshes.clear();
 
 	m_Spec = data.Spec;

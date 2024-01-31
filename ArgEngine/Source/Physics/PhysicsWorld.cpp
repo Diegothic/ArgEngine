@@ -25,7 +25,7 @@ void Arg::Physics::PhysicsWorld::Initialize()
 
 	m_pDynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_USE_2_FRICTION_DIRECTIONS;
 	m_pDynamicsWorld->getSolverInfo().m_numIterations = 10;
-	m_pDynamicsWorld->setGravity(btVector3(m_Gravity.x, m_Gravity.z, -m_Gravity.y));
+	m_pDynamicsWorld->setGravity(btVector3(m_Gravity.x, m_Gravity.y, m_Gravity.z));
 }
 
 void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
@@ -40,22 +40,27 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 		const GUID actorID = m_ActorIDLookup.at(userIndex);
 		auto& actor = m_pWorld->GetActor(actorID);
 
-		const Mat4& globalTransform = actor.GetTransform();
-		Vec3 position, rotationEuler, scale;
-		Math::Decompose(globalTransform, position, rotationEuler, scale);
-		const Quat rotation = Quat(rotationEuler);
-		Quat newRotation = Math::angleAxis(Math::radians(180.0f), Vec3(0.0f, 0.0f, 1.0f))
-			* Math::angleAxis(Math::radians(90.0f), Vec3(1.0f, 0.0f, 0.0f))
-			* rotation;
-
-		const btVector3 simPosition(-position.x, position.z, position.y);
-		btQuaternion simRotation = btQuaternion(newRotation.x, newRotation.y, newRotation.z, newRotation.w);
+		const Mat4 globalTransform = actor.GetTransform();
+		Vec3 position;
+		Quat rotation;
+		Vec3 scale;
+		Math::Decompose(globalTransform, position, rotation, scale);
+		const btVector3 simPosition(
+			position.x,
+			position.y,
+			position.z
+		);
+		const btQuaternion simRotation = btQuaternion(
+			rotation.x,
+			rotation.y,
+			rotation.z,
+			rotation.w
+		);
 
 		if (pRigidBody && pRigidBody->getMotionState())
 		{
 			btTransform transform;
 			pRigidBody->getMotionState()->getWorldTransform(transform);
-			transform.setIdentity();
 			transform.setOrigin(simPosition);
 			transform.setRotation(simRotation);
 			pRigidBody->setWorldTransform(transform);
@@ -64,7 +69,6 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 		else
 		{
 			btTransform transform = pCollisionObject->getWorldTransform();
-			transform.setIdentity();
 			transform.setOrigin(simPosition);
 			transform.setRotation(simRotation);
 			pCollisionObject->setWorldTransform(transform);
@@ -72,60 +76,6 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 	}
 
 	m_pDynamicsWorld->stepSimulation(deltaTime, 10);
-
-	// Stabilize transforms
-	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-	{
-		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-		btTransform transform;
-		if (pRigidBody && pRigidBody->getMotionState())
-		{
-			pRigidBody->getMotionState()->getWorldTransform(transform);
-		}
-		else
-		{
-			transform = pCollisionObject->getWorldTransform();
-		}
-
-		btQuaternion simRotation = transform.getRotation();
-		float simRotX, simRotY, simRotZ;
-		simRotation.getEulerZYX(simRotZ, simRotY, simRotX);
-		if (Math::abs(Math::degrees(simRotZ) - 90.0f) < 0.1f)
-		{
-			simRotZ = Math::radians(89.9f);
-		}
-		if (Math::abs(Math::degrees(simRotZ) + 90.0f) < 0.1f)
-		{
-			simRotZ = Math::radians(-89.9f);
-		}
-		if (Math::abs(Math::degrees(simRotY) - 90.0f) < 0.1f)
-		{
-			simRotY = Math::radians(89.9f);
-		}
-		if (Math::abs(Math::degrees(simRotY) + 90.0f) < 0.1f)
-		{
-			simRotY = Math::radians(-89.9f);
-		}
-		if (Math::abs(Math::degrees(simRotX) - 90.0f) < 0.1f)
-		{
-			simRotX = Math::radians(89.9f);
-		}
-		if (Math::abs(Math::degrees(simRotX) + 90.0f) < 0.1f)
-		{
-			simRotX = Math::radians(-89.9f);
-		}
-		simRotation.setEulerZYX(simRotZ, simRotY, simRotX);
-		transform.setRotation(simRotation);
-		if (pRigidBody && pRigidBody->getMotionState())
-		{
-			pRigidBody->getMotionState()->setWorldTransform(transform);
-		}
-		else
-		{
-			pCollisionObject->setWorldTransform(transform);
-		}
-	}
 
 	// Transfer updated physics world transforms to actors
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
@@ -150,22 +100,17 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 			simRotation.getY(),
 			simRotation.getZ()
 		);
-		Quat newRotation = Math::angleAxis(Math::radians(-90.0f), Vec3(1.0f, 0.0f, 0.0f))
-			* Math::angleAxis(Math::radians(-180.0f), Vec3(0.0f, 0.0f, 1.0f))
-			* rotation;
-
 		const Vec3 position(
-			-simPosition.getX(),
-			simPosition.getZ(),
-			simPosition.getY()
+			simPosition.getX(),
+			simPosition.getY(),
+			simPosition.getZ()
 		);
-		const Vec3 rotationEuler = Math::degrees(Math::eulerAngles(newRotation));
 
 		const int32_t userIndex = pCollisionObject->getUserIndex();
 		const GUID actorID = m_ActorIDLookup.at(userIndex);
 		auto& actor = m_pWorld->GetActor(actorID);
 		actor.SetPosition(position);
-		actor.SetRotation(rotationEuler);
+		actor.SetRotation(rotation);
 	}
 }
 
@@ -205,7 +150,7 @@ void Arg::Physics::PhysicsWorld::CleanUp()
 
 void Arg::Physics::PhysicsWorld::AddPhysicsBody(const PhysicsBody& physicsBody, const Mat4& transform)
 {
-	ARG_ASSERT(!m_UserIndexLookup.contains(physicsBody.ID), "");
+	ARG_ASSERT(!m_UserIndexLookup.contains(physicsBody.ID));
 
 	btCollisionShape* pShape = nullptr;
 	switch (physicsBody.Shape)
@@ -241,15 +186,23 @@ void Arg::Physics::PhysicsWorld::AddPhysicsBody(const PhysicsBody& physicsBody, 
 		mass = 0.0f;
 	}
 
-	Vec3 position, rotationEuler, scale;
-	Math::Decompose(transform, position, rotationEuler, scale);
-	Quat rotation = Quat(rotationEuler);
-	const Quat newRotation = Math::angleAxis(Math::radians(180.0f), Vec3(0.0f, 0.0f, 1.0f))
-		* Math::angleAxis(Math::radians(90.0f), Vec3(1.0f, 0.0f, 0.0f))
-		* rotation;
+	Vec3 position;
+	Quat rotation;
+	Vec3 scale;
+	Math::Decompose(transform, position, rotation, scale);
+	const Quat newRotation = rotation;
 
-	const btVector3 simPosition(-position.x, position.z, position.y);
-	btQuaternion simRotation = btQuaternion(newRotation.x, newRotation.y, newRotation.z, newRotation.w);
+	const btVector3 simPosition(
+		position.x,
+		position.y,
+		position.z
+	);
+	const btQuaternion simRotation = btQuaternion(
+		newRotation.x,
+		newRotation.y,
+		newRotation.z,
+		newRotation.w
+	);
 
 	btTransform startTransform;
 	startTransform.setIdentity();
@@ -257,7 +210,12 @@ void Arg::Physics::PhysicsWorld::AddPhysicsBody(const PhysicsBody& physicsBody, 
 	startTransform.setRotation(simRotation);
 
 	btDefaultMotionState* pMotionState = new btDefaultMotionState(startTransform);
-	const btRigidBody::btRigidBodyConstructionInfo cInfo(mass, pMotionState, pShape, localInertia);
+	const btRigidBody::btRigidBodyConstructionInfo cInfo(
+		mass,
+		pMotionState,
+		pShape,
+		localInertia
+	);
 	btRigidBody* pRigidBody = new btRigidBody(cInfo);
 
 	const int32_t userIndex = m_LastUserIndex + 1;
@@ -268,13 +226,13 @@ void Arg::Physics::PhysicsWorld::AddPhysicsBody(const PhysicsBody& physicsBody, 
 
 	pRigidBody->setAngularFactor(btVector3(
 		physicsBody.LockRotation[0] ? 0.0f : 1.0f,
-		physicsBody.LockRotation[2] ? 0.0f : 1.0f,
-		physicsBody.LockRotation[1] ? 0.0f : 1.0f
+		physicsBody.LockRotation[1] ? 0.0f : 1.0f,
+		physicsBody.LockRotation[2] ? 0.0f : 1.0f
 	));
 	pRigidBody->setLinearFactor(btVector3(
 		physicsBody.LockMovement[0] ? 0.0f : 1.0f,
-		physicsBody.LockMovement[2] ? 0.0f : 1.0f,
-		physicsBody.LockMovement[1] ? 0.0f : 1.0f
+		physicsBody.LockMovement[1] ? 0.0f : 1.0f,
+		physicsBody.LockMovement[2] ? 0.0f : 1.0f
 	));
 
 	pRigidBody->setRestitution(physicsBody.Bounciness);
@@ -287,7 +245,7 @@ void Arg::Physics::PhysicsWorld::AddPhysicsBody(const PhysicsBody& physicsBody, 
 
 void Arg::Physics::PhysicsWorld::RemovePhysicsBody(GUID ID)
 {
-	ARG_ASSERT(m_UserIndexLookup.contains(ID), "");
+	ARG_ASSERT(m_UserIndexLookup.contains(ID));
 
 	const int32_t userIndex = m_UserIndexLookup.at(ID);
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
@@ -325,12 +283,12 @@ auto Arg::Physics::PhysicsWorld::HasPhysicsBody(GUID ID) const -> bool
 
 void Arg::Physics::PhysicsWorld::WakePhysicsBody(GUID ID) const
 {
-	ARG_ASSERT(m_UserIndexLookup.contains(ID), "");
+	ARG_ASSERT(m_UserIndexLookup.contains(ID));
 	const int32_t userIndex = m_UserIndexLookup.at(ID);
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
+		const btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
 		if (pRigidBody->getUserIndex() == userIndex)
 		{
 			pRigidBody->activate();
@@ -342,5 +300,5 @@ void Arg::Physics::PhysicsWorld::WakePhysicsBody(GUID ID) const
 void Arg::Physics::PhysicsWorld::SetGravity(const Vec3& gravity)
 {
 	m_Gravity = gravity;
-	m_pDynamicsWorld->setGravity(btVector3(m_Gravity.x, m_Gravity.z, -m_Gravity.y));
+	m_pDynamicsWorld->setGravity(btVector3(m_Gravity.x, m_Gravity.y, m_Gravity.z));
 }

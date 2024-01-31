@@ -19,70 +19,70 @@ auto Arg::Sound::SoundHandle::IsValid() const -> bool
 void Arg::Sound::SoundHandle::Play() const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setIsPaused(false);
 }
 
 void Arg::Sound::SoundHandle::Pause() const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setIsPaused(true);
 }
 
 void Arg::Sound::SoundHandle::Stop() const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->stop();
 }
 
 auto Arg::Sound::SoundHandle::IsPlaying() const -> bool
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	return !pSound->isFinished() && !pSound->getIsPaused();
 }
 
 void Arg::Sound::SoundHandle::UpdateVolume(float volume) const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setVolume(volume);
 }
 
 void Arg::Sound::SoundHandle::UpdatePitch(float pitch) const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setPlaybackSpeed(pitch);
 }
 
 void Arg::Sound::SoundHandle::UpdatePosition(const Vec3& position) const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setPosition(irrklang::vec3df(position.x, -position.y, position.z));
 }
 
 void Arg::Sound::SoundHandle::UpdateDistance(float distance) const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setMinDistance(distance);
 }
 
 void Arg::Sound::SoundHandle::UpdateLooping(bool value) const
 {
 	irrklang::ISound* pSound = m_pEngine->GetSound(m_ID);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setIsLooped(value);
 }
 
 void Arg::Sound::SoundEngine::Initialize()
 {
 	m_pEngine = std::unique_ptr<irrklang::ISoundEngine>(irrklang::createIrrKlangDevice());
-	ARG_ASSERT(m_pEngine != nullptr, "");
+	ARG_ASSERT(m_pEngine != nullptr);
 }
 
 void Arg::Sound::SoundEngine::CleanUp()
@@ -150,7 +150,7 @@ Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound2D(
 		false,
 		true
 	);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setVolume(spec.Volume + m_Random.NextFloat() * spec.VolumeVariance);
 	pSound->setPlaybackSpeed(spec.Pitch + m_Random.NextFloat() * spec.PitchVariance);
 
@@ -195,7 +195,7 @@ Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound3D(
 		false,
 		true
 	);
-	ARG_ASSERT(pSound != nullptr, "");
+	ARG_ASSERT(pSound != nullptr);
 	pSound->setVolume(spec.Volume + m_Random.NextFloat() * spec.VolumeVariance);
 	pSound->setPlaybackSpeed(spec.Pitch + m_Random.NextFloat() * spec.PitchVariance);
 	pSound->setMinDistance(spec.Distance);

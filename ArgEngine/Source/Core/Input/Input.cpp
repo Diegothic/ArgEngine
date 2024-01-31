@@ -89,7 +89,7 @@ auto Arg::Input::Input::GetMouseState() const -> const MouseState&
 
 auto Arg::Input::Input::GetGamepadState(int id) const -> const GamepadState&
 {
-	ARG_ASSERT(m_GamepadStateForID.contains(id), "Gamepad state non-existent!");
+	ARG_ASSERT_M(m_GamepadStateForID.contains(id), "Gamepad state non-existent!");
 	return m_GamepadStateForID.at(id);
 }
 

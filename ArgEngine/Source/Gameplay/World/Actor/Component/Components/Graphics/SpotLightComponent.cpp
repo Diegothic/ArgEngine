@@ -32,21 +32,22 @@ void Arg::Gameplay::SpotLightComponent::VDrawDebug(Renderer::RenderContext& cont
 	ActorComponent::VDrawDebug(context);
 
 	const Vec3& ownerPosition = GetOwner()->GetPosition();
-	const Vec3& ownerRotation = GetOwner()->GetRotation();
+	const Vec3& ownerRotation = GetOwner()->GetRotationEuler();
 
+	constexpr float radius = 0.3f;
 	context.DrawDebugSphere(
 		ownerPosition,
 		ownerRotation,
-		0.3f,
-		Vec3(1.0f, 0.8f, 0.3f)
+		radius,
+		Renderer::DEBUG_COLOR_LIGHT
 	);
 
 	context.DrawDebugCylinder(
-		ownerPosition + (GetOwner()->GetForwardVec() * 0.3f),
-		Vec3(0.0f, ownerRotation.y - 90.0f, ownerRotation.z),
-		0.3f,
-		0.6f,
-		Vec3(1.0f, 0.8f, 0.3f)
+		ownerPosition + (GetOwner()->GetForwardVec() * radius),
+		Vec3(0.0f, ownerRotation.y - Math::radians(90.0f), ownerRotation.z),
+		radius,
+		radius * 2.0f,
+		Renderer::DEBUG_COLOR_LIGHT
 	);
 }
 

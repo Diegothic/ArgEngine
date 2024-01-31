@@ -42,11 +42,11 @@ auto Arg::WindowSystem::Shutdown() -> void
 
 auto Arg::WindowSystem::InitializeGraphics() -> void
 {
-	ARG_ASSERT(glfwGetCurrentContext() != nullptr,
+	ARG_ASSERT_M(glfwGetCurrentContext() != nullptr,
 		"Please specify context before initializing GLAD!");
 	ARG_CONSOLE_LOG("Initializing OpenGL");
 	const auto gladLoaderState = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	ARG_ASSERT(gladLoaderState, "Failed to initialize GLAD!");
+	ARG_ASSERT_M(gladLoaderState, "Failed to initialize GLAD!");
 
 	const auto graphicsVersion = reinterpret_cast<const char*>(
 		glGetString(GL_VERSION)
@@ -82,7 +82,7 @@ Arg::Window::Window(const WindowSpec& spec)
 
 auto Arg::Window::Create() -> bool
 {
-	ARG_ASSERT(m_pWindowHandle == nullptr, "Window is already created!");
+	ARG_ASSERT_M(m_pWindowHandle == nullptr, "Window is already created!");
 	ARG_CONSOLE_LOG("Creating a window \"%s\"", m_Title.c_str());
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -96,7 +96,7 @@ auto Arg::Window::Create() -> bool
 		nullptr,
 		nullptr
 	);
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Failed to create a window!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Failed to create a window!");
 
 	glfwSetWindowUserPointer(
 		static_cast<GLFWwindow*>(m_pWindowHandle),
@@ -220,7 +220,7 @@ auto Arg::Window::Create() -> bool
 
 void Arg::Window::MakeCurrent()
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_pWindowHandle));
 	if (!s_bHasInitializedGraphics)
 	{
@@ -230,13 +230,13 @@ void Arg::Window::MakeCurrent()
 
 void Arg::Window::SwapBuffers()
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	glfwSwapBuffers(static_cast<GLFWwindow*>(m_pWindowHandle));
 }
 
 void Arg::Window::Destroy()
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	ARG_CONSOLE_LOG("Destroying a window \"%s\"", m_Title.c_str());
 	glfwDestroyWindow(static_cast<GLFWwindow*>(m_pWindowHandle));
 }
@@ -248,13 +248,13 @@ void Arg::Window::Update()
 
 auto Arg::Window::ShouldClose() const -> bool
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	return glfwWindowShouldClose(static_cast<GLFWwindow*>(m_pWindowHandle));
 }
 
 void Arg::Window::Close()
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	glfwSetWindowShouldClose(static_cast<GLFWwindow*>(m_pWindowHandle), GLFW_TRUE);
 }
 
@@ -271,7 +271,7 @@ void Arg::Window::SetTitle(const std::string& title)
 
 auto Arg::Window::GetWidth() const -> int32_t
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	switch (m_Mode)
 	{
 	case Windowed:
@@ -287,8 +287,8 @@ auto Arg::Window::GetWidth() const -> int32_t
 
 void Arg::Window::SetWidth(int32_t width)
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
-	ARG_ASSERT(width >= 0, "Window height can't be negative!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT(width >= 0);
 	switch (m_Mode)
 	{
 	case Windowed:
@@ -306,7 +306,7 @@ void Arg::Window::SetWidth(int32_t width)
 
 auto Arg::Window::GetHeight() const -> int32_t
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	switch (m_Mode)
 	{
 	case Windowed:
@@ -322,8 +322,8 @@ auto Arg::Window::GetHeight() const -> int32_t
 
 void Arg::Window::SetHeight(int32_t height)
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
-	ARG_ASSERT(height >= 0, "Window height can't be negative!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT(height >= 0);
 	switch (m_Mode)
 	{
 	case Windowed:
@@ -341,7 +341,7 @@ void Arg::Window::SetHeight(int32_t height)
 
 void Arg::Window::SetMode(WindowMode mode)
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	m_Mode = mode;
 	switch (m_Mode)
 	{
@@ -383,7 +383,7 @@ void Arg::Window::SetMode(WindowMode mode)
 
 void Arg::Window::SetVSyncEnabled(bool bIsEnabled)
 {
-	ARG_ASSERT(m_pWindowHandle != nullptr, "Please create a window before using it!");
+	ARG_ASSERT_M(m_pWindowHandle != nullptr, "Please create a window before using it!");
 	m_bIsVSync = bIsEnabled;
 	glfwSwapInterval(m_bIsVSync ? 1 : 0);
 }

@@ -72,13 +72,13 @@ auto Arg::Gameplay::GameWorld::GetRootActor() const -> Actor&
 
 auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) const -> const Actor&
 {
-	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID));
 	return *m_ActorsRegistry.at(actorID);
 }
 
 auto Arg::Gameplay::GameWorld::GetActor(const GUID& actorID) -> Actor&
 {
-	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID));
 	return *m_ActorsRegistry.at(actorID);
 }
 
@@ -111,15 +111,16 @@ void Arg::Gameplay::GameWorld::DestroyActor(Actor& actor)
 	actor.Destroy();
 
 	const GUID actorID = actor.GetID();
-	ARG_ASSERT(m_ActorsRegistry.contains(actorID), "Invalid Actor ID!");
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID));
 	m_ActorsRegistry.erase(actorID);
 
-	const auto it = std::ranges::find_if(m_Actors, [&](const std::unique_ptr<Actor>& pActor)
-	{
-		return pActor->GetID() == actorID;
-	});
-	ARG_ASSERT(it != m_Actors.end(), "Invalid Actor!");
-	m_Actors.erase(it);
+	std::erase_if(
+		m_Actors,
+		[&](const std::unique_ptr<Actor>& pActor)
+		{
+			return pActor->GetID() == actorID;
+		}
+	);
 }
 
 void Arg::Gameplay::GameWorld::ReparentActor(Actor& actor, Actor& newParentActor)
@@ -202,13 +203,13 @@ void Arg::Gameplay::GameWorld::SetBackgroundColor(const Vec3& color)
 
 auto Arg::Gameplay::GameWorld::GetSkyboxTexture(size_t index) const -> TextureHandle
 {
-	ARG_ASSERT(index < 6, "");
+	ARG_ASSERT(index < 6);
 	return m_SkyboxTextures[index];
 }
 
 void Arg::Gameplay::GameWorld::SetSkyboxTexture(size_t index, const TextureHandle& texture)
 {
-	ARG_ASSERT(index < 6, "");
+	ARG_ASSERT(index < 6);
 
 	if (m_SkyboxTextures[index].IsValid())
 	{

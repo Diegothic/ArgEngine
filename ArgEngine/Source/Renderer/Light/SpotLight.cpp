@@ -20,7 +20,7 @@ void Arg::Renderer::SpotLight::Apply(
 	const Camera* camera,
 	int32_t lightIndex) const
 {
-	ARG_ASSERT(lightIndex >= 0 && lightIndex <= SPOT_LIGHTS_MAX, "Index out of range!");
+	ARG_ASSERT_M(lightIndex >= 0 && lightIndex <= SPOT_LIGHTS_MAX, "Index out of range!");
 	const std::string lightName = std::format("u_SpotLights[{}]", lightIndex);
 	shader->SetUniform(
 		std::format("{}.properties.ambient", lightName),
@@ -35,7 +35,7 @@ void Arg::Renderer::SpotLight::Apply(
 		m_Color * m_Intensity
 	);
 
-	ARG_ASSERT(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid spot light range!");
+	ARG_ASSERT_M(m_Range >= 0.0f && m_Range <= 1000.0f, "Invalid spot light range!");
 	int32_t lightRangeIndex = 0;
 	for (auto i = 1; i < LIGHT_RANGE_STEPS_COUNT; i++)
 	{

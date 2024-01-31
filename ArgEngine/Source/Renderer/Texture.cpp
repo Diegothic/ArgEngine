@@ -42,7 +42,7 @@ void Arg::Renderer::Texture::SetData(const TextureData& data)
 		break;
 	}
 
-	ARG_ASSERT(textureFormat != 0, "Invalid texture format!");
+	ARG_ASSERT_M(textureFormat != 0, "Invalid texture format!");
 
 	int32_t internalFormat = 0;
 	switch (m_Format)
@@ -109,7 +109,7 @@ void Arg::Renderer::Texture::SetWrapMode(const TextureWrapMode mode) const
 		textureMode = GL_CLAMP_TO_BORDER;
 		break;
 	}
-	ARG_ASSERT(textureMode != 0, "Invalid texture mode!");
+	ARG_ASSERT_M(textureMode != 0, "Invalid texture mode!");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureMode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureMode);
 }
@@ -136,8 +136,8 @@ void Arg::Renderer::Texture::SetFilter(const TextureFilter filter) const
 		textureMagFilter = GL_LINEAR;
 		break;
 	}
-	ARG_ASSERT(textureMinFilter != 0, "Invalid texture filter!");
-	ARG_ASSERT(textureMagFilter != 0, "Invalid texture filter!");
+	ARG_ASSERT_M(textureMinFilter != 0, "Invalid texture filter!");
+	ARG_ASSERT_M(textureMagFilter != 0, "Invalid texture filter!");
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, textureMinFilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, textureMagFilter);
 }
@@ -169,13 +169,13 @@ void Arg::Renderer::Texture::AttachToFrameBuffer(const TextureAttachmentSlot slo
 		attachment = GL_DEPTH_STENCIL_ATTACHMENT;
 		break;
 	}
-	ARG_ASSERT(attachment != 0, "Invalid texture attachment!");
+	ARG_ASSERT_M(attachment != 0, "Invalid texture attachment!");
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, m_RendererID, 0);
 }
 
 void Arg::Renderer::Texture::Bind(const int32_t unit) const
 {
-	ARG_ASSERT(unit >= 0 && unit < 16, "Invalid texture unit!");
+	ARG_ASSERT_M(unit >= 0 && unit < 16, "Invalid texture unit!");
 	glActiveTexture(GL_TEXTURE0 + unit);
 	s_CurrentBoundID = m_RendererID;
 	glBindTexture(GL_TEXTURE_2D, m_RendererID);

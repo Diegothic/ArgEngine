@@ -21,7 +21,7 @@ namespace Arg
 
 			auto GetSkeleton() const -> const Renderer::Skeleton&
 			{
-				ARG_ASSERT(m_pSkeleton != nullptr, "")
+				ARG_ASSERT(m_pSkeleton != nullptr);
 				return *m_pSkeleton;
 			}
 

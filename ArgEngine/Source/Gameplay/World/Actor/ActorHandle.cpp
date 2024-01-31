@@ -31,6 +31,6 @@ auto Arg::Gameplay::ActorHandle::IsValid() const -> bool
 
 auto Arg::Gameplay::ActorHandle::Get() const -> Actor&
 {
-	ARG_ASSERT(IsValid(), "Invalid actor handle!");
+	ARG_ASSERT(IsValid());
 	return m_pWorld->GetActor(m_ActorID);
 }

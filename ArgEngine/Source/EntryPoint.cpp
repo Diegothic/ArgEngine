@@ -8,7 +8,7 @@ namespace Arg
 	int Main(int argc, char** argv)
 	{
 		const auto app = Arg::Client_CreateApplication();
-		ARG_ASSERT(app != nullptr, "Failed to create the application!");
+		ARG_ASSERT_M(app != nullptr, "Failed to create the application!");
 		app->StartUp();
 		app->Run();
 		app->Shutdown();

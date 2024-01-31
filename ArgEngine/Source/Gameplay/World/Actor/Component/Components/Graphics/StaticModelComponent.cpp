@@ -112,7 +112,7 @@ void Arg::Gameplay::StaticModelComponent::SetStaticModel(
 
 auto Arg::Gameplay::StaticModelComponent::GetMaterial(size_t index) const -> const MaterialHandle&
 {
-	ARG_ASSERT(index < m_Materials.size(), "Index out of range!");
+	ARG_ASSERT(index < m_Materials.size());
 	return m_Materials[index];
 }
 
