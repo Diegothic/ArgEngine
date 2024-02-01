@@ -19,6 +19,11 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 			{
 				return lhs == rhs;
 			}),
+		"IsValid",
+		[](Gameplay::ActorHandle& self) -> bool
+		{
+			return self.IsValid();
+		},
 		"Name",
 		[](Gameplay::ActorHandle& self) -> std::string
 		{

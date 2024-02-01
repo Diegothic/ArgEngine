@@ -85,6 +85,94 @@ namespace Arg
 					const std::string& propertyName,
 					const float& propertyValue
 				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const int32_t& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const bool& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const Vec3& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const Gameplay::ActorHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const TextureHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const StaticModelHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const SkeletonHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const SkeletalModelHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const SkeletalAnimationHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const MaterialHandle& propertyValue
+				);
+
+				void DrawScriptComponentProperty(
+					const EditorGUIContext& context,
+					Gameplay::Actor* pActor,
+					std::shared_ptr<Script::ScriptComponent>& pComponent,
+					const std::string& propertyName,
+					const SoundResourceHandle& propertyValue
+				);
 			};
 		}
 	}

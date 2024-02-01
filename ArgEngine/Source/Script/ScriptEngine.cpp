@@ -4,6 +4,7 @@
 #include "ScriptComponent.hpp"
 #include "Gameplay/World/Actor/ActorHandle.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponentHandle.hpp"
+#include "ScriptGlue/ScriptGlueContent.hpp"
 #include "ScriptGlue/ScriptGlueCore.hpp"
 #include "ScriptGlue/ScriptGlueGameplay.hpp"
 #include "ScriptGlue/ScriptGlueRenderer.hpp"
@@ -88,6 +89,8 @@ void Arg::Script::ScriptEngine::Load()
 	ScriptExport_Core(*this);
 	ScriptExport_Math(*this);
 
+	ScriptExport_Resources(*this);
+
 	ScriptExport_World(*this);
 	ScriptExport_Actor(*this);
 	ScriptExport_ActorComponents_Graphics(*this);
@@ -156,14 +159,58 @@ void Arg::Script::ScriptEngine::DefineField(
 	const sol::object& fieldDefaultValue
 )
 {
+	const GUID componentID = std::hash<std::string>{}(componentName);
+	const auto component = dynamic_cast<ScriptComponent*>(
+		m_pComponentRegistry->GetComponent(
+			componentID
+		)
+	);
 	if (fieldDefaultValue.is<float>())
 	{
-		const GUID componentID = std::hash<std::string>{}(componentName);
-		const auto component = dynamic_cast<ScriptComponent*>(
-			m_pComponentRegistry->GetComponent(
-				componentID
-			)
-		);
 		component->DefineField(fieldName, fieldDefaultValue.as<float>());
+	}
+	else if (fieldDefaultValue.is<int32_t>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<int32_t>());
+	}
+	else if (fieldDefaultValue.is<bool>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<bool>());
+	}
+	else if (fieldDefaultValue.is<Vec3>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<Vec3>());
+	}
+	else if (fieldDefaultValue.is<Gameplay::ActorHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<Gameplay::ActorHandle>());
+	}
+	else if (fieldDefaultValue.is<TextureHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<TextureHandle>());
+	}
+	else if (fieldDefaultValue.is<StaticModelHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<StaticModelHandle>());
+	}
+	else if (fieldDefaultValue.is<SkeletonHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<SkeletonHandle>());
+	}
+	else if (fieldDefaultValue.is<SkeletalModelHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<SkeletalModelHandle>());
+	}
+	else if (fieldDefaultValue.is<SkeletalAnimationHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<SkeletalAnimationHandle>());
+	}
+	else if (fieldDefaultValue.is<MaterialHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<MaterialHandle>());
+	}
+	else if (fieldDefaultValue.is<SoundResourceHandle>())
+	{
+		component->DefineField(fieldName, fieldDefaultValue.as<SoundResourceHandle>());
 	}
 }

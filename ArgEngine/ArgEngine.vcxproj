@@ -182,6 +182,7 @@
     <ClCompile Include="Source\Renderer\Texture.cpp" />
     <ClCompile Include="Source\Script\ScriptComponent.cpp" />
     <ClCompile Include="Source\Script\ScriptEngine.cpp" />
+    <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueContent.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueCore.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueGameplay.cpp" />
     <ClCompile Include="Source\Script\ScriptGlue\ScriptGlueRenderer.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="Source\Renderer\Vertex.hpp" />
     <ClInclude Include="Source\Script\ScriptComponent.hpp" />
     <ClInclude Include="Source\Script\ScriptEngine.hpp" />
+    <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueContent.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueCore.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueGameplay.hpp" />
     <ClInclude Include="Source\Script\ScriptGlue\ScriptGlueRenderer.hpp" />

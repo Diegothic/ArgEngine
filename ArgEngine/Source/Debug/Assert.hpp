@@ -32,6 +32,6 @@
 
 #define ARG_ASSERT_M(Check, Message)
 
-#define ARG_ASSERT(Check, Message)
+#define ARG_ASSERT(Check)
 
 #endif // ARG_DEBUG

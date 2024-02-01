@@ -22,7 +22,7 @@ namespace Arg
 			~ResourceHandle();
 
 			auto operator=(const ResourceHandle<TResourceType>& other)->ResourceHandle<TResourceType>&;
-			auto operator==(const ResourceHandle<TResourceType>& other) -> bool;
+			auto operator==(const ResourceHandle<TResourceType>& other) const -> bool;
 
 			auto GetID() const -> const GUID& { return m_ResourceID; }
 			auto IsValid() const -> bool;
@@ -114,7 +114,7 @@ namespace Arg
 		template <typename TResourceType>
 		auto Arg::Content::ResourceHandle<TResourceType>::operator==(
 			const ResourceHandle<TResourceType>& other
-			) -> bool
+			) const -> bool
 		{
 			return m_ResourceID == other.m_ResourceID;
 		}

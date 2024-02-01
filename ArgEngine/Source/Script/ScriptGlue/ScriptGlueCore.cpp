@@ -20,7 +20,7 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 
 	scriptState.new_usertype<Vec3>(
 		"Vec3",
-		sol::constructors<Vec3(const Vec3&), Vec3(float), Vec3(float, float, float)>(),
+		sol::constructors<Vec3(), Vec3(const Vec3&), Vec3(float), Vec3(float, float, float)>(),
 		sol::meta_function::equal_to, sol::overload([](const Vec3& lhs, const Vec3& rhs) -> bool
 		{
 			return lhs == rhs;

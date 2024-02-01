@@ -1590,10 +1590,12 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 	{
 		for (size_t i = 0; i < pComponent->GetFieldsCount(); i++)
 		{
+			ImGui::PushID(i);
+
 			const auto field = pComponent->GetField(i);
 			switch (field.Type)
 			{
-			case Script::ScriptComponent::Float:
+			case Script::ScriptComponent::FieldFloat:
 				{
 					float fieldValue;
 					pComponent->GetFieldValue(field.Name, fieldValue);
@@ -1606,7 +1608,152 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 					);
 					break;
 				}
+			case Script::ScriptComponent::FieldInteger:
+				{
+					int32_t fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldBoolean:
+				{
+					bool fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldVec3:
+				{
+					Vec3 fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldActor:
+				{
+					Gameplay::ActorHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldTexture:
+				{
+					TextureHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldStaticModel:
+				{
+					StaticModelHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldSkeleton:
+				{
+					SkeletonHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldSkeletalModel:
+				{
+					SkeletalModelHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldSkeletalAnimation:
+				{
+					SkeletalAnimationHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldMaterial:
+				{
+					MaterialHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
+			case Script::ScriptComponent::FieldSound:
+				{
+					SoundResourceHandle fieldValue;
+					pComponent->GetFieldValue(field.Name, fieldValue);
+					DrawScriptComponentProperty(
+						context,
+						pActor,
+						pComponent,
+						field.Name,
+						fieldValue
+					);
+					break;
+				}
 			}
+
+			ImGui::PopID();
 		}
 	}
 	ImGui::EndTable();
@@ -1623,7 +1770,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
 	ImGui::TableNextColumn();
 	ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
-	ImGui::Text(propertyName.c_str());
+	ImGui::TextWrapped(propertyName.c_str());
 
 	ImGui::TableNextColumn();
 
@@ -1634,6 +1781,437 @@ void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
 	{
 		pComponent->SetFieldValue(propertyName, inputValue);
 	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const int32_t& propertyValue
+)
+{
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
 
 	ImGui::TableNextColumn();
+
+	int32_t inputValue = propertyValue;
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f * 0.12f);
+	ImGui::InputInt("##IntProperty", &inputValue);
+	if (inputValue != propertyValue)
+	{
+		pComponent->SetFieldValue(propertyName, inputValue);
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const bool& propertyValue
+)
+{
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	bool inputValue = propertyValue;
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f * 0.12f);
+	ImGui::Checkbox("##BoolProperty", &inputValue);
+	if (inputValue != propertyValue)
+	{
+		pComponent->SetFieldValue(propertyName, inputValue);
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const Vec3& propertyValue
+)
+{
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+	
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	Vec3 inputValue = propertyValue;
+	ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f * 1.0f);
+	ImGui::InputFloat3("##Vec3Property", Math::ValuePtr(inputValue));
+	if (inputValue != propertyValue)
+	{
+		pComponent->SetFieldValue(propertyName, inputValue);
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const Gameplay::ActorHandle& propertyValue
+)
+{
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	Gameplay::ActorHandle inputValue = propertyValue;
+	const char* actorName = nullptr;
+	std::string name;
+	if (inputValue.IsValid())
+	{
+		name = inputValue.Get().GetName();
+		actorName = name.c_str();
+	}
+
+	ActorHandleProperty(
+		"##ActorProperty",
+		Vec2(ImGui::GetWindowWidth() - 160.0f, 25.0f),
+		actorName,
+		[&](GUID droppedActorID)
+		{
+			Gameplay::GameWorld* pWorld = pActor->GetWorld();
+			if (!pWorld->HasActor(droppedActorID))
+			{
+				return;
+			}
+
+			pComponent->SetFieldValue(propertyName, Gameplay::ActorHandle(pWorld, droppedActorID));
+		},
+		[&]
+		{
+			Gameplay::GameWorld* pWorld = pActor->GetWorld();
+			pComponent->SetFieldValue(propertyName, Gameplay::ActorHandle(pWorld, GUID::Empty));
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const TextureHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeTexture)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					TextureHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				TextureHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const StaticModelHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					StaticModelHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				StaticModelHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const SkeletonHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeSkeleton)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					SkeletonHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				SkeletonHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const SkeletalModelHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeSkeletalModel)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					SkeletalModelHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				SkeletalModelHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const SkeletalAnimationHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeSkeletalAnimation)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					SkeletalAnimationHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				SkeletalAnimationHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const MaterialHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeMaterial)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					MaterialHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				MaterialHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Script::ScriptComponent>& pComponent,
+	const std::string& propertyName,
+	const SoundResourceHandle& propertyValue
+)
+{
+	Editor* pEditor = context.pEditor;
+	Content::ResourceCache* pResourceCache = pEditor->IsProjectOpened()
+		                                         ? pEditor->GetProject()->GetResourceCache().get()
+		                                         : pEditor->GetResourceCache().get();
+
+	ImGui::TableNextColumn();
+	ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+	ImGui::TextWrapped(propertyName.c_str());
+
+	ImGui::TableNextColumn();
+
+	ResourceHandleProperty(
+		"##ResourceHandle",
+		Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+		propertyValue.IsValid() ? propertyValue.Get()->GetName().c_str() : nullptr,
+		[&](GUID droppedResourceID)
+		{
+			const auto& resource = pResourceCache->GetResource(droppedResourceID);
+			if (resource->GetType() == Content::ResourceType::ResourceTypeSound)
+			{
+				pComponent->SetFieldValue(
+					propertyName,
+					SoundResourceHandle(droppedResourceID, pResourceCache)
+				);
+			}
+		},
+		[&]
+		{
+			pComponent->SetFieldValue(
+				propertyName,
+				SoundResourceHandle(GUID::Empty, pResourceCache)
+			);
+		}
+	);
 }
