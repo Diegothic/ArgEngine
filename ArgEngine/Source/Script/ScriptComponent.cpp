@@ -101,6 +101,10 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 		{
 			return state["ScriptComponent"]["Owner"](self["__component"]);
 		});
+		componentTable.set_function("World", [&](sol::table self)
+		{
+			return state["ScriptComponent"]["World"](self["__component"]);
+		});
 		componentTable.set_function(
 			sol::meta_function::new_index,
 			[](sol::table self,

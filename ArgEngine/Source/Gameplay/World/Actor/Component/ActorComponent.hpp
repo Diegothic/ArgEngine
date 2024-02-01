@@ -14,7 +14,6 @@ namespace Arg
 	{
 		class Actor;
 		class ComponentRegistry;
-		class ActorComponent;
 
 		class ActorComponent : public Content::YamlSerializable
 		{
@@ -48,6 +47,8 @@ namespace Arg
 
 			virtual void VOnComponentAdded() = 0;
 			virtual void VOnComponentRemoved() = 0;
+
+			virtual auto VIsScriptable() -> bool { return false; }
 
 			auto CanEverTick() const -> const bool& { return m_bCanEverTick; }
 			auto CanEverRender() const -> const bool& { return m_bCanEverRender; }

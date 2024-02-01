@@ -46,6 +46,10 @@ namespace Arg
 			auto GetSize() const -> float { return m_Size; }
 			void SetSize(float size);
 
+		public:
+			auto ScreenToWorldPoint(const Vec2& screenPoint) const -> Vec3;
+			auto WorldToScreenPoint(const Vec3& worldPoint) const -> Vec2;
+
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;

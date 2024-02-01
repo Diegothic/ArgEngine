@@ -94,6 +94,8 @@ void Arg::Script::ScriptEngine::Load()
 	ScriptExport_World(*this);
 	ScriptExport_Actor(*this);
 	ScriptExport_ActorComponents_Graphics(*this);
+	ScriptExport_ActorComponents_Physics(*this);
+	ScriptExport_ActorComponents_Sound(*this);
 
 	ScriptExport_Renderer(*this);
 
@@ -135,6 +137,13 @@ void Arg::Script::ScriptEngine::Load()
 			const ScriptComponent& component = self.Get();
 			const Gameplay::Actor* actor = component.GetOwner();
 			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](ScriptComponentHandle& self) -> Gameplay::GameWorld&
+		{
+			const ScriptComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		}
 	);
 

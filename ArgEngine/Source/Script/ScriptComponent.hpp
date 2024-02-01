@@ -74,6 +74,8 @@ namespace Arg
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
+			auto VIsScriptable() -> bool override { return true; }
+
 		public:
 			auto GetFieldsCount() const -> size_t { return m_pBase->m_Fields.size(); }
 			auto GetField(size_t index) const -> const ScriptComponentField&;

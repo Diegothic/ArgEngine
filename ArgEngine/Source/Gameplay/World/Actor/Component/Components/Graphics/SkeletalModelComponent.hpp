@@ -39,6 +39,7 @@ namespace Arg
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
+		public:
 			auto GetSkeleton() const -> SkeletonHandle { return m_Skeleton; }
 			void SetSkeleton(const SkeletonHandle& skeleton);
 
