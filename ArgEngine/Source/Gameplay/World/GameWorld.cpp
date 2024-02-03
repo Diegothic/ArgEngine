@@ -266,13 +266,13 @@ void Arg::Gameplay::GameWorld::EndPlay()
 	}
 }
 
-void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime)
+void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime, const Arg::Gameplay::GameInput& gameInput)
 {
 	m_pPhysicsWorld->Tick(gameTime.GetDeltaTime());
 
 	for (const auto& actor : m_Actors)
 	{
-		actor->Tick(gameTime);
+		actor->Tick(gameTime, gameInput);
 	}
 }
 

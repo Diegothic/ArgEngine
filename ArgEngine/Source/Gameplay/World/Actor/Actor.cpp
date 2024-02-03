@@ -273,7 +273,7 @@ void Arg::Gameplay::Actor::BeginPlay()
 	}
 }
 
-void Arg::Gameplay::Actor::Tick(const GameTime& gameTime)
+void Arg::Gameplay::Actor::Tick(const GameTime& gameTime, const Arg::Gameplay::GameInput& gameInput)
 {
 	if (m_bIsDestroyed)
 	{
@@ -287,7 +287,7 @@ void Arg::Gameplay::Actor::Tick(const GameTime& gameTime)
 			continue;
 		}
 
-		component->VTick(gameTime);
+		component->VTick(gameTime, gameInput);
 	}
 }
 

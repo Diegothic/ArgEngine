@@ -27,7 +27,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VBeginPlay() override;
-			void VTick(const GameTime& gameTime) override;
+			void VTick(const GameTime& gameTime, const GameInput& gameInput) override;
 
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
@@ -42,10 +42,10 @@ namespace Arg
 		public:
 			auto GetSound() const -> SoundResourceHandle;
 			void SetSound(SoundResourceHandle soundHandle);
-			
+
 			auto GetPlayOnStart() const -> bool;
 			void SetPlayOnStart(bool bPlayOnStart);
-			
+
 			auto GetVolume() const -> float;
 			void SetVolume(float volume);
 

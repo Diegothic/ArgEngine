@@ -68,7 +68,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override;
 
 			void VBeginPlay() override;
-			void VTick(const Gameplay::GameTime& gameTime) override;
+			void VTick(const Gameplay::GameTime& gameTime, const Gameplay::GameInput& gameInput) override;
 			void VDrawDebug(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;

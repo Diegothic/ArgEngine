@@ -8,6 +8,7 @@ namespace Arg
 {
 	namespace Script
 	{
+		void ScriptExport_Gameplay_Core(const ScriptEngine& scriptEngine);
 		void ScriptExport_World(const ScriptEngine& scriptEngine);
 		void ScriptExport_Actor(const ScriptEngine& scriptEngine);
 		void ScriptExport_ActorComponents_Graphics(const ScriptEngine& scriptEngine);

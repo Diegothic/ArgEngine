@@ -20,9 +20,9 @@ auto Arg::Gameplay::CameraComponent::VCreateDefault() -> std::shared_ptr<ActorCo
 	return std::make_shared<CameraComponent>();
 }
 
-void Arg::Gameplay::CameraComponent::VTick(const GameTime& gameTime)
+void Arg::Gameplay::CameraComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
-	ActorComponent::VTick(gameTime);
+	ActorComponent::VTick(gameTime, gameInput);
 
 	const Actor* owner = GetOwner();
 	const Vec3 position = owner->GetPosition();
@@ -94,47 +94,14 @@ void Arg::Gameplay::CameraComponent::SetSize(float size)
 	}
 }
 
-auto Arg::Gameplay::CameraComponent::ScreenToWorldPoint(const Vec2& screenPoint) const -> Vec3
+auto Arg::Gameplay::CameraComponent::ScreenToWorldPoint(const Vec2& screenPoint, float distance) const -> Vec3
 {
-	const Mat4 view = m_pCamera->GetView();
-	const Mat4 proj = m_pCamera->VGetProjection(1.0f);
-
-	const Mat4 projView = view * proj;
-	const Mat4 inverse = Math::inverse(projView);
-
-	const Vec4 worldPoint = Vec4(
-		(screenPoint.x - 0.5f) / 0.5f,
-		-1.0f * (screenPoint.y - 0.5f) / 0.5f,
-		-1.0f,
-		1.0f
-	);
-	Vec4 result = inverse * worldPoint;
-	result /= result.w;
-	return {result.x, result.y, result.z};
+	return m_pCamera->ScreenToWorldPoint(screenPoint, distance);
 }
 
 auto Arg::Gameplay::CameraComponent::WorldToScreenPoint(const Vec3& worldPoint) const -> Vec2
 {
-	const Mat4 view = m_pCamera->GetView();
-	const Mat4 proj = m_pCamera->VGetProjection(1.0f);
-
-	const Mat4 projView = view * proj;
-
-	const Vec4 point = Vec4(
-		worldPoint.x,
-		worldPoint.y,
-		worldPoint.z,
-		1.0f
-	);
-
-	Vec4 result = projView * point;
-	result /= result.w;
-	const Vec2 screenPoint(
-		(result.x * 0.5f) + 0.5f,
-		(result.y * 0.5f) + 0.5f
-	);
-
-	return screenPoint;
+	return m_pCamera->WorldToScreenPoint(worldPoint);
 }
 
 bool Arg::Gameplay::CameraComponent::VOnSerialize(YAML::Node& node) const

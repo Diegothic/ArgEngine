@@ -17,7 +17,9 @@ namespace Arg
 			auto GetSize() const -> const float& { return m_Size; }
 			void SetSize(float size) { m_Size = size; }
 
-			auto VGetProjection(float aspectRatio) const->Mat4 override;
+			auto VGetProjection(float aspectRatio) const -> Mat4 override;
+			auto VLinearizeDepth(float depth) const -> float override;
+			auto VUnLinearizeDepth(float depth) const -> float override;
 
 		private:
 			float m_Size = 1.0f;

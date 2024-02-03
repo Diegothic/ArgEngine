@@ -20,6 +20,281 @@ using PhysicsBodyComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Game
 
 using SoundPlayerComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::SoundPlayerComponent>;
 
+void Arg::Script::ScriptExport_Gameplay_Core(const ScriptEngine& scriptEngine)
+{
+	auto& scriptState = scriptEngine.GetState();
+
+	scriptState.new_usertype<Gameplay::GameTime>(
+		"GameTime",
+		"ElapsedTime",
+		[](Gameplay::GameTime& self) -> float
+		{
+			return self.GetDeltaTime();
+		},
+		"DeltaTime",
+		[](Gameplay::GameTime& self) -> float
+		{
+			return self.GetDeltaTime();
+		},
+		"UnscaledDeltaTime",
+		[](Gameplay::GameTime& self) -> float
+		{
+			return self.GetUnscaledDeltaTime();
+		},
+		"TimeScale",
+		[](Gameplay::GameTime& self) -> float
+		{
+			return self.GetTimeScale();
+		},
+		"SetTimeScale",
+		[](Gameplay::GameTime& self, float timeScale)
+		{
+			self.SetTimeScale(timeScale);
+		}
+	);
+
+	scriptState.new_enum<Input::KeyCode>(
+		"KeyCode",
+		{
+			{"Space", Input::KeyCode::Space},
+			{"Apostrophe", Input::KeyCode::Apostrophe},
+			{"Comma", Input::KeyCode::Comma},
+			{"Minus", Input::KeyCode::Minus},
+			{"Period", Input::KeyCode::Period},
+			{"Slash", Input::KeyCode::Slash},
+			{"0", Input::KeyCode::Alpha0},
+			{"1", Input::KeyCode::Alpha1},
+			{"2", Input::KeyCode::Alpha2},
+			{"3", Input::KeyCode::Alpha3},
+			{"4", Input::KeyCode::Alpha4},
+			{"5", Input::KeyCode::Alpha5},
+			{"6", Input::KeyCode::Alpha6},
+			{"7", Input::KeyCode::Alpha7},
+			{"8", Input::KeyCode::Alpha8},
+			{"9", Input::KeyCode::Alpha9},
+			{"Semicolon", Input::KeyCode::Semicolon},
+			{"Equal", Input::KeyCode::Equal},
+			{"A", Input::KeyCode::A},
+			{"B", Input::KeyCode::B},
+			{"C", Input::KeyCode::C},
+			{"D", Input::KeyCode::D},
+			{"E", Input::KeyCode::E},
+			{"F", Input::KeyCode::F},
+			{"G", Input::KeyCode::G},
+			{"H", Input::KeyCode::H},
+			{"I", Input::KeyCode::I},
+			{"J", Input::KeyCode::J},
+			{"K", Input::KeyCode::K},
+			{"L", Input::KeyCode::L},
+			{"M", Input::KeyCode::M},
+			{"N", Input::KeyCode::N},
+			{"O", Input::KeyCode::O},
+			{"P", Input::KeyCode::P},
+			{"Q", Input::KeyCode::Q},
+			{"R", Input::KeyCode::R},
+			{"S", Input::KeyCode::S},
+			{"T", Input::KeyCode::T},
+			{"U", Input::KeyCode::U},
+			{"V", Input::KeyCode::V},
+			{"W", Input::KeyCode::W},
+			{"X", Input::KeyCode::X},
+			{"Y", Input::KeyCode::Y},
+			{"Z", Input::KeyCode::Z},
+			{"LeftBracket", Input::KeyCode::LeftBracket},
+			{"Backslash", Input::KeyCode::Backslash},
+			{"RightBracket", Input::KeyCode::RightBracket},
+			{"Tilde", Input::KeyCode::Tilde},
+			{"Escape", Input::KeyCode::Escape},
+			{"Enter", Input::KeyCode::Enter},
+			{"Tab", Input::KeyCode::Tab},
+			{"Backspace", Input::KeyCode::Backspace},
+			{"Insert", Input::KeyCode::Insert},
+			{"Delete", Input::KeyCode::Delete},
+			{"Right", Input::KeyCode::ArrowRight},
+			{"Left", Input::KeyCode::ArrowLeft},
+			{"Down", Input::KeyCode::ArrowDown},
+			{"Up", Input::KeyCode::ArrowUp},
+			{"PageUp", Input::KeyCode::PageUp},
+			{"PageDown", Input::KeyCode::PageDown},
+			{"Home", Input::KeyCode::Home},
+			{"End", Input::KeyCode::End},
+			{"CapsLock", Input::KeyCode::CapsLock},
+			{"ScrollLock", Input::KeyCode::ScrollLock},
+			{"NumLock", Input::KeyCode::NumLock},
+			{"PrintScreen", Input::KeyCode::PrintScreen},
+			{"Pause", Input::KeyCode::Pause},
+			{"F1", Input::KeyCode::F1},
+			{"F2", Input::KeyCode::F2},
+			{"F3", Input::KeyCode::F3},
+			{"F4", Input::KeyCode::F4},
+			{"F5", Input::KeyCode::F5},
+			{"F6", Input::KeyCode::F6},
+			{"F7", Input::KeyCode::F7},
+			{"F8", Input::KeyCode::F8},
+			{"F9", Input::KeyCode::F9},
+			{"F10", Input::KeyCode::F10},
+			{"F11", Input::KeyCode::F11},
+			{"F12", Input::KeyCode::F12},
+			{"Keypad0", Input::KeyCode::Keypad0},
+			{"Keypad1", Input::KeyCode::Keypad1},
+			{"Keypad2", Input::KeyCode::Keypad2},
+			{"Keypad3", Input::KeyCode::Keypad3},
+			{"Keypad4", Input::KeyCode::Keypad4},
+			{"Keypad5", Input::KeyCode::Keypad5},
+			{"Keypad6", Input::KeyCode::Keypad6},
+			{"Keypad7", Input::KeyCode::Keypad7},
+			{"Keypad8", Input::KeyCode::Keypad8},
+			{"Keypad9", Input::KeyCode::Keypad9},
+			{"KeypadDecimal", Input::KeyCode::KeypadDecimal},
+			{"KeypadDivide", Input::KeyCode::KeypadDivide},
+			{"KeypadMultiply", Input::KeyCode::KeypadMultiply},
+			{"KeypadSubtract", Input::KeyCode::KeypadSubtract},
+			{"KeypadAdd", Input::KeyCode::KeypadAdd},
+			{"KeypadEnter", Input::KeyCode::KeypadEnter},
+			{"KeypadEqual", Input::KeyCode::KeypadEqual},
+			{"LeftShift", Input::KeyCode::LeftShift},
+			{"LeftControl", Input::KeyCode::LeftControl},
+			{"LeftAlt", Input::KeyCode::LeftAlt},
+			{"LeftSuper", Input::KeyCode::LeftSuper},
+			{"RightShift", Input::KeyCode::RightShift},
+			{"RightControl", Input::KeyCode::RightControl},
+			{"RightAlt", Input::KeyCode::RightAlt},
+			{"RightSuper", Input::KeyCode::RightSuper},
+			{"Menu", Input::KeyCode::Menu}
+		}
+	);
+
+	scriptState.new_enum<Input::MouseButton>(
+		"MouseButton",
+		{
+			{"Left", Input::MouseButton::Left},
+			{"Right", Input::MouseButton::Right},
+			{"Middle", Input::MouseButton::Middle}
+		}
+	);
+
+	scriptState.new_enum<Input::GamepadButton>(
+		"GamepadButton",
+		{
+			{"South", Input::GamepadButton::South},
+			{"East", Input::GamepadButton::East},
+			{"West", Input::GamepadButton::West},
+			{"North", Input::GamepadButton::North},
+			{"LBumper", Input::GamepadButton::LeftBumper},
+			{"RBumper", Input::GamepadButton::RightBumper},
+			{"Back", Input::GamepadButton::Back},
+			{"Start", Input::GamepadButton::Start},
+			{"Options", Input::GamepadButton::Guide},
+			{"LThumb", Input::GamepadButton::LeftThumb},
+			{"RThumb", Input::GamepadButton::RightThumb},
+			{"Up", Input::GamepadButton::DPadUp},
+			{"Right", Input::GamepadButton::DPadRight},
+			{"Down", Input::GamepadButton::DPadDown},
+			{"Left", Input::GamepadButton::DPadLeft}
+		}
+	);
+
+	scriptState.new_enum<Input::GamepadAxis>(
+		"GamepadAxis",
+		{
+			{"LHorizontal", Input::GamepadAxis::LeftHorizontal},
+			{"LVertical", Input::GamepadAxis::LeftVertical},
+			{"RHorizontal", Input::GamepadAxis::RightHorizontal},
+			{"RVertical", Input::GamepadAxis::RightVertical},
+			{"LTrigger", Input::GamepadAxis::LeftTrigger},
+			{"RTrigger", Input::GamepadAxis::RightTrigger}
+		}
+	);
+
+	scriptState.new_enum<Input::GamepadAxis2D>(
+		"GamepadAxis2D",
+		{
+			{"Left", Input::GamepadAxis2D::AxisLeft},
+			{"Right", Input::GamepadAxis2D::AxisRight}
+		}
+	);
+
+	scriptState.new_usertype<Gameplay::GameInput>(
+		"GameInput",
+		"KeyPressed",
+		[](Gameplay::GameInput& self, const Input::KeyCode& keyCode) -> bool
+		{
+			return self.GetKeyPressed(keyCode);
+		},
+		"KeyReleased",
+		[](Gameplay::GameInput& self, const Input::KeyCode& keyCode) -> bool
+		{
+			return self.GetKeyReleased(keyCode);
+		},
+		"KeyDown",
+		[](Gameplay::GameInput& self, const Input::KeyCode& keyCode) -> bool
+		{
+			return self.GetKeyDown(keyCode);
+		},
+		"MousePosition",
+		[](Gameplay::GameInput& self) -> Vec2
+		{
+			return self.GetMousePos();
+		},
+		"MouseDelta",
+		[](Gameplay::GameInput& self) -> Vec2
+		{
+			return self.GetMouseDelta();
+		},
+		"MouseButtonPressed",
+		[](Gameplay::GameInput& self, const Input::MouseButton& mouseButton) -> bool
+		{
+			return self.GetMouseButtonPressed(mouseButton);
+		},
+		"MouseButtonReleased",
+		[](Gameplay::GameInput& self, const Input::MouseButton& mouseButton) -> bool
+		{
+			return self.GetMouseButtonReleased(mouseButton);
+		},
+		"MouseButtonDown",
+		[](Gameplay::GameInput& self, const Input::MouseButton& mouseButton) -> bool
+		{
+			return self.GetMouseButtonDown(mouseButton);
+		},
+		"IsGamepadConnected",
+		[](Gameplay::GameInput& self, int32_t ID) -> bool
+		{
+			ID--;
+			return self.IsGamepadConnected(ID);
+		},
+		"GamepadButtonPressed",
+		[](Gameplay::GameInput& self, int32_t ID, const Input::GamepadButton& gamepadButton) -> bool
+		{
+			ID--;
+			return self.GetGamepadButtonPressed(ID, gamepadButton);
+		},
+		"GamepadButtonReleased",
+		[](Gameplay::GameInput& self, int32_t ID, const Input::GamepadButton& gamepadButton) -> bool
+		{
+			ID--;
+			return self.GetGamepadButtonReleased(ID, gamepadButton);
+		},
+		"GamepadButtonDown",
+		[](Gameplay::GameInput& self, int32_t ID, const Input::GamepadButton& gamepadButton) -> bool
+		{
+			ID--;
+			return self.GetGamepadButtonDown(ID, gamepadButton);
+		},
+		"GamepadAxis",
+		[](Gameplay::GameInput& self, int32_t ID, const Input::GamepadAxis& axis) -> float
+		{
+			ID--;
+			return self.GetGamepadAxis(ID, axis);
+		},
+		"GamepadAxis2D",
+		[](Gameplay::GameInput& self, int32_t ID, const Input::GamepadAxis2D& axis) -> Vec2
+		{
+			ID--;
+			return self.GetGamepadAxis2D(ID, axis);
+		}
+	);
+}
+
 void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 {
 	auto& scriptState = scriptEngine.GetState();
@@ -332,6 +607,19 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		{
 			return self.IsValid();
 		},
+		"Owner",
+		[](CameraComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::CameraComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](CameraComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::CameraComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
+		},
 		"Mode",
 		[](CameraComponentHandle& self) -> Gameplay::CameraMode
 		{
@@ -369,13 +657,20 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 			return component.SetSize(size);
 		},
 		"ScreenToWorldPoint",
-		[](CameraComponentHandle& self, const Vec2& screenPoint)
-		{
-			Gameplay::CameraComponent& component = self.Get();
-			return component.ScreenToWorldPoint(screenPoint);
-		},
+		sol::overload(
+			[](CameraComponentHandle& self, const Vec2& screenPoint, float distance) -> Vec3
+			{
+				Gameplay::CameraComponent& component = self.Get();
+				return component.ScreenToWorldPoint(screenPoint, distance);
+			},
+			[](CameraComponentHandle& self, const Vec2& screenPoint) -> Vec3
+			{
+				Gameplay::CameraComponent& component = self.Get();
+				return component.ScreenToWorldPoint(screenPoint);
+			}
+		),
 		"WorldToScreenPoint",
-		[](CameraComponentHandle& self, const Vec3& worldPoint)
+		[](CameraComponentHandle& self, const Vec3& worldPoint) -> Vec2
 		{
 			Gameplay::CameraComponent& component = self.Get();
 			return component.WorldToScreenPoint(worldPoint);
@@ -395,6 +690,19 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		[](PointLightComponentHandle& self) -> bool
 		{
 			return self.IsValid();
+		},
+		"Owner",
+		[](PointLightComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::PointLightComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](PointLightComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::PointLightComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		},
 		"Color",
 		[](PointLightComponentHandle& self) -> Vec3
@@ -444,9 +752,22 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 				return lhs == rhs;
 			}),
 		"IsValid",
-		[](CameraComponentHandle& self) -> bool
+		[](SpotLightComponentHandle& self) -> bool
 		{
 			return self.IsValid();
+		},
+		"Owner",
+		[](SpotLightComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::SpotLightComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](SpotLightComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::SpotLightComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		},
 		"Color",
 		[](SpotLightComponentHandle& self) -> Vec3
@@ -524,6 +845,19 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		{
 			return self.IsValid();
 		},
+		"Owner",
+		[](StaticModelComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::StaticModelComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](StaticModelComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::StaticModelComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
+		},
 		"Model",
 		[](StaticModelComponentHandle& self) -> StaticModelHandle
 		{
@@ -597,6 +931,19 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		[](SkeletalModelComponentHandle& self) -> bool
 		{
 			return self.IsValid();
+		},
+		"Owner",
+		[](SkeletalModelComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::SkeletalModelComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](SkeletalModelComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::SkeletalModelComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		},
 		"Skeleton",
 		[](SkeletalModelComponentHandle& self) -> SkeletonHandle
@@ -753,6 +1100,19 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			return self.IsValid();
+		},
+		"Owner",
+		[](PhysicsBodyComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::PhysicsBodyComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](PhysicsBodyComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::PhysicsBodyComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		},
 		"Shape",
 		[](PhysicsBodyComponentHandle& self) -> Physics::PhysicsBodyShape
@@ -936,6 +1296,19 @@ void Arg::Script::ScriptExport_ActorComponents_Sound(const ScriptEngine& scriptE
 		[](SoundPlayerComponentHandle& self) -> bool
 		{
 			return self.IsValid();
+		},
+		"Owner",
+		[](SoundPlayerComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::SoundPlayerComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](SoundPlayerComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::SoundPlayerComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
 		},
 		"Sound",
 		[](SoundPlayerComponentHandle& self) -> SoundResourceHandle

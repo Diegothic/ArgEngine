@@ -27,9 +27,9 @@ void Arg::Gameplay::SkeletalModelComponent::VBeginPlay()
 	}
 }
 
-void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime)
+void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
-	ActorComponent::VTick(gameTime);
+	ActorComponent::VTick(gameTime, gameInput);
 
 	if (m_bIsPlaying)
 	{

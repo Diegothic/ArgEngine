@@ -26,9 +26,9 @@ void Arg::Gameplay::PhysicsBodyComponent::VBeginPlay()
 	RefreshPhysics();
 }
 
-void Arg::Gameplay::PhysicsBodyComponent::VTick(const GameTime& gameTime)
+void Arg::Gameplay::PhysicsBodyComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
-	ActorComponent::VTick(gameTime);
+	ActorComponent::VTick(gameTime, gameInput);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& context)

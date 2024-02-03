@@ -6,7 +6,7 @@ namespace Arg
 {
 	namespace Input
 	{
-		constexpr int GAMEPADS_CONNECTED_MAX = 15;
+		constexpr int GAMEPADS_CONNECTED_MAX = 16;
 		constexpr float GAMEPAD_AXIS_DEADZONE = 0.1f;
 	}
 }

@@ -221,6 +221,7 @@ void Arg::Renderer::RenderContext::Render(
 	const Vec2i viewportSize = m_Spec.ViewportSize;
 	const float aspectRatio = (float)viewportSize.x / (float)viewportSize.y;
 
+	m_Spec.pCamera->SetAspectRatio(aspectRatio);
 	const Mat4 proj = m_Spec.pCamera->VGetProjection(aspectRatio);
 	const Mat4 view = m_Spec.pCamera->GetView();
 

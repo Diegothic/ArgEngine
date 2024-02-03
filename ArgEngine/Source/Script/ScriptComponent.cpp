@@ -2,6 +2,7 @@
 #include "ScriptComponent.hpp"
 
 #include "ScriptEngine.hpp"
+#include "Gameplay/GameInput.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponentHandle.hpp"
 
 using ScriptComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Script::ScriptComponent>;
@@ -54,16 +55,16 @@ void Arg::Script::ScriptComponent::VBeginPlay()
 	}
 }
 
-void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime)
+void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime, const Gameplay::GameInput& gameInput)
 {
-	ActorComponent::VTick(gameTime);
+	ActorComponent::VTick(gameTime, gameInput);
 
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
 	if (state[m_Name]["_Tick"].valid())
 	{
-		state[m_Name]["_Tick"](scriptInstances[m_OwnerIDString], gameTime.GetDeltaTime());
+		state[m_Name]["_Tick"](scriptInstances[m_OwnerIDString], gameTime, gameInput);
 	}
 }
 
@@ -665,8 +666,8 @@ void Arg::Script::ScriptComponent::UpdateScriptFields()
 		for (const auto& fieldName : baseValues | std::ranges::views::keys)
 		{
 			scriptInstances[ownerIDString][fieldName] = currentValues.contains(fieldName)
-				                                              ? currentValues.at(fieldName)
-				                                              : baseValues.at(fieldName);
+				                                            ? currentValues.at(fieldName)
+				                                            : baseValues.at(fieldName);
 		}
 	};
 

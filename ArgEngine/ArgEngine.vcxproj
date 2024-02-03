@@ -144,6 +144,7 @@
     <ClCompile Include="Source\Content\Serialization\YamlSerializable.cpp" />
     <ClCompile Include="Source\Core\Application.cpp" />
     <ClCompile Include="Source\GameEngine.cpp" />
+    <ClCompile Include="Source\Gameplay\GameInput.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Actor.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\ActorHandle.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\ActorComponent.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="Source\Core\Window\Window.cpp" />
     <ClInclude Include="Source\GameEngine.hpp" />
     <ClInclude Include="Source\Gameplay\GameContext.hpp" />
+    <ClInclude Include="Source\Gameplay\GameInput.hpp" />
     <ClInclude Include="Source\Gameplay\GameTime.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Actor.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\ActorHandle.hpp" />

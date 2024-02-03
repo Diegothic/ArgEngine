@@ -20,7 +20,7 @@ namespace Arg
 
 			auto GetAvgFrameTime() const -> const float& { return m_AvgFrameTime; }
 
-			void Tick(const float deltaTime)
+			void Tick(float deltaTime)
 			{
 				m_UnscaledDeltaTime = deltaTime;
 				m_DeltaTime = deltaTime * m_TimeScale;

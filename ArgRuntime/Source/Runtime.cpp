@@ -45,6 +45,7 @@ void Arg::Runtime::Runtime::Initialize()
 	{
 		m_pGameEngine = std::make_shared<GameEngine>();
 		m_pGameEngine->Initialize(
+			m_pWindow.get(),
 			"Data",
 			m_pResourceCache
 		);

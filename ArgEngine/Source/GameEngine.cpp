@@ -40,10 +40,14 @@ auto Arg::EngineConfig::VOnDeserialize(const YAML::Node& node) -> bool
 }
 
 void Arg::GameEngine::Initialize(
+	Window* pWindow,
 	const std::filesystem::path& rootDirectory,
 	const std::shared_ptr<Content::ResourceCache>& pResourceCache
 )
 {
+	m_pWindow = pWindow;
+	m_GameInput.Initialize(m_pWindow);
+
 	m_pResourceCache = pResourceCache;
 
 	m_ComponentRegistry.RegisterComponents();
@@ -144,9 +148,13 @@ void Arg::GameEngine::Stop()
 	}
 }
 
-void Arg::GameEngine::Update(const float& deltaTime)
+void Arg::GameEngine::Update(const float& deltaTime, bool bIsFocused)
 {
 	m_GameTime.Tick(deltaTime);
+	if (bIsFocused)
+	{
+		m_GameInput.Tick(deltaTime);
+	}
 
 	if (!IsWorldLoaded())
 	{
@@ -157,6 +165,7 @@ void Arg::GameEngine::Update(const float& deltaTime)
 	{
 		m_bPlayRequested = false;
 		m_bIsPlaying = true;
+		m_GameInput.BeginPlay();
 		m_pLoadedWorld->BeginPlay();
 	}
 
@@ -184,7 +193,7 @@ void Arg::GameEngine::Update(const float& deltaTime)
 			}
 		}
 
-		m_pLoadedWorld->Tick(m_GameTime);
+		m_pLoadedWorld->Tick(m_GameTime, m_GameInput);
 	}
 }
 

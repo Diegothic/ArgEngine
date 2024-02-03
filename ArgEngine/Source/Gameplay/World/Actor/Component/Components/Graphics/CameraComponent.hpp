@@ -28,7 +28,7 @@ namespace Arg
 			auto VGetID() const -> GUID override { return COMPONENT_ID; }
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
-			void VTick(const GameTime& gameTime) override;
+			void VTick(const GameTime& gameTime, const GameInput& gameInput) override;
 			void VDrawDebug(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
@@ -47,7 +47,7 @@ namespace Arg
 			void SetSize(float size);
 
 		public:
-			auto ScreenToWorldPoint(const Vec2& screenPoint) const -> Vec3;
+			auto ScreenToWorldPoint(const Vec2& screenPoint, float distance = 0.0) const -> Vec3;
 			auto WorldToScreenPoint(const Vec3& worldPoint) const -> Vec2;
 
 		protected:

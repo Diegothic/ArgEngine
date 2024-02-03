@@ -22,7 +22,7 @@ namespace Arg
 			auto GetYaw() const -> const float& { return m_Yaw; }
 			void SetYaw(float angle);
 			auto GetRoll() const -> const float& { return m_Roll; }
-            void SetRoll(float angle);
+			void SetRoll(float angle);
 
 			auto GetForwardVector() const -> const Vec3& { return m_Forward; }
 			auto GetUpVector() const -> const Vec3& { return m_Up; }
@@ -30,11 +30,19 @@ namespace Arg
 
 			auto GetNearPlane() const -> const float& { return m_NearPlane; }
 			void SetNearPlane(float nearPlane) { m_NearPlane = nearPlane; }
-			auto GetFarPlane()const -> const float& { return m_FarPlane; }
+			auto GetFarPlane() const -> const float& { return m_FarPlane; }
 			void SetFarPlane(float farPlane) { m_FarPlane = farPlane; }
 
-			auto GetView() const->Mat4;
-			virtual auto VGetProjection(float aspectRatio) const->Mat4 = 0;
+			auto GetAspectRatio() const -> float { return m_AspectRatio; }
+			void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; }
+
+			auto GetView() const -> Mat4;
+			virtual auto VGetProjection(float aspectRatio) const -> Mat4 = 0;
+			virtual auto VLinearizeDepth(float depth) const -> float = 0;
+			virtual auto VUnLinearizeDepth(float depth) const -> float = 0;
+
+			auto ScreenToWorldPoint(const Vec2& screenPoint, float distance = 0.0f) const -> Vec3;
+			auto WorldToScreenPoint(const Vec3& worldPoint) const -> Vec2;
 
 		private:
 			void Refresh();
@@ -51,6 +59,8 @@ namespace Arg
 
 			float m_NearPlane = 0.1f;
 			float m_FarPlane = 1000.0f;
+
+			float m_AspectRatio = 16.0f / 9.0f;
 		};
 	}
 }

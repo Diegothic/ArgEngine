@@ -7,6 +7,7 @@
 #include "Content/Serialization/YamlSerializable.hpp"
 #include "Gameplay/GameTime.hpp"
 #include "Content/ResourceCache.hpp"
+#include "Gameplay/GameInput.hpp"
 
 namespace Arg
 {
@@ -33,7 +34,7 @@ namespace Arg
 			{
 			}
 
-			virtual void VTick(const GameTime& gameTime)
+			virtual void VTick(const GameTime& gameTime, const GameInput& gameInput)
 			{
 			}
 

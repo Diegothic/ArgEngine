@@ -1,6 +1,7 @@
 #include <arg_pch.hpp>
 #include "EditorCamera.hpp"
 
+#include "Gameplay/World/Actor/Actor.hpp"
 #include "Renderer/Camera/PerspectiveCamera.hpp"
 
 Arg::Editor::EditorCamera::EditorCamera(Window* window)
@@ -15,7 +16,7 @@ auto Arg::Editor::EditorCamera::GetView() const -> Mat4
 	return m_pCamera->GetView();
 }
 
-auto Arg::Editor::EditorCamera::GetProjection(const float aspectRatio) const -> Mat4
+auto Arg::Editor::EditorCamera::GetProjection(float aspectRatio) const -> Mat4
 {
 	return m_pCamera->VGetProjection(aspectRatio);
 }

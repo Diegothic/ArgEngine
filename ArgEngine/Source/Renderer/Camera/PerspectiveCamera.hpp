@@ -17,7 +17,9 @@ namespace Arg
 			auto GetFOVAngle() const -> const float& { return m_FOVAngle; }
 			void SetFOVAngle(float angle) { m_FOVAngle = angle; }
 
-			auto VGetProjection(float aspectRatio) const->Mat4 override;
+			auto VGetProjection(float aspectRatio) const -> Mat4 override;
+			auto VLinearizeDepth(float depth) const -> float override;
+			auto VUnLinearizeDepth(float depth) const -> float override;
 
 		private:
 			float m_FOVAngle = 45.0f;

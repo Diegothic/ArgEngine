@@ -78,13 +78,14 @@ namespace Arg
 			}
 
 		public:
+			auto GetWindow() const -> Window*;
 			auto GetPhysicsWorld() const -> Physics::PhysicsWorld* { return m_pPhysicsWorld.get(); }
 			auto GetSound() const -> Sound::SoundEngine&;
 
 		public:
 			void BeginPlay();
 			void EndPlay();
-			void Tick(const GameTime& gameTime);
+			void Tick(const GameTime& gameTime, const GameInput& gameInput);
 			void Render(Renderer::RenderContext& context);
 			void DrawDebug(Renderer::RenderContext& context);
 			void ClearGarbage();

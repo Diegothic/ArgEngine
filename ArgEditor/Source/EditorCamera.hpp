@@ -15,8 +15,8 @@ namespace Arg
 		public:
 			EditorCamera(Window* window);
 
-			auto GetView() const->Mat4;
-			auto GetProjection(const float aspectRatio) const->Mat4;
+			auto GetView() const -> Mat4;
+			auto GetProjection(float aspectRatio) const -> Mat4;
 
 			auto GetCamera() const -> const std::shared_ptr<Renderer::Camera>& { return m_pCamera; }
 

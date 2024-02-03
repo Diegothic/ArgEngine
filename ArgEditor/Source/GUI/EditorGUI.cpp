@@ -692,7 +692,7 @@ void Arg::Editor::GUI::EditorGUI::RenderDrawData()
 void Arg::Editor::GUI::EditorGUI::EditTransform(
 	const EditorGizmoOperation& operation,
 	const EditorGizmoMode& mode,
-	const Renderer::Camera* pCamera,
+	const Arg::Renderer::Camera* pCamera,
 	Mat4& outTransform
 )
 {

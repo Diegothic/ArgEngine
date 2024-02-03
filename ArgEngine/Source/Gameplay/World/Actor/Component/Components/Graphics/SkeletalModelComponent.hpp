@@ -33,7 +33,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VBeginPlay() override;
-			void VTick(const GameTime& gameTime) override;
+			void VTick(const GameTime& gameTime, const GameInput& gameInput) override;
 			void VRender(Renderer::RenderContext& context) override;
 
 			void VOnComponentAdded() override;
@@ -60,10 +60,10 @@ namespace Arg
 			void SetCurrentAnimation(const SkeletalAnimationHandle& animation);
 
 			auto GetPlayOnStart() const -> bool { return m_bPlayOnStart; }
-			void SetPlayOnStart(bool bPlayOnStart) {m_bPlayOnStart = bPlayOnStart;}
+			void SetPlayOnStart(bool bPlayOnStart) { m_bPlayOnStart = bPlayOnStart; }
 
 			auto GetLooping() const -> bool { return m_bLooping; }
-			void SetLooping(bool bLooping) {m_bLooping = bLooping;}
+			void SetLooping(bool bLooping) { m_bLooping = bLooping; }
 
 		public:
 			void Play(const SkeletalAnimationHandle& animation);
@@ -83,7 +83,7 @@ namespace Arg
 
 			bool m_bReceiveShadows = true;
 			bool m_bCastShadows = true;
-			
+
 			SkeletalAnimationHandle m_CurrentAnimation;
 			bool m_bPlayOnStart = true;
 			bool m_bLooping = true;

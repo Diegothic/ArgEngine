@@ -2,6 +2,7 @@
 #include "ScriptEngine.hpp"
 
 #include "ScriptComponent.hpp"
+#include "Gameplay/GameInput.hpp"
 #include "Gameplay/World/Actor/ActorHandle.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponentHandle.hpp"
 #include "ScriptGlue/ScriptGlueContent.hpp"
@@ -91,6 +92,7 @@ void Arg::Script::ScriptEngine::Load()
 
 	ScriptExport_Resources(*this);
 
+	ScriptExport_Gameplay_Core(*this);
 	ScriptExport_World(*this);
 	ScriptExport_Actor(*this);
 	ScriptExport_ActorComponents_Graphics(*this);
@@ -113,7 +115,6 @@ void Arg::Script::ScriptEngine::Load()
 			DefineField(componentName, fieldName, value);
 		};
 
-
 	m_pLuaState->new_usertype<ScriptComponentHandle>(
 		"ScriptComponent",
 		"_OnCreate", [](ScriptComponentHandle&)
@@ -122,9 +123,14 @@ void Arg::Script::ScriptEngine::Load()
 		"_BeginPlay", [](ScriptComponentHandle&)
 		{
 		},
-		"_Tick", [](ScriptComponentHandle&, float)
-		{
-		},
+		"_Tick", sol::overload(
+			[](ScriptComponentHandle&, Gameplay::GameTime)
+			{
+			},
+			[](ScriptComponentHandle&, Gameplay::GameTime, Gameplay::GameInput)
+			{
+			}
+		),
 		"_OnDrawDebug", [](ScriptComponentHandle&, Renderer::RenderContext& context)
 		{
 		},
@@ -139,8 +145,7 @@ void Arg::Script::ScriptEngine::Load()
 			return {actor->GetWorld(), actor->GetID()};
 		},
 		"World",
-		[](ScriptComponentHandle& self) -> Gameplay::GameWorld&
-		{
+		[](ScriptComponentHandle& self) -> Gameplay::GameWorld& {
 			const ScriptComponent& component = self.Get();
 			const Gameplay::Actor* actor = component.GetOwner();
 			return *actor->GetWorld();

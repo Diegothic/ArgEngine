@@ -13,6 +13,8 @@
 
 namespace Arg
 {
+	class Window;
+
 	using WorldHandle = Content::ResourceHandle<Content::WorldResource>;
 
 	struct EngineConfig : public Content::YamlSerializable
@@ -38,6 +40,7 @@ namespace Arg
 		~GameEngine() = default;
 
 		void Initialize(
+			Window* pWindow,
 			const std::filesystem::path& rootDirectory,
 			const std::shared_ptr<Content::ResourceCache>& pResourceCache
 		);
@@ -47,7 +50,6 @@ namespace Arg
 		void LoadScripts();
 
 		auto GetGameTime() const -> const Gameplay::GameTime& { return m_GameTime; }
-
 		auto GetSoundEngine() const -> Sound::SoundEngine& { return *m_pSoundEngine; }
 
 		void LoadWorld(const std::string& worldName);
@@ -61,7 +63,7 @@ namespace Arg
 		void Stop();
 		auto IsPlaying() const -> bool { return m_bIsPlaying; }
 
-		void Update(const float& deltaTime);
+		void Update(const float& deltaTime, bool bIsFocused = true);
 		void RenderGame(Renderer::RenderContext& context) const;
 		void RenderEditor(Renderer::RenderContext& context) const;
 		void RenderDebug(Renderer::RenderContext& context) const;
@@ -72,7 +74,10 @@ namespace Arg
 		void LoadWorld(const WorldHandle& worldHandle);
 
 	private:
+		Window* m_pWindow = nullptr;
+
 		Gameplay::GameTime m_GameTime;
+		Gameplay::GameInput m_GameInput;
 		bool m_bIsPlaying = false;
 		bool m_bPlayRequested = false;
 

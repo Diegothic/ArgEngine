@@ -29,9 +29,9 @@ void Arg::Gameplay::SoundPlayerComponent::VBeginPlay()
 	}
 }
 
-void Arg::Gameplay::SoundPlayerComponent::VTick(const GameTime& gameTime)
+void Arg::Gameplay::SoundPlayerComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
-	ActorComponent::VTick(gameTime);
+	ActorComponent::VTick(gameTime, gameInput);
 
 	if (m_bIs3D && m_SoundHandle.IsValid())
 	{

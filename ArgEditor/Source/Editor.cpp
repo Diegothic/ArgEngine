@@ -254,7 +254,7 @@ void Arg::Editor::Editor::Update(const float deltaTime)
 
 	// Update Game Engine systems
 	{
-		m_pGameEngine->Update(deltaTime);
+		m_pGameEngine->Update(deltaTime, m_bIsGameFocused);
 	}
 
 	// Clear frame garbage
@@ -416,6 +416,7 @@ void Arg::Editor::Editor::OpenProject(const std::filesystem::path& projectFile)
 	m_pWindow->SetTitle(std::format("ArgEngine - {}", m_pProject->GetName()));
 
 	m_pGameEngine->Initialize(
+		m_pWindow.get(),
 		projectFile.parent_path(),
 		m_pProject->GetResourceCache()
 	);
