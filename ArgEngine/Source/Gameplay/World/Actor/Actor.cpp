@@ -80,6 +80,7 @@ auto Arg::Gameplay::Actor::RemoveComponent(const GUID& componentID) -> bool
 void Arg::Gameplay::Actor::SetParentActor(Actor* actor)
 {
 	m_pParentActor = actor;
+	RefreshTransform(m_pParentActor->GetTransform());
 }
 
 void Arg::Gameplay::Actor::AddChildActor(Actor* actor)
@@ -120,7 +121,7 @@ void Arg::Gameplay::Actor::UpdateTransform(const Mat4& parentTransform)
 
 void Arg::Gameplay::Actor::ReparentTransform(const Actor& newParentActor)
 {
-	const Mat4 newParentTransform = newParentActor.m_GlobalTransform;
+	const Mat4 newParentTransform = newParentActor.GetTransform();
 	Vec3 position;
 	Quat rotation;
 	Vec3 scale;
@@ -129,30 +130,36 @@ void Arg::Gameplay::Actor::ReparentTransform(const Actor& newParentActor)
 	SetLocalPosition(position);
 	SetLocalRotation(rotation);
 	SetLocalScale(scale);
+
+	RefreshTransform(newParentActor.GetTransform());
 }
 
 void Arg::Gameplay::Actor::SetLocalPosition(const Vec3& position)
 {
 	m_bRefreshTransform = true;
 	m_Transform.SetPosition(position);
+	RefreshTransform(GetParentActor()->GetTransform());
 }
 
 void Arg::Gameplay::Actor::SetLocalRotation(const Quat& rotation)
 {
 	m_bRefreshTransform = true;
 	m_Transform.SetRotation(rotation);
+	RefreshTransform(GetParentActor()->GetTransform());
 }
 
 void Arg::Gameplay::Actor::SetLocalRotationEuler(const Vec3& rotationEuler)
 {
 	m_bRefreshTransform = true;
 	m_Transform.SetRotationEuler(rotationEuler);
+	RefreshTransform(GetParentActor()->GetTransform());
 }
 
 void Arg::Gameplay::Actor::SetLocalScale(const Vec3& scale)
 {
 	m_bRefreshTransform = true;
 	m_Transform.SetScale(scale);
+	RefreshTransform(GetParentActor()->GetTransform());
 }
 
 auto Arg::Gameplay::Actor::GetPosition() const -> Vec3
@@ -173,8 +180,8 @@ void Arg::Gameplay::Actor::SetPosition(const Vec3& position)
 	Quat dRotation;
 	Vec3 dScale;
 	Math::Decompose(m_GlobalTransform, dPosition, dRotation, dScale);
-	m_GlobalTransform = Math::CalculateTransform(position, dRotation, dScale);
-	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
+	const Mat4 newTransform = Math::CalculateTransform(position, dRotation, dScale);
+	localTransform = Math::inverse(parentTransform) * newTransform;
 	Math::Decompose(localTransform, dPosition, dRotation, dScale);
 	SetLocalPosition(dPosition);
 }
@@ -197,8 +204,8 @@ void Arg::Gameplay::Actor::SetRotation(const Quat& rotation)
 	Quat dRotation;
 	Vec3 dScale;
 	Math::Decompose(m_GlobalTransform, dPosition, dRotation, dScale);
-	m_GlobalTransform = Math::CalculateTransform(dPosition, rotation, dScale);
-	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
+	const Mat4 newTransform = Math::CalculateTransform(dPosition, rotation, dScale);
+	localTransform = Math::inverse(parentTransform) * newTransform;
 	Math::Decompose(localTransform, dPosition, dRotation, dScale);
 	SetLocalRotation(dRotation);
 }
@@ -236,8 +243,8 @@ void Arg::Gameplay::Actor::SetScale(const Vec3& scale)
 	Quat dRotation;
 	Vec3 dScale;
 	Math::Decompose(m_GlobalTransform, dPosition, dRotation, dScale);
-	m_GlobalTransform = Math::CalculateTransform(dPosition, dRotation, scale);
-	localTransform = Math::inverse(parentTransform) * m_GlobalTransform;
+	const Mat4 newTransform = Math::CalculateTransform(dPosition, dRotation, scale);
+	localTransform = Math::inverse(parentTransform) * newTransform;
 	Math::Decompose(localTransform, dPosition, dRotation, dScale);
 	SetLocalScale(dScale);
 }
@@ -273,7 +280,15 @@ void Arg::Gameplay::Actor::BeginPlay()
 	}
 }
 
-void Arg::Gameplay::Actor::Tick(const GameTime& gameTime, const Arg::Gameplay::GameInput& gameInput)
+void Arg::Gameplay::Actor::EndPlay()
+{
+	for (const auto& component : m_Components)
+	{
+		component->VEndPlay();
+	}
+}
+
+void Arg::Gameplay::Actor::Tick(const GameTime& gameTime, const GameInput& gameInput)
 {
 	if (m_bIsDestroyed)
 	{

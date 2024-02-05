@@ -3,6 +3,14 @@
 
 #include "Debug/Assert.hpp"
 #include "GameEngine.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
+#include "Actor/Actor.hpp"
 
 Arg::GameEngine* Arg::Gameplay::GameWorld::s_pEngine = nullptr;
 
@@ -240,6 +248,160 @@ void Arg::Gameplay::GameWorld::SetGravity(const Vec3& gravity)
 	}
 }
 
+auto Arg::Gameplay::GameWorld::PhysicsRaycast(
+	const Vec3& source,
+	const Vec3& direction,
+	float distance
+) -> RaycastResult
+{
+	const Physics::PhysicsRaycastResult result = m_pPhysicsWorld->Raycast(source, direction, distance);
+	if (!result.bHasHit)
+	{
+		return {
+			result.bHasHit,
+			ActorHandle(this, GUID::Empty),
+			Math::VEC3_ZERO,
+			Math::VEC3_ZERO
+		};
+	}
+
+	return {
+		result.bHasHit,
+		ActorHandle(
+			this,
+			m_pPhysicsWorld->GetPhysicsBody(result.HitUserIndex)->GetActorID()
+		),
+		result.HitPoint,
+		result.HitNormal
+	};
+}
+
+auto Arg::Gameplay::GameWorld::PhysicsRaycast(
+	const Vec3& source,
+	const Vec3& direction,
+	float distance,
+	const std::vector<ActorHandle>& ignoreActors
+) -> RaycastResult
+{
+	std::vector<GUID> ignoreIDs;
+	ignoreIDs.reserve(ignoreActors.size());
+	for (const ActorHandle& actorHandle : ignoreActors)
+	{
+		ignoreIDs.push_back(actorHandle.GetActorID());
+	}
+
+	const Physics::PhysicsRaycastResult result = m_pPhysicsWorld->Raycast(source, direction, distance, ignoreIDs);
+	if (!result.bHasHit)
+	{
+		return {
+			result.bHasHit,
+			ActorHandle(this, GUID::Empty),
+			Math::VEC3_ZERO,
+			Math::VEC3_ZERO
+		};
+	}
+
+	return {
+		result.bHasHit,
+		ActorHandle(
+			this,
+			m_pPhysicsWorld->GetPhysicsBody(result.HitUserIndex)->GetActorID()
+		),
+		result.HitPoint,
+		result.HitNormal
+	};
+}
+
+auto Arg::Gameplay::GameWorld::PhysicsRaycastAll(
+	const Vec3& source,
+	const Vec3& direction,
+	float distance
+) -> std::vector<RaycastResult>
+{
+	const std::vector<Physics::PhysicsRaycastResult> results = m_pPhysicsWorld->RaycastAll(
+		source,
+		direction,
+		distance
+	);
+
+	std::vector<RaycastResult> result;
+	result.reserve(results.size());
+
+	for (const Physics::PhysicsRaycastResult& physicsResult : results)
+	{
+		result.push_back({
+			physicsResult.bHasHit,
+			ActorHandle(
+				this,
+				m_pPhysicsWorld->GetPhysicsBody(physicsResult.HitUserIndex)->GetActorID()
+			),
+			physicsResult.HitPoint,
+			physicsResult.HitNormal
+		});
+	}
+
+	return result;
+}
+
+auto Arg::Gameplay::GameWorld::PhysicsRaycastAll(
+	const Vec3& source,
+	const Vec3& direction,
+	float distance,
+	const std::vector<ActorHandle>& ignoreActors
+) -> std::vector<RaycastResult>
+{
+	std::vector<GUID> ignoreIDs;
+	ignoreIDs.reserve(ignoreActors.size());
+	for (const ActorHandle& actorHandle : ignoreActors)
+	{
+		ignoreIDs.push_back(actorHandle.GetActorID());
+	}
+
+	const std::vector<Physics::PhysicsRaycastResult> results = m_pPhysicsWorld->RaycastAll(
+		source,
+		direction,
+		distance,
+		ignoreIDs
+	);
+
+	std::vector<RaycastResult> result;
+	result.reserve(results.size());
+
+	for (const Physics::PhysicsRaycastResult& physicsResult : results)
+	{
+		result.push_back({
+			physicsResult.bHasHit,
+			ActorHandle(
+				this,
+				m_pPhysicsWorld->GetPhysicsBody(physicsResult.HitUserIndex)->GetActorID()
+			),
+			physicsResult.HitPoint,
+			physicsResult.HitNormal
+		});
+	}
+
+	return result;
+}
+
+auto Arg::Gameplay::GameWorld::PhysicsCheckSphere(
+	const Vec3& point,
+	float radius
+) -> std::vector<ActorHandle>
+{
+	const std::vector<int32_t> results = m_pPhysicsWorld->CheckSphere(point, radius);
+
+	std::vector<ActorHandle> result;
+	result.reserve(results.size());
+	for (const int32_t& userIndex : results)
+	{
+		const Physics::PhysicsBody* pPhysicsBody = m_pPhysicsWorld->GetPhysicsBody(userIndex);
+		const GUID& actorID = pPhysicsBody->GetActorID();
+		result.push_back({this, actorID});
+	}
+
+	return result;
+}
+
 auto Arg::Gameplay::GameWorld::GetSound() const -> Sound::SoundEngine&
 {
 	return s_pEngine->GetSoundEngine();
@@ -259,6 +421,11 @@ void Arg::Gameplay::GameWorld::BeginPlay()
 
 void Arg::Gameplay::GameWorld::EndPlay()
 {
+	for (const auto& actor : m_Actors)
+	{
+		actor->EndPlay();
+	}
+
 	if (m_pPhysicsWorld != nullptr)
 	{
 		m_pPhysicsWorld->CleanUp();
@@ -266,7 +433,7 @@ void Arg::Gameplay::GameWorld::EndPlay()
 	}
 }
 
-void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime, const Arg::Gameplay::GameInput& gameInput)
+void Arg::Gameplay::GameWorld::Tick(const GameTime& gameTime, const GameInput& gameInput)
 {
 	m_pPhysicsWorld->Tick(gameTime.GetDeltaTime());
 

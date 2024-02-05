@@ -4,6 +4,7 @@
 
 #include "Content/Serialization/YamlSerializable.hpp"
 #include "Actor/Actor.hpp"
+#include "Actor/ActorHandle.hpp"
 #include "Actor/Component/ActorComponentHandle.hpp"
 #include "Actor/Component/Components/Graphics/CameraComponent.hpp"
 #include "Gameplay/GameContext.hpp"
@@ -65,6 +66,39 @@ namespace Arg
 		public:
 			auto GetGravity() const -> const Vec3&;
 			void SetGravity(const Vec3& gravity);
+
+			struct RaycastResult
+			{
+				bool bHasHit;
+				ActorHandle HitActor;
+				Vec3 HitPoint;
+				Vec3 HitNormal;
+			};
+
+			auto PhysicsRaycast(
+				const Vec3& source,
+				const Vec3& direction,
+				float distance
+			) -> RaycastResult;
+			auto PhysicsRaycast(
+				const Vec3& source,
+				const Vec3& direction,
+				float distance,
+				const std::vector<ActorHandle>& ignoreActors
+			) -> RaycastResult;
+			auto PhysicsRaycastAll(
+				const Vec3& source,
+				const Vec3& direction,
+				float distance
+			) -> std::vector<RaycastResult>;
+			auto PhysicsRaycastAll(
+				const Vec3& source,
+				const Vec3& direction,
+				float distance,
+				const std::vector<ActorHandle>& ignoreActors
+			) -> std::vector<RaycastResult>;
+
+			auto PhysicsCheckSphere(const Vec3& point, float radius) -> std::vector<ActorHandle>;
 
 		public:
 			auto GetMainCamera() const -> const ActorComponentHandle<CameraComponent>&

@@ -3,6 +3,7 @@
 #include <arg_pch.hpp>
 
 #include "GUI/EditorGUIPanel.hpp"
+#include "Gameplay/World/Actor/Component/Components/Graphics/CameraComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/PointLightComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/SkeletalModelComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/SpotLightComponent.hpp"

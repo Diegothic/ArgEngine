@@ -2,12 +2,15 @@
 
 #include <arg_pch.hpp>
 
-#include "Gameplay/World/GameWorld.hpp"
+#include <Core/GUID.hpp>
 
 namespace Arg
 {
 	namespace Gameplay
 	{
+		class GameWorld;
+		class Actor;
+
 		class ActorHandle
 		{
 		public:

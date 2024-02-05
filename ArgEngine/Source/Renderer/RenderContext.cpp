@@ -207,6 +207,22 @@ void Arg::Renderer::RenderContext::DrawDebugCamera(
 	m_DebugCameras.push_back({transform, color});
 }
 
+void Arg::Renderer::RenderContext::DrawDebugCustomMesh(
+	const std::shared_ptr<StaticModel>& model,
+	const Vec3& position,
+	const Vec3& rotation,
+	const Vec3& scale,
+	const Vec3& color
+)
+{
+	const Mat4 transform = Math::CalculateTransform(position, rotation, scale);
+	StaticMesh* pMesh = model->GetMesh(0).get();
+	m_DebugCustomMeshes.push_back({
+		pMesh,
+		{transform, color}
+	});
+}
+
 void Arg::Renderer::RenderContext::Render(
 	Renderer& renderer,
 	RenderTarget* renderTarget
@@ -514,6 +530,17 @@ void Arg::Renderer::RenderContext::Render(
 			debugShader->SetUniform("u_Color", transformColor.Color);
 
 			pCameraMesh->Draw();
+		}
+
+		for (const auto& customMesh : m_DebugCustomMeshes)
+		{
+			const StaticMesh* pMesh = customMesh.pMesh;
+			const TransformColor& transformColor = customMesh.Spec;
+
+			debugShader->SetUniform("u_Model", transformColor.Transform);
+			debugShader->SetUniform("u_Color", transformColor.Color);
+
+			pMesh->Draw();
 		}
 
 		renderer.EndDebug();

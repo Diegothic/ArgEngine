@@ -2,6 +2,8 @@
 
 #include <arg_pch.hpp>
 
+#include "Core/Event/Event.hpp"
+#include "Gameplay/World/Actor/ActorHandle.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponent.hpp"
 #include "Physics/PhysicsBody.hpp"
 
@@ -9,6 +11,13 @@ namespace Arg
 {
 	namespace Gameplay
 	{
+		struct CollisionData
+		{
+			ActorHandle OtherActor;
+			Vec3 HitPoint;
+			Vec3 HitNormal;
+		};
+
 		class PhysicsBodyComponent : public ActorComponent
 		{
 		public:
@@ -24,6 +33,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VBeginPlay() override;
+			void VEndPlay() override;
 			void VTick(const GameTime& gameTime, const GameInput& gameInput) override;
 			void VDrawDebug(Renderer::RenderContext& context) override;
 
@@ -31,8 +41,24 @@ namespace Arg
 			void VOnComponentRemoved() override;
 
 		public:
+			Event<void(CollisionData)> Ev_OnCollision;
+
+		public:
+			void Wake() const;
+
+			auto GetVelocity() const -> const Vec3&;
+			void SetVelocity(const Vec3& velocity);
+
+		public:
+			auto GetGeneratesOnCollisionEvents() const -> bool;
+			void SetGeneratesOnCollisionEvents(bool bGenerates);
+
+		public:
 			auto GetPhysicsShape() const -> Physics::PhysicsBodyShape;
 			void SetPhysicsShape(Physics::PhysicsBodyShape shape);
+
+			auto GetPhysicsShapeMesh() const -> const StaticModelHandle&;
+			void SetPhysicsShapeMesh(const StaticModelHandle& staticModel);
 
 			auto GetSize() const -> const Vec3&;
 			void SetSize(const Vec3& size);
@@ -70,17 +96,16 @@ namespace Arg
 			auto GetRotationLockZ() const -> bool;
 			void SetRotationLockZ(bool bLockRotation);
 
-			void Wake() const;
-
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;
 
 		private:
-			void RefreshPhysics() const;
+			void RefreshPhysics();
 
 		private:
-			Physics::PhysicsBody m_PhysicsBody;
+			std::unique_ptr<Physics::PhysicsBody> m_pPhysicsBody = nullptr;
+			bool m_bRefresh = false;
 		};
 	}
 }

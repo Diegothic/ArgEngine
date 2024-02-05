@@ -299,6 +299,14 @@ void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 {
 	auto& scriptState = scriptEngine.GetState();
 
+	scriptState.new_usertype<Gameplay::GameWorld::RaycastResult>(
+		"RaycastResult",
+		"HasHit", &Gameplay::GameWorld::RaycastResult::bHasHit,
+		"HitActor", &Gameplay::GameWorld::RaycastResult::HitActor,
+		"HitPoint", &Gameplay::GameWorld::RaycastResult::HitPoint,
+		"HitNormal", &Gameplay::GameWorld::RaycastResult::HitNormal
+	);
+
 	scriptState.new_usertype<Gameplay::GameWorld>(
 		"World",
 		"SunlightColor",
@@ -394,6 +402,75 @@ void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 		[](Gameplay::GameWorld& self, const CameraComponentHandle& camera)
 		{
 			self.SetMainCamera(camera);
+		},
+		"Raycast",
+		sol::overload(
+			[](
+			Gameplay::GameWorld& self,
+			const Vec3& source,
+			const Vec3& direction,
+			float distance
+		) -> Gameplay::GameWorld::RaycastResult
+			{
+				return self.PhysicsRaycast(source, direction, distance);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const Vec3& source,
+			const Vec3& direction,
+			float distance,
+			const sol::table& ignoreActorsTable
+		)-> Gameplay::GameWorld::RaycastResult
+			{
+				std::vector<Gameplay::ActorHandle> ignoreActors;
+				for (auto& pair : ignoreActorsTable)
+				{
+					if (pair.second.is<Gameplay::ActorHandle>())
+					{
+						ignoreActors.push_back(pair.second.as<Gameplay::ActorHandle>());
+					}
+				}
+				return self.PhysicsRaycast(source, direction, distance, ignoreActors);
+			}
+		),
+		"RaycastAll",
+		sol::overload(
+			[](
+			Gameplay::GameWorld& self,
+			const Vec3& source,
+			const Vec3& direction,
+			float distance
+		)-> std::vector<Gameplay::GameWorld::RaycastResult>
+			{
+				return self.PhysicsRaycastAll(source, direction, distance);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const Vec3& source,
+			const Vec3& direction,
+			float distance,
+			const sol::table& ignoreActorsTable
+		)-> std::vector<Gameplay::GameWorld::RaycastResult>
+			{
+				std::vector<Gameplay::ActorHandle> ignoreActors;
+				for (auto& pair : ignoreActorsTable)
+				{
+					if (pair.second.is<Gameplay::ActorHandle>())
+					{
+						ignoreActors.push_back(pair.second.as<Gameplay::ActorHandle>());
+					}
+				}
+				return self.PhysicsRaycastAll(source, direction, distance, ignoreActors);
+			}
+		),
+		"CheckSphere",
+		[](
+		Gameplay::GameWorld& self,
+		const Vec3& point,
+		float radius
+	)-> std::vector<Gameplay::ActorHandle>
+		{
+			return self.PhysicsCheckSphere(point, radius);
 		}
 	);
 }
@@ -1087,6 +1164,13 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 		}
 	);
 
+	scriptState.new_usertype<Gameplay::CollisionData>(
+		"CollisionData",
+		"OtherActor", &Gameplay::CollisionData::OtherActor,
+		"HitPoint", &Gameplay::CollisionData::HitPoint,
+		"HitNormal", &Gameplay::CollisionData::HitNormal
+	);
+
 	scriptState.new_usertype<PhysicsBodyComponentHandle>(
 		"PhysicsBodyComponent",
 		sol::meta_function::equal_to, sol::overload([](
@@ -1275,6 +1359,37 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			component.Wake();
+		},
+		"Velocity",
+		[](PhysicsBodyComponentHandle& self) -> Vec3
+		{
+			Gameplay::PhysicsBodyComponent& component = self.Get();
+			return component.GetVelocity();
+		},
+		"SetVelocity",
+		[](PhysicsBodyComponentHandle& self, const Vec3& velocity)
+		{
+			Gameplay::PhysicsBodyComponent& component = self.Get();
+			return component.SetVelocity(velocity);
+		},
+		"AddOnCollisionListener",
+		[](PhysicsBodyComponentHandle& self, const sol::function& listener,
+		   const sol::object& obj) -> EventListenerHandle
+		{
+			Gameplay::PhysicsBodyComponent& component = self.Get();
+			return component.Ev_OnCollision.AddListener([listener, obj](Gameplay::CollisionData collisionData)
+			{
+				if (listener.valid() && obj.valid())
+				{
+					listener(obj, collisionData);
+				}
+			});
+		},
+		"RemoveOnCollisionListener",
+		[](PhysicsBodyComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::PhysicsBodyComponent& component = self.Get();
+			component.Ev_OnCollision.RemoveListener(handle);
 		}
 	);
 }

@@ -158,6 +158,13 @@ void Arg::Editor::Editor::Initialize()
 
 void Arg::Editor::Editor::CleanUp()
 {
+	if (m_pGameEngine->IsWorldLoaded() && m_pGameEngine->IsPlaying())
+	{
+		DeselectActor();
+		DeselectResource();
+		m_pGameEngine->Stop();
+	}
+
 	m_pGUI->CleanUp();
 }
 

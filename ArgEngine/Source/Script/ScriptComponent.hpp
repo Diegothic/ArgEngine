@@ -9,6 +9,7 @@
 #include "Content/Resource/GameResources/SkeletalModelResource.hpp"
 #include "Content/Resource/GameResources/SkeletonResource.hpp"
 #include "Content/Resource/GameResources/StaticModelResource.hpp"
+#include "Content/Resource/GameResources/SoundResource.hpp"
 #include "Gameplay/World/Actor/ActorHandle.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponent.hpp"
 

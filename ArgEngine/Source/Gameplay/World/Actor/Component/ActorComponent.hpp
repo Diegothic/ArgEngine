@@ -34,6 +34,10 @@ namespace Arg
 			{
 			}
 
+			virtual void VEndPlay()
+			{
+			}
+
 			virtual void VTick(const GameTime& gameTime, const GameInput& gameInput)
 			{
 			}

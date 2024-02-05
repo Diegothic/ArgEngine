@@ -1070,6 +1070,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 		| ImGuiTableFlags_SizingFixedFit
 	))
 	{
+		if (pComponent->GetPhysicsShape() != Physics::PhysicsBodyShape::Mesh)
 		{
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
@@ -1252,16 +1253,35 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 			ImGui::TableNextColumn();
 			ImGui::Dummy(ImVec2(100.0f, 0.0f));
 
+			ImGui::Text("Generate");
+			ImGui::Text("OnCollision");
+			ImGui::Text("Events");
+
+			ImGui::TableNextColumn();
+
+			bool bGenerate = pComponent->GetGeneratesOnCollisionEvents();
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			ImGui::Checkbox("##OnHitEvents", &bGenerate);
+			if (bGenerate != pComponent->GetGeneratesOnCollisionEvents())
+			{
+				pComponent->SetGeneratesOnCollisionEvents(bGenerate);
+			}
+		}
+
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
 			ImGui::Text("Shape");
 
 			ImGui::TableNextColumn();
 
-			const char* shapeTypes[] = {"Box", "Sphere", "Capsule"};
+			const char* shapeTypes[] = {"Box", "Sphere", "Capsule", "Mesh"};
 			int32_t currentType = static_cast<int32_t>(pComponent->GetPhysicsShape());
 			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
 			if (ImGui::BeginCombo("##Shape", shapeTypes[currentType]))
 			{
-				for (int32_t i = 0; i < 3; i++)
+				for (int32_t i = 0; i < 4; i++)
 				{
 					const bool bIsSelected = currentType == i;
 					if (ImGui::Selectable(shapeTypes[i], bIsSelected))
@@ -1355,6 +1375,62 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 							pComponent->SetSize(newSize);
 						}
 					}
+					break;
+				}
+			case 3:
+				{
+					{
+						ImGui::TableNextColumn();
+						ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+						ImGui::Text("Mesh");
+
+						ImGui::TableNextColumn();
+
+						const auto staticModel = pComponent->GetPhysicsShapeMesh();
+						ResourceHandleProperty(
+							"##StaticModelHandle",
+							Vec2(ImGui::GetWindowWidth() - 165.0f, 25.0f),
+							staticModel.IsValid() ? staticModel.Get()->GetName().c_str() : nullptr,
+							[&](GUID droppedResourceID)
+							{
+								const auto& resource = pResourceCache->GetResource(droppedResourceID);
+								if (resource->GetType() == Content::ResourceType::ResourceTypeStaticModel)
+								{
+									pComponent->SetPhysicsShapeMesh(
+										pResourceCache->CreateHandle<Content::StaticModelResource>(
+											droppedResourceID
+										));
+								}
+							},
+							[&]
+							{
+								pComponent->SetPhysicsShapeMesh(
+									pResourceCache->CreateHandle<Content::StaticModelResource>(
+										GUID::Empty
+									));
+							}
+						);
+					}
+
+					{
+						ImGui::TableNextColumn();
+						ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+						ImGui::Text("Size");
+
+						ImGui::TableNextColumn();
+
+						Vec3 size = pComponent->GetSize();
+						ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+						ImGui::InputFloat3("##Size", Math::ValuePtr(size));
+						if (size != pComponent->GetSize())
+						{
+							pComponent->SetSize(size);
+						}
+						break;
+					}
+
 					break;
 				}
 			}
@@ -1841,7 +1917,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawScriptComponentProperty(
 {
 	ImGui::TableNextColumn();
 	ImGui::Dummy(ImVec2(100.0f, 0.0f));
-	
+
 	ImGui::TextWrapped(propertyName.c_str());
 
 	ImGui::TableNextColumn();

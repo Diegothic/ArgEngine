@@ -78,6 +78,7 @@ namespace Arg
 			auto GetUpVec() const -> Vec3;
 
 			void BeginPlay();
+			void EndPlay();
 			void Tick(const GameTime& gameTime, const GameInput& gameInput);
 			void Render(Renderer::RenderContext& context);
 			void DrawDebug(Renderer::RenderContext& context);

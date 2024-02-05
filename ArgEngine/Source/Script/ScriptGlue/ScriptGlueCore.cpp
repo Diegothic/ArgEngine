@@ -1,6 +1,10 @@
 ﻿#include <arg_pch.hpp>
 #include "ScriptGlueCore.hpp"
 
+#include "Core/GUID.hpp"
+#include "Core/Math/Math.hpp"
+#include "Core/Event/Event.hpp"
+
 void Arg::Script::ScriptExport_Core(const ScriptEngine& scriptEngine)
 {
 	auto& scriptState = scriptEngine.GetState();
@@ -11,6 +15,10 @@ void Arg::Script::ScriptExport_Core(const ScriptEngine& scriptEngine)
 		{
 			return std::to_string(static_cast<uint64_t>(guid));
 		}
+	);
+
+	scriptState.new_usertype<EventListenerHandle>(
+		"EventListenerHandle"
 	);
 }
 

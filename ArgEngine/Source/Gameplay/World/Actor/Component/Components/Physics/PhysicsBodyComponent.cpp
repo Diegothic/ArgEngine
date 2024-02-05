@@ -23,12 +23,47 @@ auto Arg::Gameplay::PhysicsBodyComponent::VCreateDefault() -> std::shared_ptr<Ac
 void Arg::Gameplay::PhysicsBodyComponent::VBeginPlay()
 {
 	ActorComponent::VBeginPlay();
+
+	Ev_OnCollision.Clear();
 	RefreshPhysics();
+}
+
+void Arg::Gameplay::PhysicsBodyComponent::VEndPlay()
+{
+	ActorComponent::VEndPlay();
+
+	Ev_OnCollision.Clear();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
 	ActorComponent::VTick(gameTime, gameInput);
+
+	GameWorld* pWorld = GetOwner()->GetWorld();
+	const Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
+
+	if (m_pPhysicsBody->GetFlag(Physics::PhysicsBodyFlag::HasCollided))
+	{
+		m_pPhysicsBody->SetFlag(Physics::PhysicsBodyFlag::HasCollided, false);
+
+		for (size_t i = 0; i < m_pPhysicsBody->GetCollisionHitCount(); i++)
+		{
+			const Physics::PhysicsCollisionData& collisionData = m_pPhysicsBody->GetCollisionHit(i);
+			const Physics::PhysicsBody* pOtherPhysicsBody = pPhysicsWorld->GetPhysicsBody(collisionData.OtherUserIndex);
+			const CollisionData eventData{
+				.OtherActor = ActorHandle(pWorld, pOtherPhysicsBody->GetActorID()),
+				.HitPoint = collisionData.HitPoint,
+				.HitNormal = collisionData.HitNormal
+			};
+
+			Ev_OnCollision.Invoke(eventData);
+		}
+	}
+
+	if (m_bRefresh)
+	{
+		RefreshPhysics();
+	}
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& context)
@@ -38,13 +73,15 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 	const Vec3& ownerPosition = GetOwner()->GetPosition();
 	const Vec3& ownerRotation = GetOwner()->GetRotationEuler();
 
-	switch (m_PhysicsBody.Shape)
+	const Vec3& size = m_pPhysicsBody->GetSize();
+
+	switch (m_pPhysicsBody->GetShape())
 	{
 	case Physics::PhysicsBodyShape::Box:
 		context.DrawDebugBox(
 			ownerPosition,
 			ownerRotation,
-			m_PhysicsBody.Size,
+			size,
 			Renderer::DEBUG_COLOR_PHYSICS
 		);
 		break;
@@ -52,7 +89,7 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 		context.DrawDebugSphere(
 			ownerPosition,
 			ownerRotation,
-			m_PhysicsBody.Size.x,
+			size.x,
 			Renderer::DEBUG_COLOR_PHYSICS
 		);
 		break;
@@ -60,10 +97,22 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 		context.DrawDebugCapsule(
 			ownerPosition,
 			ownerRotation,
-			m_PhysicsBody.Size.x,
-			m_PhysicsBody.Size.z,
+			size.x,
+			size.z,
 			Renderer::DEBUG_COLOR_PHYSICS
 		);
+		break;
+	case Physics::PhysicsBodyShape::Mesh:
+		if (m_pPhysicsBody->GetShapeMesh().IsValid())
+		{
+			context.DrawDebugCustomMesh(
+				m_pPhysicsBody->GetShapeMesh().Get()->GetStaticModel(),
+				ownerPosition,
+				ownerRotation,
+				m_pPhysicsBody->GetSize(),
+				Renderer::DEBUG_COLOR_PHYSICS
+			);
+		}
 		break;
 	}
 
@@ -74,173 +123,240 @@ void Arg::Gameplay::PhysicsBodyComponent::VDrawDebug(Renderer::RenderContext& co
 
 void Arg::Gameplay::PhysicsBodyComponent::VOnComponentAdded()
 {
-	m_PhysicsBody.ID = GetOwner()->GetID();
+	if (m_pPhysicsBody == nullptr)
+	{
+		m_pPhysicsBody = std::make_unique<Physics::PhysicsBody>(GetOwner()->GetID());
+	}
+
+	if (m_pPhysicsBody->GetShapeMesh().IsValid())
+	{
+		m_pPhysicsBody->GetShapeMesh().Get()->AddRef();
+	}
+
 	RefreshPhysics();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::VOnComponentRemoved()
 {
+	if (m_pPhysicsBody->GetShapeMesh().IsValid())
+	{
+		m_pPhysicsBody->GetShapeMesh().Get()->FreeRef();
+	}
+
 	const GameWorld* pWorld = GetOwner()->GetWorld();
 	Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
-
-	if (pPhysicsWorld != nullptr && pPhysicsWorld->HasPhysicsBody(m_PhysicsBody.ID))
+	if (pPhysicsWorld != nullptr
+		&& pPhysicsWorld->HasPhysicsBody(m_pPhysicsBody.get()))
 	{
-		pPhysicsWorld->RemovePhysicsBody(m_PhysicsBody.ID);
+		pPhysicsWorld->RemovePhysicsBody(m_pPhysicsBody.get());
 	}
+}
+
+auto Arg::Gameplay::PhysicsBodyComponent::GetGeneratesOnCollisionEvents() const -> bool
+{
+	return m_pPhysicsBody->GetGenerateOnCollisionEvents();
+}
+
+void Arg::Gameplay::PhysicsBodyComponent::SetGeneratesOnCollisionEvents(bool bGenerates)
+{
+	m_pPhysicsBody->SetGenerateOnCollisionEvents(bGenerates);
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetPhysicsShape() const -> Physics::PhysicsBodyShape
 {
-	return m_PhysicsBody.Shape;
+	return m_pPhysicsBody->GetShape();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetPhysicsShape(Physics::PhysicsBodyShape shape)
 {
-	m_PhysicsBody.Shape = shape;
-	RefreshPhysics();
+	m_pPhysicsBody->SetShape(shape);
+	if (shape != Physics::Mesh)
+	{
+		if (m_pPhysicsBody->GetShapeMesh().IsValid())
+		{
+			m_pPhysicsBody->GetShapeMesh().Get()->FreeRef();
+		}
+
+		m_pPhysicsBody->SetShapeMesh(
+			GetResourceCache()->CreateHandle<Content::StaticModelResource>(GUID::Empty)
+		);
+	}
+	else
+	{
+		SetIsDynamic(false);
+	}
+
+	m_bRefresh = true;
+}
+
+auto Arg::Gameplay::PhysicsBodyComponent::GetPhysicsShapeMesh() const -> const StaticModelHandle&
+{
+	return m_pPhysicsBody->GetShapeMesh();
+}
+
+void Arg::Gameplay::PhysicsBodyComponent::SetPhysicsShapeMesh(const StaticModelHandle& staticModel)
+{
+	if (m_pPhysicsBody->GetShapeMesh().IsValid())
+	{
+		m_pPhysicsBody->GetShapeMesh().Get()->FreeRef();
+	}
+
+	m_pPhysicsBody->SetShapeMesh(staticModel);
+
+	if (m_pPhysicsBody->GetShapeMesh().IsValid())
+	{
+		m_pPhysicsBody->GetShapeMesh().Get()->AddRef();
+	}
+
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetSize() const -> const Vec3&
 {
-	return m_PhysicsBody.Size;
+	return m_pPhysicsBody->GetSize();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetSize(const Vec3& size)
 {
-	m_PhysicsBody.Size = size;
-	RefreshPhysics();
+	m_pPhysicsBody->SetSize(size);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetIsDynamic() const -> bool
 {
-	return m_PhysicsBody.bIsDynamic;
+	return m_pPhysicsBody->GetIsDynamic();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetIsDynamic(bool bIsDynamic)
 {
-	m_PhysicsBody.bIsDynamic = bIsDynamic;
-	RefreshPhysics();
+	m_pPhysicsBody->SetIsDynamic(bIsDynamic);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetMass() const -> float
 {
-	return m_PhysicsBody.Mass;
+	return m_pPhysicsBody->GetMass();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetMass(float mass)
 {
-	m_PhysicsBody.Mass = mass;
-	RefreshPhysics();
+	m_pPhysicsBody->SetMass(mass);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetDamping() const -> float
 {
-	return m_PhysicsBody.Damping;
+	return m_pPhysicsBody->GetDamping();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetDamping(float damping)
 {
-	m_PhysicsBody.Damping = damping;
-	RefreshPhysics();
+	m_pPhysicsBody->SetDamping(damping);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetAngularDamping() const -> float
 {
-	return m_PhysicsBody.AngularDamping;
+	return m_pPhysicsBody->GetAngularDamping();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetAngularDamping(float angularDamping)
 {
-	m_PhysicsBody.AngularDamping = angularDamping;
-	RefreshPhysics();
+	m_pPhysicsBody->SetAngularDamping(angularDamping);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetBounciness() const -> float
 {
-	return m_PhysicsBody.Bounciness;
+	return m_pPhysicsBody->GetBounciness();
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetBounciness(float bounciness)
 {
-	m_PhysicsBody.Bounciness = bounciness;
-	RefreshPhysics();
+	m_pPhysicsBody->SetBounciness(bounciness);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetMovementLockX() const -> bool
 {
-	return m_PhysicsBody.LockMovement[0];
+	return m_pPhysicsBody->GetLockMovement(0);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetMovementLockX(bool bLockMovement)
 {
-	m_PhysicsBody.LockMovement[0] = bLockMovement;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockMovement(0, bLockMovement);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetMovementLockY() const -> bool
 {
-	return m_PhysicsBody.LockMovement[1];
+	return m_pPhysicsBody->GetLockMovement(1);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetMovementLockY(bool bLockMovement)
 {
-	m_PhysicsBody.LockMovement[1] = bLockMovement;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockMovement(1, bLockMovement);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetMovementLockZ() const -> bool
 {
-	return m_PhysicsBody.LockMovement[2];
+	return m_pPhysicsBody->GetLockMovement(2);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetMovementLockZ(bool bLockMovement)
 {
-	m_PhysicsBody.LockMovement[2] = bLockMovement;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockMovement(2, bLockMovement);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetRotationLockX() const -> bool
 {
-	return m_PhysicsBody.LockRotation[0];
+	return m_pPhysicsBody->GetLockRotation(0);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetRotationLockX(bool bLockRotation)
 {
-	m_PhysicsBody.LockRotation[0] = bLockRotation;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockRotation(0, bLockRotation);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetRotationLockY() const -> bool
 {
-	return m_PhysicsBody.LockRotation[1];
+	return m_pPhysicsBody->GetLockRotation(1);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetRotationLockY(bool bLockRotation)
 {
-	m_PhysicsBody.LockRotation[1] = bLockRotation;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockRotation(1, bLockRotation);
+	m_bRefresh = true;
 }
 
 auto Arg::Gameplay::PhysicsBodyComponent::GetRotationLockZ() const -> bool
 {
-	return m_PhysicsBody.LockRotation[2];
+	return m_pPhysicsBody->GetLockRotation(2);
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::SetRotationLockZ(bool bLockRotation)
 {
-	m_PhysicsBody.LockRotation[2] = bLockRotation;
-	RefreshPhysics();
+	m_pPhysicsBody->SetLockRotation(2, bLockRotation);
+	m_bRefresh = true;
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::Wake() const
 {
-	const GameWorld* pWorld = GetOwner()->GetWorld();
-	const Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
+	m_pPhysicsBody->SetFlag(Physics::PhysicsBodyFlag::NeedsWake, true);
+}
 
-	if (pPhysicsWorld != nullptr && pPhysicsWorld->HasPhysicsBody(m_PhysicsBody.ID))
-	{
-		pPhysicsWorld->WakePhysicsBody(m_PhysicsBody.ID);
-	}
+auto Arg::Gameplay::PhysicsBodyComponent::GetVelocity() const -> const Vec3&
+{
+	return m_pPhysicsBody->GetVelocity();
+}
+
+void Arg::Gameplay::PhysicsBodyComponent::SetVelocity(const Vec3& velocity)
+{
+	m_pPhysicsBody->SetVelocity(velocity);
+	m_pPhysicsBody->SetFlag(Physics::PhysicsBodyFlag::VelocityChanged, true);
 }
 
 bool Arg::Gameplay::PhysicsBodyComponent::VOnSerialize(YAML::Node& node) const
@@ -251,25 +367,28 @@ bool Arg::Gameplay::PhysicsBodyComponent::VOnSerialize(YAML::Node& node) const
 		return false;
 	}
 
-	node["IsDynamic"] = m_PhysicsBody.bIsDynamic;
-	node["Mass"] = m_PhysicsBody.Mass;
-	node["Damping"] = m_PhysicsBody.Damping;
-	node["AngularDamping"] = m_PhysicsBody.AngularDamping;
-	node["Bounciness"] = m_PhysicsBody.Bounciness;
+	node["GeneratesCollisionEvents"] = GetGeneratesOnCollisionEvents();
 
-	node["Shape"] = static_cast<int32_t>(m_PhysicsBody.Shape);
-	node["Size"] = m_PhysicsBody.Size;
+	node["IsDynamic"] = GetIsDynamic();
+	node["Mass"] = GetMass();
+	node["Damping"] = GetDamping();
+	node["AngularDamping"] = GetAngularDamping();
+	node["Bounciness"] = GetBounciness();
+
+	node["Shape"] = static_cast<int32_t>(GetPhysicsShape());
+	node["ShapeModelID"] = GetPhysicsShapeMesh().GetID();
+	node["Size"] = GetSize();
 
 	auto lockMovementNode = node["LockMovement"];
-	lockMovementNode["X"] = m_PhysicsBody.LockMovement[0];
-	lockMovementNode["Y"] = m_PhysicsBody.LockMovement[1];
-	lockMovementNode["Z"] = m_PhysicsBody.LockMovement[2];
+	lockMovementNode["X"] = GetMovementLockX();
+	lockMovementNode["Y"] = GetMovementLockY();
+	lockMovementNode["Z"] = GetMovementLockZ();
 	node["LockMovement"] = lockMovementNode;
 
 	auto lockRotationNode = node["LockRotation"];
-	lockRotationNode["X"] = m_PhysicsBody.LockRotation[0];
-	lockRotationNode["Y"] = m_PhysicsBody.LockRotation[1];
-	lockRotationNode["Z"] = m_PhysicsBody.LockRotation[2];
+	lockRotationNode["X"] = GetRotationLockX();
+	lockRotationNode["Y"] = GetRotationLockY();
+	lockRotationNode["Z"] = GetRotationLockZ();
 	node["LockRotation"] = lockRotationNode;
 
 	return true;
@@ -283,46 +402,53 @@ bool Arg::Gameplay::PhysicsBodyComponent::VOnDeserialize(const YAML::Node& node)
 		return false;
 	}
 
-	m_PhysicsBody.bIsDynamic = ValueOr<bool>(node["IsDynamic"], true);
-	m_PhysicsBody.Mass = ValueOr<float>(node["Mass"], 1.0f);
-	m_PhysicsBody.Damping = ValueOr<float>(node["Damping"], 0.005f);
-	m_PhysicsBody.AngularDamping = ValueOr<float>(node["AngularDamping"], 0.005f);
-	m_PhysicsBody.Bounciness = ValueOr<float>(node["Bounciness"], 0.0f);
+	m_pPhysicsBody = std::make_unique<Physics::PhysicsBody>(GetOwner()->GetID());
 
-	m_PhysicsBody.Shape = static_cast<Physics::PhysicsBodyShape>(ValueOr<int32_t>(node["Shape"], 0.0f));
-	m_PhysicsBody.Size = ValueOr<Vec3>(node["Size"], Vec3(1.0f));
+	SetGeneratesOnCollisionEvents(ValueOr<bool>(node["GeneratesCollisionEvents"], false));
+
+	SetIsDynamic(ValueOr<bool>(node["IsDynamic"], true));
+	SetMass(ValueOr<float>(node["Mass"], 1.0f));
+	SetDamping(ValueOr<float>(node["Damping"], 0.005f));
+	SetAngularDamping(ValueOr<float>(node["AngularDamping"], 0.005f));
+	SetBounciness(ValueOr<float>(node["Bounciness"], 0.0f));
+
+	SetPhysicsShape(static_cast<Physics::PhysicsBodyShape>(ValueOr<int32_t>(node["Shape"], 0.0f)));
+	const GUID modelID = ValueOr<GUID>(node["ShapeModelID"], GUID::Empty);
+	SetPhysicsShapeMesh(GetResourceCache()->CreateHandle<Content::StaticModelResource>(modelID));
+	SetSize(ValueOr<Vec3>(node["Size"], Vec3(1.0f)));
 
 	const auto& lockMovementNode = node["LockMovement"];
 	if (lockMovementNode)
 	{
-		m_PhysicsBody.LockMovement[0] = ValueOr<bool>(lockMovementNode["X"], false);
-		m_PhysicsBody.LockMovement[1] = ValueOr<bool>(lockMovementNode["Y"], false);
-		m_PhysicsBody.LockMovement[2] = ValueOr<bool>(lockMovementNode["Z"], false);
+		SetMovementLockX(ValueOr<bool>(lockMovementNode["X"], false));
+		SetMovementLockY(ValueOr<bool>(lockMovementNode["Y"], false));
+		SetMovementLockZ(ValueOr<bool>(lockMovementNode["Z"], false));
 	}
 
 	const auto& lockRotationNode = node["LockRotation"];
 	if (lockRotationNode)
 	{
-		m_PhysicsBody.LockRotation[0] = ValueOr<bool>(lockRotationNode["X"], false);
-		m_PhysicsBody.LockRotation[1] = ValueOr<bool>(lockRotationNode["Y"], false);
-		m_PhysicsBody.LockRotation[2] = ValueOr<bool>(lockRotationNode["Z"], false);
+		SetRotationLockX(ValueOr<bool>(lockRotationNode["X"], false));
+		SetRotationLockY(ValueOr<bool>(lockRotationNode["Y"], false));
+		SetRotationLockZ(ValueOr<bool>(lockRotationNode["Z"], false));
 	}
 
 	return true;
 }
 
-void Arg::Gameplay::PhysicsBodyComponent::RefreshPhysics() const
+void Arg::Gameplay::PhysicsBodyComponent::RefreshPhysics()
 {
+	m_bRefresh = false;
 	const GameWorld* pWorld = GetOwner()->GetWorld();
 	Physics::PhysicsWorld* pPhysicsWorld = pWorld->GetPhysicsWorld();
 
 	if (pPhysicsWorld != nullptr)
 	{
-		if (pPhysicsWorld->HasPhysicsBody(m_PhysicsBody.ID))
+		if (pPhysicsWorld->HasPhysicsBody(m_pPhysicsBody.get()))
 		{
-			pPhysicsWorld->RemovePhysicsBody(m_PhysicsBody.ID);
+			pPhysicsWorld->RemovePhysicsBody(m_pPhysicsBody.get());
 		}
 
-		pPhysicsWorld->AddPhysicsBody(m_PhysicsBody, GetOwner()->GetTransform());
+		pPhysicsWorld->AddPhysicsBody(m_pPhysicsBody.get());
 	}
 }

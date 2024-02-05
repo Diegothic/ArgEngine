@@ -1,5 +1,7 @@
-﻿#include "arg_pch.hpp"
+﻿#include <arg_pch.hpp>
 #include "ActorHandle.hpp"
+
+#include "Gameplay/World/GameWorld.hpp"
 
 Arg::Gameplay::ActorHandle::ActorHandle(GameWorld* pWorld, GUID actorID)
 	: m_pWorld(pWorld),

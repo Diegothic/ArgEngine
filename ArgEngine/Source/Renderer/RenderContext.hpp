@@ -43,12 +43,6 @@ namespace Arg
 			StaticModel* pCameraMesh = nullptr;
 		};
 
-		struct TransformColor
-		{
-			Mat4 Transform;
-			Vec3 Color;
-		};
-
 		class RenderContext
 		{
 		public:
@@ -130,10 +124,31 @@ namespace Arg
 				const Vec3& color
 			);
 
+			void DrawDebugCustomMesh(
+				const std::shared_ptr<StaticModel>& model,
+				const Vec3& position,
+				const Vec3& rotation,
+				const Vec3& scale,
+				const Vec3& color
+			);
+
 			void Render(
 				Renderer& renderer,
 				RenderTarget* renderTarget
 			) const;
+
+		private:
+			struct TransformColor
+			{
+				Mat4 Transform;
+				Vec3 Color;
+			};
+
+			struct CustomMesh
+			{
+				StaticMesh* pMesh;
+				TransformColor Spec;
+			};
 
 		private:
 			RenderContextSpec m_Spec;
@@ -159,6 +174,7 @@ namespace Arg
 			std::vector<TransformColor> m_DebugSpheres;
 			std::vector<TransformColor> m_DebugCylinders;
 			std::vector<TransformColor> m_DebugCameras;
+			std::vector<CustomMesh> m_DebugCustomMeshes;
 
 			Vec3 m_BackgroundColor = Vec3(0.5f);
 			CubeMap* m_pCubeMap = nullptr;

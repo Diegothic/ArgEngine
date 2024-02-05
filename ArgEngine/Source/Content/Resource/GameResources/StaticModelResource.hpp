@@ -24,12 +24,14 @@ namespace Arg
 				return m_pModel;
 			}
 
+			auto FindMeshData(size_t meshIndex) -> std::vector<Vec3>;
+
 		protected:
-			auto GetResourceFileExtension() const -> const std::string & override;
+			auto GetResourceFileExtension() const -> const std::string& override;
 
 			void VPreLoad() override;
 			void VOnLoad() override;
-			auto VGetSerializableData() const->ISerializable* override;
+			auto VGetSerializableData() const -> ISerializable* override;
 			void VUnload() override;
 
 		private:

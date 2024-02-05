@@ -158,6 +158,7 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Sound\SoundPlayerComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
     <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
+    <ClCompile Include="Source\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Source\Physics\PhysicsWorld.cpp" />
     <ClCompile Include="Source\Renderer\Animation\SkeletalAnimation.cpp" />
     <ClCompile Include="Source\Renderer\Animation\Skeleton.cpp" />
@@ -217,6 +218,7 @@
     <ClInclude Include="Source\Content\Serialization\YamlSerializable.hpp" />
     <ClInclude Include="Source\Content\Yaml\CustomTypes.hpp" />
     <ClInclude Include="Source\Content\Yaml\Yaml.hpp" />
+    <ClInclude Include="Source\Core\Event\Event.hpp" />
     <ClInclude Include="Source\Core\GUID.hpp" />
     <ClCompile Include="Source\Core\GUID.cpp" />
     <ClCompile Include="Source\Core\Input\GamepadState.cpp" />
