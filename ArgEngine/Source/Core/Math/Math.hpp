@@ -184,5 +184,41 @@ namespace Arg
 		{
 			return Math::UpVecFromRotation(rotationEuler.y, rotationEuler.z, rotationEuler.x);
 		}
+
+		inline auto Lerp(float a, float b, float t) -> float
+		{
+			t = Math::clamp(t, 0.0f, 1.0f);
+			return ((1.0f - t) * a) + (t * b);
+		}
+
+		inline auto Lerp(const Vec2& a, const Vec2& b, float t) -> Vec2
+		{
+			t = Math::clamp(t, 0.0f, 1.0f);
+			return ((1.0f - t) * a) + (t * b);
+		}
+
+		inline auto Lerp(const Vec3& a, const Vec3& b, float t) -> Vec3
+		{
+			t = Math::clamp(t, 0.0f, 1.0f);
+			return ((1.0f - t) * a) + (t * b);
+		}
+
+		inline auto Lerp(const Quat& a, const Quat& b, float t) -> Quat
+		{
+			t = Math::clamp(t, 0.0f, 1.0f);
+			return Math::lerp(a, b, t);
+		}
+
+		inline auto SLerp(const Quat& a, const Quat& b, float t) -> Quat
+		{
+			t = Math::clamp(t, 0.0f, 1.0f);
+			return Math::slerp(a, b, t);
+		}
+
+		inline auto LookAtRotation(const Vec3& from, const Vec3& to) -> Quat
+		{
+			const Vec3 direction = to - from;
+			return Math::quatLookAt(direction, Vec3(0.0f, 0.0f, 1.0f));
+		}
 	}
 }

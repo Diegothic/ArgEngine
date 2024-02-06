@@ -61,14 +61,20 @@ namespace Arg
 			void ClearGarbage();
 
 		public:
-			auto PlaySound2D(const SoundResourceHandle& sound, const SoundSpec& spec) -> SoundHandle;
-			auto PlaySound3D(const SoundResourceHandle& sound, const SoundSpec& spec) -> SoundHandle;
+			auto PlaySound2D(
+				const SoundResourceHandle& sound,
+				const SoundSpec& spec
+			) -> SoundHandle;
+			auto PlaySound3D(
+				const SoundResourceHandle& sound,
+				const SoundSpec& spec
+			) -> SoundHandle;
 
 			void SetListenerPosition(
 				const Vec3& position,
 				const Vec3& lookDirection,
 				const Vec3& upDirection
-				) const;
+			) const;
 			void StopAllSounds();
 
 		protected:

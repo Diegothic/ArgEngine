@@ -303,6 +303,11 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 				auto actorComponent = dynamic_pointer_cast<Gameplay::PhysicsBodyComponent>(component);
 				DrawActorComponentProperties(context, actor, actorComponent);
 			}
+			else if (component->VGetID() == Gameplay::TriggerVolumeComponent::COMPONENT_ID)
+			{
+				auto actorComponent = dynamic_pointer_cast<Gameplay::TriggerVolumeComponent>(component);
+				DrawActorComponentProperties(context, actor, actorComponent);
+			}
 			else if (component->VGetID() == Gameplay::SoundPlayerComponent::COMPONENT_ID)
 			{
 				auto actorComponent = dynamic_pointer_cast<Gameplay::SoundPlayerComponent>(component);
@@ -1431,6 +1436,106 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 						break;
 					}
 
+					break;
+				}
+			}
+		}
+
+		ImGui::EndTable();
+	}
+}
+
+void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
+	const EditorGUIContext& context,
+	Gameplay::Actor* pActor,
+	std::shared_ptr<Gameplay::TriggerVolumeComponent>& pComponent
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpen = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpen
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpen
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::BeginTable(
+		"##TriggerVolumeComponentTable",
+		2,
+		ImGuiTableFlags_BordersInnerV
+		| ImGuiTableFlags_BordersOuter
+		| ImGuiTableFlags_NoSavedSettings
+		| ImGuiTableFlags_SizingFixedFit
+	))
+	{
+		{
+			ImGui::TableNextColumn();
+			ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+			ImGui::Text("Shape");
+
+			ImGui::TableNextColumn();
+
+			const char* shapeTypes[] = {"Box", "Sphere"};
+			int32_t currentType = static_cast<int32_t>(pComponent->GetPhysicsShape());
+			ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+			if (ImGui::BeginCombo("##Shape", shapeTypes[currentType]))
+			{
+				for (int32_t i = 0; i < 2; i++)
+				{
+					const bool bIsSelected = currentType == i;
+					if (ImGui::Selectable(shapeTypes[i], bIsSelected))
+					{
+						currentType = i;
+						pComponent->SetPhysicsShape(static_cast<Physics::TriggerVolumeShape>(i));
+					}
+
+					if (bIsSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+
+				ImGui::EndCombo();
+			}
+
+			switch (currentType)
+			{
+			case 0:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Size");
+
+					ImGui::TableNextColumn();
+
+					Vec3 size = pComponent->GetSize();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat3("##Size", Math::ValuePtr(size));
+					if (size != pComponent->GetSize())
+					{
+						pComponent->SetSize(size);
+					}
+					break;
+				}
+			case 1:
+				{
+					ImGui::TableNextColumn();
+					ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+					ImGui::Text("Radius");
+
+					ImGui::TableNextColumn();
+
+					Vec3 size = pComponent->GetSize();
+					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 165.0f);
+					ImGui::InputFloat("##Size", &size.x);
+					if (size.x != pComponent->GetSize().x)
+					{
+						pComponent->SetSize(size);
+					}
 					break;
 				}
 			}

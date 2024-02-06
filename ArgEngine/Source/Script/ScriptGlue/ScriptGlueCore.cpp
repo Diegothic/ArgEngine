@@ -78,4 +78,34 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 		"Normalize", [](const Vec2& v) -> Vec2 { return Math::normalize(v); },
 		"Length", [](const Vec2& v) -> float { return Math::length(v); }
 	);
+
+	sol::table mathTable = scriptState["Mathf"].get_or_create<sol::table>();
+	mathTable.set_function(
+		"Lerp",
+		sol::overload(
+			[](const float& a, const float& b, float t) -> float
+			{
+				return Math::Lerp(a, b, t);
+			},
+			[](const Vec2& a, const Vec2& b, float t) -> Vec2
+			{
+				return Math::Lerp(a, b, t);
+			},
+			[](const Vec3& a, const Vec3& b, float t) -> Vec3
+			{
+				return Math::Lerp(a, b, t);
+			}
+		)
+	);
+	mathTable.set_function(
+		"SLerp",
+		[](const Vec3& a, const Vec3& b, float t) -> Vec3
+		{
+			return Math::degrees(Math::ToEuler(Math::SLerp(
+				Math::ToQuat(Math::radians(a)),
+				Math::ToQuat(Math::radians(b)),
+				t
+			)));
+		}
+	);
 }

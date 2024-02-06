@@ -412,7 +412,7 @@ bool Arg::Gameplay::PhysicsBodyComponent::VOnDeserialize(const YAML::Node& node)
 	SetAngularDamping(ValueOr<float>(node["AngularDamping"], 0.005f));
 	SetBounciness(ValueOr<float>(node["Bounciness"], 0.0f));
 
-	SetPhysicsShape(static_cast<Physics::PhysicsBodyShape>(ValueOr<int32_t>(node["Shape"], 0.0f)));
+	SetPhysicsShape(static_cast<Physics::PhysicsBodyShape>(ValueOr<int32_t>(node["Shape"], 0)));
 	const GUID modelID = ValueOr<GUID>(node["ShapeModelID"], GUID::Empty);
 	SetPhysicsShapeMesh(GetResourceCache()->CreateHandle<Content::StaticModelResource>(modelID));
 	SetSize(ValueOr<Vec3>(node["Size"], Vec3(1.0f)));

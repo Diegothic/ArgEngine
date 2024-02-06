@@ -8,6 +8,7 @@
 #include "Gameplay/World/Actor/Component/Components/Graphics/SpotLightComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/StaticModelComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Physics/PhysicsBodyComponent.hpp"
+#include "Gameplay/World/Actor/Component/Components/Physics/TriggerVolumeComponent.hpp"
 #include "Gameplay/World/Actor/Component/Components/Sound/SoundPlayerComponent.hpp"
 
 using CameraComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::CameraComponent>;
@@ -17,6 +18,7 @@ using StaticModelComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Game
 using SkeletalModelComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::SkeletalModelComponent>;
 
 using PhysicsBodyComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::PhysicsBodyComponent>;
+using TriggerVolumeComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::TriggerVolumeComponent>;
 
 using SoundPlayerComponentHandle = Arg::Gameplay::ActorComponentHandle<Arg::Gameplay::SoundPlayerComponent>;
 
@@ -307,6 +309,35 @@ void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 		"HitNormal", &Gameplay::GameWorld::RaycastResult::HitNormal
 	);
 
+	scriptState.new_usertype<Sound::SoundHandle>(
+		"SoundHandle",
+		"IsValid",
+		[](Sound::SoundHandle& self) -> bool
+		{
+			return self.IsValid();
+		},
+		"Play",
+		[](Sound::SoundHandle& self)
+		{
+			self.Play();
+		},
+		"Pause",
+		[](Sound::SoundHandle& self)
+		{
+			self.Pause();
+		},
+		"Stop",
+		[](Sound::SoundHandle& self)
+		{
+			self.Stop();
+		},
+		"IsPlaying",
+		[](Sound::SoundHandle& self) -> bool
+		{
+			return self.IsPlaying();
+		}
+	);
+
 	scriptState.new_usertype<Gameplay::GameWorld>(
 		"World",
 		"SunlightColor",
@@ -403,6 +434,135 @@ void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 		{
 			self.SetMainCamera(camera);
 		},
+		"PlaySound",
+		sol::overload(
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			bool bLooping,
+			float volume,
+			float volumeVariance,
+			float pitch,
+			float pitchVariance
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.Volume = volume,
+					.VolumeVariance = volumeVariance,
+					.Pitch = pitch,
+					.PitchVariance = pitchVariance,
+					.bIsLooping = bLooping
+				};
+				return self.GetSound().PlaySound2D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			bool bLooping,
+			float volume,
+			float pitch
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.Volume = volume,
+					.Pitch = pitch,
+					.bIsLooping = bLooping
+				};
+				return self.GetSound().PlaySound2D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			bool bLooping
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.bIsLooping = bLooping
+				};
+				return self.GetSound().PlaySound2D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound
+		) -> Sound::SoundHandle
+			{
+				constexpr Sound::SoundSpec spec;
+				return self.GetSound().PlaySound2D(sound, spec);
+			}
+		),
+		"PlaySound3D",
+		sol::overload(
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			const Vec3& position,
+			const float distance,
+			bool bLooping,
+			float volume,
+			float volumeVariance,
+			float pitch,
+			float pitchVariance
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.Volume = volume,
+					.VolumeVariance = volumeVariance,
+					.Pitch = pitch,
+					.PitchVariance = pitchVariance,
+					.bIsLooping = bLooping,
+					.Position = position,
+					.Distance = distance
+				};
+				return self.GetSound().PlaySound3D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			const Vec3& position,
+			const float distance,
+			bool bLooping,
+			float volume,
+			float pitch
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.Volume = volume,
+					.Pitch = pitch,
+					.bIsLooping = bLooping,
+					.Position = position,
+					.Distance = distance
+				};
+				return self.GetSound().PlaySound3D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			const Vec3& position,
+			const float distance,
+			bool bLooping
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.bIsLooping = bLooping,
+					.Position = position,
+					.Distance = distance
+				};
+				return self.GetSound().PlaySound3D(sound, spec);
+			},
+			[](
+			Gameplay::GameWorld& self,
+			const SoundResourceHandle& sound,
+			const Vec3& position,
+			const float distance
+		) -> Sound::SoundHandle
+			{
+				const Sound::SoundSpec spec{
+					.Position = position,
+					.Distance = distance
+				};
+				return self.GetSound().PlaySound3D(sound, spec);
+			}
+		),
 		"Raycast",
 		sol::overload(
 			[](
@@ -1228,7 +1388,7 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetIsDynamic();
 		},
-		"SetSize",
+		"SetIsDynamic",
 		[](PhysicsBodyComponentHandle& self, bool bIsDynamic)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
@@ -1283,73 +1443,73 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 			return component.SetBounciness(bounciness);
 		},
 		"IsXMovementLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetMovementLockX();
 		},
 		"SetXMovementLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetMovementLockX(bLock);
 		},
 		"IsYMovementLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetMovementLockY();
 		},
 		"SetYMovementLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetMovementLockY(bLock);
 		},
 		"IsZMovementLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetMovementLockZ();
 		},
 		"SetZMovementLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetMovementLockZ(bLock);
 		},
 		"IsXRotationLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetRotationLockX();
 		},
 		"SetXRotationLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetRotationLockX(bLock);
 		},
 		"IsYRotationLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetRotationLockY();
 		},
 		"SetYRotationLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetRotationLockY(bLock);
 		},
 		"IsZRotationLocked",
-		[](PhysicsBodyComponentHandle& self) -> float
+		[](PhysicsBodyComponentHandle& self) -> bool
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.GetRotationLockZ();
 		},
 		"SetZRotationLocked",
-		[](PhysicsBodyComponentHandle& self, float bLock)
+		[](PhysicsBodyComponentHandle& self, bool bLock)
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			return component.SetRotationLockZ(bLock);
@@ -1390,6 +1550,113 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 		{
 			Gameplay::PhysicsBodyComponent& component = self.Get();
 			component.Ev_OnCollision.RemoveListener(handle);
+		}
+	);
+
+	scriptState.new_enum<Physics::TriggerVolumeShape>(
+		"TriggerShape",
+		{
+			{"Box", Physics::TriggerVolumeShape::TBox},
+			{"Sphere", Physics::TriggerVolumeShape::TSphere}
+		}
+	);
+
+	scriptState.new_usertype<TriggerVolumeComponentHandle>(
+		"PhysicsBodyComponent",
+		sol::meta_function::equal_to, sol::overload([](
+			const TriggerVolumeComponentHandle& lhs,
+			const TriggerVolumeComponentHandle& rhs
+		) -> bool
+			{
+				return lhs == rhs;
+			}),
+		"IsValid",
+		[](TriggerVolumeComponentHandle& self) -> bool
+		{
+			return self.IsValid();
+		},
+		"Owner",
+		[](TriggerVolumeComponentHandle& self) -> Gameplay::ActorHandle
+		{
+			const Gameplay::TriggerVolumeComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return {actor->GetWorld(), actor->GetID()};
+		},
+		"World",
+		[](TriggerVolumeComponentHandle& self) -> Gameplay::GameWorld& {
+			const Gameplay::TriggerVolumeComponent& component = self.Get();
+			const Gameplay::Actor* actor = component.GetOwner();
+			return *actor->GetWorld();
+		},
+		"Shape",
+		[](TriggerVolumeComponentHandle& self) -> Physics::TriggerVolumeShape
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.GetPhysicsShape();
+		},
+		"SetShape",
+		[](TriggerVolumeComponentHandle& self, const Physics::TriggerVolumeShape& shape)
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.SetPhysicsShape(shape);
+		},
+		"Size",
+		[](TriggerVolumeComponentHandle& self) -> Vec3
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.GetSize();
+		},
+		"SetSize",
+		[](TriggerVolumeComponentHandle& self, const Vec3& size)
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.SetSize(size);
+		},
+		"AddOnEnterListener",
+		[](
+		TriggerVolumeComponentHandle& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.Ev_OnEnter.AddListener(
+				[listener, obj](Gameplay::ActorHandle actor)
+				{
+					if (listener.valid() && obj.valid())
+					{
+						listener(obj, actor);
+					}
+				});
+		},
+		"RemoveOnEnterListener",
+		[](TriggerVolumeComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			component.Ev_OnEnter.RemoveListener(handle);
+		},
+		"AddOnExitListener",
+		[](
+		TriggerVolumeComponentHandle& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.Ev_OnExit.AddListener(
+				[listener, obj](Gameplay::ActorHandle actor)
+				{
+					if (listener.valid() && obj.valid())
+					{
+						listener(obj, actor);
+					}
+				});
+		},
+		"RemoveOnExitListener",
+		[](TriggerVolumeComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			component.Ev_OnExit.RemoveListener(handle);
 		}
 	);
 }

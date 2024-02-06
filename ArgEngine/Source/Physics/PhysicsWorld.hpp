@@ -5,6 +5,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 
 #include "PhysicsBody.hpp"
+#include "TriggerVolume.hpp"
 #include "Gameplay/World/Actor/Actor.hpp"
 
 namespace Arg
@@ -24,9 +25,13 @@ namespace Arg
 			Vec3 HitNormal;
 		};
 
+		class PhysicsWorld;
+
 		class CollisionCallback : public btCollisionWorld::ContactResultCallback
 		{
 		public:
+			CollisionCallback(const PhysicsWorld* pPhysicsWorld);
+
 			btScalar addSingleResult(
 				btManifoldPoint& cp,
 				const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
@@ -38,6 +43,7 @@ namespace Arg
 			auto GetCollision(size_t index) const -> const PhysicsCollisionData&;
 
 		private:
+			const PhysicsWorld* m_pPhysicsWorld = nullptr;
 			std::vector<PhysicsCollisionData> m_Collisions;
 		};
 
@@ -56,6 +62,13 @@ namespace Arg
 			void RemovePhysicsBody(PhysicsBody* pPhysicsBody);
 			auto HasPhysicsBody(const PhysicsBody* pPhysicsBody) const -> bool;
 			auto GetPhysicsBody(const int32_t& userIndex) const -> PhysicsBody*;
+
+			void AddTriggerVolume(TriggerVolume* pTriggerVolume);
+			void RemoveTriggerVolume(TriggerVolume* pTriggerVolume);
+			auto HasTriggerVolume(const TriggerVolume* pTriggerVolume) const -> bool;
+			auto GetTriggerVolume(const int32_t& userIndex) const -> TriggerVolume*;
+
+			auto IsPhysicsBody(const int32_t& userIndex) const -> bool;
 
 			auto GetGravity() const -> const Vec3& { return m_Gravity; }
 			void SetGravity(const Vec3& gravity);
@@ -96,6 +109,9 @@ namespace Arg
 			void AddPhysicsBody(PhysicsBody* pPhysicsBody, int32_t userIndex);
 			void RemovePhysicsBody(int32_t userIndex);
 
+			void AddTriggerVolume(TriggerVolume* pTriggerVolume, int32_t userIndex);
+			void RemoveTriggerVolume(int32_t userIndex);
+
 		private:
 			Gameplay::GameWorld* m_pWorld = nullptr;
 
@@ -111,6 +127,8 @@ namespace Arg
 			int32_t m_LastUserIndex = -1;
 			std::unordered_map<int32_t, PhysicsBody*> m_PhysicsBodyLookup;
 			std::vector<PhysicsBody*> m_PhysicsBodies;
+			std::unordered_map<int32_t, TriggerVolume*> m_TriggerVolumeLookup;
+			std::vector<TriggerVolume*> m_TriggerVolumes;
 
 			Vec3 m_Gravity = Vec3(0.0f, 0.0f, -9.81f);
 		};

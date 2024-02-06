@@ -4,17 +4,26 @@
 #include "bullet/btBulletDynamicsCommon.h"
 #include "Gameplay/World/GameWorld.hpp"
 
+Arg::Physics::CollisionCallback::CollisionCallback(const PhysicsWorld* pPhysicsWorld)
+	: m_pPhysicsWorld(pPhysicsWorld)
+{
+}
+
 btScalar Arg::Physics::CollisionCallback::addSingleResult(
 	btManifoldPoint& cp,
 	const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
 	const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1
 )
 {
-	m_Collisions.emplace_back(
-		colObj1Wrap->m_collisionObject->getUserIndex(),
-		PhysicsWorld::Convert(cp.getPositionWorldOnB()),
-		PhysicsWorld::Convert(cp.m_normalWorldOnB)
-	);
+	const int32_t otherUserIndex = colObj1Wrap->m_collisionObject->getUserIndex();
+	if (m_pPhysicsWorld->IsPhysicsBody(otherUserIndex))
+	{
+		m_Collisions.emplace_back(
+			colObj1Wrap->m_collisionObject->getUserIndex(),
+			PhysicsWorld::Convert(cp.getPositionWorldOnB()),
+			PhysicsWorld::Convert(cp.m_normalWorldOnB)
+		);
+	}
 
 	return 0.0f;
 }
@@ -60,12 +69,12 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-
 		const int32_t userIndex = pCollisionObject->getUserIndex();
-		const PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
+		const GUID actorID = IsPhysicsBody(userIndex)
+			                     ? m_PhysicsBodyLookup.at(userIndex)->GetActorID()
+			                     : m_TriggerVolumeLookup.at(userIndex)->GetActorID();
 
-		const Gameplay::Actor& actor = m_pWorld->GetActor(pPhysicsBody->GetActorID());
+		const Gameplay::Actor& actor = m_pWorld->GetActor(actorID);
 		const Mat4 globalTransform = actor.GetTransform();
 		Vec3 position;
 		Quat rotation;
@@ -86,27 +95,30 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
 		const int32_t userIndex = pCollisionObject->getUserIndex();
-		PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
-
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-		if (pRigidBody == nullptr)
+		if (IsPhysicsBody(userIndex))
 		{
-			continue;
-		}
+			PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
 
-		// Handle velocity change
-		if (pPhysicsBody->GetFlag(PhysicsBodyFlag::VelocityChanged))
-		{
-			pPhysicsBody->SetFlag(PhysicsBodyFlag::VelocityChanged, false);
-			pRigidBody->setLinearVelocity(Convert(pPhysicsBody->GetVelocity()));
-			pRigidBody->activate();
-		}
+			btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
+			if (pRigidBody == nullptr)
+			{
+				continue;
+			}
 
-		// Handle wake requests
-		if (pPhysicsBody->GetFlag(PhysicsBodyFlag::NeedsWake))
-		{
-			pPhysicsBody->SetFlag(PhysicsBodyFlag::NeedsWake, false);
-			pRigidBody->activate();
+			// Handle velocity change
+			if (pPhysicsBody->GetFlag(PhysicsBodyFlag::VelocityChanged))
+			{
+				pPhysicsBody->SetFlag(PhysicsBodyFlag::VelocityChanged, false);
+				pRigidBody->setLinearVelocity(Convert(pPhysicsBody->GetVelocity()));
+				pRigidBody->activate();
+			}
+
+			// Handle wake requests
+			if (pPhysicsBody->GetFlag(PhysicsBodyFlag::NeedsWake))
+			{
+				pPhysicsBody->SetFlag(PhysicsBodyFlag::NeedsWake, false);
+				pRigidBody->activate();
+			}
 		}
 	}
 
@@ -123,7 +135,6 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 		if (pRigidBody != nullptr)
 		{
 			transform = pRigidBody->getWorldTransform();
-			//pRigidBody->getMotionState()->getWorldTransform(transform);
 		}
 		else
 		{
@@ -136,46 +147,81 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 		const Quat rotation = Convert(simRotation);
 
 		const int32_t userIndex = pCollisionObject->getUserIndex();
-		PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
+		const GUID actorID = IsPhysicsBody(userIndex)
+			                     ? m_PhysicsBodyLookup.at(userIndex)->GetActorID()
+			                     : m_TriggerVolumeLookup.at(userIndex)->GetActorID();
 
-		Gameplay::Actor& actor = m_pWorld->GetActor(pPhysicsBody->GetActorID());
+		Gameplay::Actor& actor = m_pWorld->GetActor(actorID);
 		actor.SetPosition(position);
 		actor.SetRotation(rotation);
 
 		if (pRigidBody != nullptr)
 		{
+			PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
 			pPhysicsBody->SetVelocity(Convert(pRigidBody->getLinearVelocity()));
 		}
 	}
 
-	// Handle collision events
+	// Generate events
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
 		const int32_t userIndex = pCollisionObject->getUserIndex();
-		PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
-		if (!pPhysicsBody->GetGenerateOnCollisionEvents())
+		if (IsPhysicsBody(userIndex))
 		{
-			continue;
-		}
-
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-		if (pRigidBody == nullptr)
-		{
-			continue;
-		}
-
-		CollisionCallback collisionCallback;
-		m_pDynamicsWorld->contactTest(pRigidBody, collisionCallback);
-		pPhysicsBody->BeginCollisions();
-		for (size_t j = 0; j < collisionCallback.GetCollisionCount(); j++)
-		{
-			const PhysicsCollisionData& collisionData = collisionCallback.GetCollision(j);
-			pPhysicsBody->AddCollision(collisionData);
-			if (!pPhysicsBody->HasCollidedLastWith(collisionData.OtherUserIndex))
+			PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
+			if (!pPhysicsBody->GetGenerateOnCollisionEvents())
 			{
-				pPhysicsBody->AddCollisionHit(j);
-				pPhysicsBody->SetFlag(PhysicsBodyFlag::HasCollided, true);
+				continue;
+			}
+
+			btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
+			if (pRigidBody == nullptr)
+			{
+				continue;
+			}
+
+			CollisionCallback collisionCallback(this);
+			m_pDynamicsWorld->contactTest(pRigidBody, collisionCallback);
+
+			pPhysicsBody->BeginCollisions();
+			for (size_t j = 0; j < collisionCallback.GetCollisionCount(); j++)
+			{
+				const PhysicsCollisionData& collisionData = collisionCallback.GetCollision(j);
+				pPhysicsBody->AddCollision(collisionData);
+				if (!pPhysicsBody->HasCollidedLastWith(collisionData.OtherUserIndex))
+				{
+					pPhysicsBody->AddCollisionHit(j);
+					pPhysicsBody->SetFlag(PhysicsBodyFlag::HasCollided, true);
+				}
+			}
+		}
+		else
+		{
+			TriggerVolume* pTriggerVolume = m_TriggerVolumeLookup.at(userIndex);
+			CollisionCallback collisionCallback(this);
+			m_pDynamicsWorld->contactTest(pCollisionObject, collisionCallback);
+
+			pTriggerVolume->BeginOverlap();
+			for (size_t j = 0; j < collisionCallback.GetCollisionCount(); j++)
+			{
+				const PhysicsCollisionData& collisionData = collisionCallback.GetCollision(j);
+				pTriggerVolume->AddOverlap(collisionData.OtherUserIndex);
+				if (!pTriggerVolume->HasOverlappedLastWith(collisionData.OtherUserIndex))
+				{
+					pTriggerVolume->AddTriggerEntered(collisionData.OtherUserIndex);
+					pTriggerVolume->SetFlag(TriggerVolumeFlag::BodyEntered, true);
+				}
+			}
+
+			for (size_t j = 0; j < pTriggerVolume->GetOverlappedLastCount(); j++)
+			{
+				const int32_t lastOverlapUserIndex = pTriggerVolume->GetOverlappedLast(j);
+				if (!pTriggerVolume->HasOverlappedWith(lastOverlapUserIndex))
+				{
+					pTriggerVolume->AddTriggerExit(lastOverlapUserIndex);
+					pTriggerVolume->SetFlag(TriggerVolumeFlag::BodyExit, true);
+				}
 			}
 		}
 	}
@@ -203,16 +249,17 @@ void Arg::Physics::PhysicsWorld::CleanUp()
 	}
 	m_CollisionShapes.clear();
 
-	for (int32_t i = m_CustomTriangleMeshes.size() - 1; i >= 0; i--)
+	for (const auto& triangleMesh : m_CustomTriangleMeshes | std::views::values)
 	{
-		delete m_CustomTriangleMeshes[i];
-		m_CustomTriangleMeshes[i] = nullptr;
+		delete triangleMesh;
 	}
 	m_CustomTriangleMeshes.clear();
 
 	m_LastUserIndex = 0;
 	m_PhysicsBodyLookup.clear();
 	m_PhysicsBodies.clear();
+	m_TriggerVolumeLookup.clear();
+	m_TriggerVolumes.clear();
 
 	m_pDynamicsWorld = nullptr;
 	m_pConstraintSolver = nullptr;
@@ -346,7 +393,7 @@ void Arg::Physics::PhysicsWorld::RemovePhysicsBody(PhysicsBody* pPhysicsBody)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
 		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-		const int32_t userIndex = pRigidBody->getUserIndex();
+		const int32_t userIndex = pCollisionObject->getUserIndex();
 		if (userIndex == pPhysicsBody->GetUserIndex())
 		{
 			if (pRigidBody && pRigidBody->getMotionState())
@@ -360,6 +407,7 @@ void Arg::Physics::PhysicsWorld::RemovePhysicsBody(PhysicsBody* pPhysicsBody)
 			if (pCollisionShape)
 			{
 				m_CollisionShapes.remove(pCollisionShape);
+				delete pCollisionShape;
 			}
 
 			if (m_CustomTriangleMeshes.contains(userIndex))
@@ -385,6 +433,99 @@ auto Arg::Physics::PhysicsWorld::GetPhysicsBody(const int32_t& userIndex) const 
 {
 	ARG_ASSERT(m_PhysicsBodyLookup.contains(userIndex));
 	return m_PhysicsBodyLookup.at(userIndex);
+}
+
+void Arg::Physics::PhysicsWorld::AddTriggerVolume(TriggerVolume* pTriggerVolume)
+{
+	const int32_t userIndex = m_LastUserIndex + 1;
+	m_LastUserIndex = userIndex;
+	AddTriggerVolume(pTriggerVolume, userIndex);
+
+	btCollisionShape* pShape = nullptr;
+	{
+		const Vec3 size = pTriggerVolume->GetSize();
+		switch (pTriggerVolume->GetShape())
+		{
+		case TriggerVolumeShape::TBox:
+			pShape = new btBoxShape(btVector3(
+				size.x * 0.5f,
+				size.y * 0.5f,
+				size.z * 0.5f
+			));
+			break;
+		case TriggerVolumeShape::TSphere:
+			pShape = new btSphereShape(size.x * 0.5f);
+			break;
+		}
+	}
+
+	m_CollisionShapes.push_back(pShape);
+
+	const Gameplay::Actor& actor = m_pWorld->GetActor(pTriggerVolume->GetActorID());
+	const Mat4 globalTransform = actor.GetTransform();
+	Vec3 position;
+	Quat rotation;
+	Vec3 scale;
+	Math::Decompose(globalTransform, position, rotation, scale);
+	btVector3 simPosition = Convert(position);
+	btQuaternion simRotation = Convert(rotation);
+
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(simPosition);
+	startTransform.setRotation(simRotation);
+
+	btCollisionObject* pCollisionObject = new btCollisionObject();
+	pCollisionObject->setUserIndex(userIndex);
+	pCollisionObject->setCollisionShape(pShape);
+	pCollisionObject->setCollisionFlags(
+		pCollisionObject->getCollisionFlags()
+		| btCollisionObject::CF_NO_CONTACT_RESPONSE
+	);
+	pCollisionObject->setWorldTransform(startTransform);
+
+	m_pDynamicsWorld->addCollisionObject(pCollisionObject);
+}
+
+void Arg::Physics::PhysicsWorld::RemoveTriggerVolume(TriggerVolume* pTriggerVolume)
+{
+	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
+		const int32_t userIndex = pCollisionObject->getUserIndex();
+		if (userIndex == pTriggerVolume->GetUserIndex())
+		{
+			m_pDynamicsWorld->removeCollisionObject(pCollisionObject);
+
+			btCollisionShape* pCollisionShape = pCollisionObject->getCollisionShape();
+			if (pCollisionShape)
+			{
+				m_CollisionShapes.remove(pCollisionShape);
+				delete pCollisionShape;
+			}
+
+			delete pCollisionObject;
+			break;
+		}
+	}
+
+	RemoveTriggerVolume(pTriggerVolume->GetUserIndex());
+}
+
+auto Arg::Physics::PhysicsWorld::HasTriggerVolume(const TriggerVolume* pTriggerVolume) const -> bool
+{
+	return std::ranges::find(m_TriggerVolumes, pTriggerVolume) != m_TriggerVolumes.end();
+}
+
+auto Arg::Physics::PhysicsWorld::GetTriggerVolume(const int32_t& userIndex) const -> TriggerVolume*
+{
+	ARG_ASSERT(m_TriggerVolumeLookup.contains(userIndex));
+	return m_TriggerVolumeLookup.at(userIndex);
+}
+
+auto Arg::Physics::PhysicsWorld::IsPhysicsBody(const int32_t& userIndex) const -> bool
+{
+	return m_PhysicsBodyLookup.contains(userIndex);
 }
 
 void Arg::Physics::PhysicsWorld::SetGravity(const Vec3& gravity)
@@ -581,8 +722,12 @@ auto Arg::Physics::PhysicsWorld::CheckSphere(
 	transform.setIdentity();
 	transform.setOrigin(Convert(point));
 	sphereObject.setWorldTransform(transform);
+	sphereObject.setCollisionFlags(
+		sphereObject.getCollisionFlags()
+		| btCollisionObject::CF_NO_CONTACT_RESPONSE
+	);
 
-	CollisionCallback collisionCallback;
+	CollisionCallback collisionCallback(this);
 	m_pDynamicsWorld->contactTest(&sphereObject, collisionCallback);
 	for (size_t j = 0; j < collisionCallback.GetCollisionCount(); j++)
 	{
@@ -647,4 +792,20 @@ void Arg::Physics::PhysicsWorld::RemovePhysicsBody(int32_t userIndex)
 	PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
 	std::erase(m_PhysicsBodies, pPhysicsBody);
 	m_PhysicsBodyLookup.erase(userIndex);
+}
+
+void Arg::Physics::PhysicsWorld::AddTriggerVolume(TriggerVolume* pTriggerVolume, int32_t userIndex)
+{
+	ARG_ASSERT(!m_TriggerVolumeLookup.contains(userIndex));
+	pTriggerVolume->Initialize(userIndex);
+	m_TriggerVolumes.push_back(pTriggerVolume);
+	m_TriggerVolumeLookup[userIndex] = pTriggerVolume;
+}
+
+void Arg::Physics::PhysicsWorld::RemoveTriggerVolume(int32_t userIndex)
+{
+	ARG_ASSERT(m_TriggerVolumeLookup.contains(userIndex));
+	TriggerVolume* pTriggerVolume = m_TriggerVolumeLookup.at(userIndex);
+	std::erase(m_TriggerVolumes, pTriggerVolume);
+	m_TriggerVolumeLookup.erase(userIndex);
 }

@@ -57,15 +57,10 @@ void Arg::Physics::PhysicsBody::AddCollisionHit(size_t index)
 
 auto Arg::Physics::PhysicsBody::HasCollidedLastWith(const int32_t& userIndex) const -> bool
 {
-	for (const auto& collision : m_LastCollisions)
+	return std::ranges::find_if(m_LastCollisions, [&](const PhysicsCollisionData& collision)
 	{
-		if (collision.OtherUserIndex == userIndex)
-		{
-			return true;
-		}
-	}
-
-	return false;
+		return collision.OtherUserIndex == userIndex;
+	}) != m_LastCollisions.end();
 }
 
 auto Arg::Physics::PhysicsBody::GetCollisionHitCount() const -> size_t

@@ -155,11 +155,13 @@
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.cpp" />
+    <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Physics\TriggerVolumeComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Component\Components\Sound\SoundPlayerComponent.cpp" />
     <ClCompile Include="Source\Gameplay\World\Actor\Transform.cpp" />
     <ClCompile Include="Source\Gameplay\World\GameWorld.cpp" />
     <ClCompile Include="Source\Physics\PhysicsBody.cpp" />
     <ClCompile Include="Source\Physics\PhysicsWorld.cpp" />
+    <ClCompile Include="Source\Physics\TriggerVolume.cpp" />
     <ClCompile Include="Source\Renderer\Animation\SkeletalAnimation.cpp" />
     <ClCompile Include="Source\Renderer\Animation\Skeleton.cpp" />
     <ClCompile Include="Source\Renderer\Buffers.cpp" />
@@ -251,11 +253,13 @@
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\SpotLightComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Graphics\StaticModelComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Physics\PhysicsBodyComponent.hpp" />
+    <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Physics\TriggerVolumeComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Component\Components\Sound\SoundPlayerComponent.hpp" />
     <ClInclude Include="Source\Gameplay\World\Actor\Transform.hpp" />
     <ClInclude Include="Source\Gameplay\World\GameWorld.hpp" />
     <ClInclude Include="Source\Physics\PhysicsBody.hpp" />
     <ClInclude Include="Source\Physics\PhysicsWorld.hpp" />
+    <ClInclude Include="Source\Physics\TriggerVolume.hpp" />
     <ClInclude Include="Source\Renderer\Animation\SkeletalAnimation.hpp" />
     <ClInclude Include="Source\Renderer\CubeMap.hpp" />
     <ClInclude Include="Source\Renderer\RenderContext.hpp" />

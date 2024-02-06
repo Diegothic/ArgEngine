@@ -121,7 +121,7 @@ void Arg::Sound::SoundEngine::ClearGarbage()
 Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound2D(
 	const SoundResourceHandle& sound,
 	const SoundSpec& spec
-)
+) -> SoundHandle
 {
 	sound.Get()->AddRef();
 
@@ -165,7 +165,7 @@ Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound2D(
 Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound3D(
 	const SoundResourceHandle& sound,
 	const SoundSpec& spec
-)
+) -> SoundHandle
 {
 	sound.Get()->AddRef();
 
