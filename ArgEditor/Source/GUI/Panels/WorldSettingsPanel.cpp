@@ -214,7 +214,7 @@ void Arg::Editor::GUI::WorldSettingsPanel::OnDraw(const EditorGUIContext& contex
 						{
 							for (size_t i = 0; i < 6; i++)
 							{
-								ImGui::PushID(i);
+								ImGui::PushID(static_cast<int32_t>(i));
 
 								ImGui::TableNextColumn();
 								ImGui::Dummy(ImVec2(100.0f, 0.0f));

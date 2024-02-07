@@ -222,6 +222,17 @@ void Arg::Editor::GUI::WorldOutlinerPanel::DrawActorTree(
 
 			ImGui::Separator();
 
+			if (ImGui::MenuItem("Clone"))
+			{
+				const GUID newActorID = pWorld->CreateActor(*childActor->GetParentActor());
+				Gameplay::Actor& newActor = pWorld->GetActor(newActorID);
+
+				newActor.SetName(std::format("{} (Clone)", childActor->GetName()));
+				newActor.Clone(*childActor);
+			}
+
+			ImGui::Separator();
+
 			if (ImGui::MenuItem("Remove"))
 			{
 				if (bIsSelected)

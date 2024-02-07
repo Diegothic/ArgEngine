@@ -236,7 +236,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 	GUID componentToRemove = GUID::Empty;
 	for (size_t i = 0; i < actor->GetComponentCount(); i++)
 	{
-		ImGui::PushID(i);
+		ImGui::PushID(static_cast<int32_t>(i));
 
 		auto& component = actor->GetComponentByIndex(i);
 		const auto& componentName = component->VGetName();
@@ -452,7 +452,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 			for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
 			{
-				ImGui::PushID(i);
+				ImGui::PushID(static_cast<int32_t>(i));
 
 				ImGui::Text(std::to_string(i).c_str());
 				ImGui::SameLine();
@@ -622,7 +622,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 			for (size_t i = 0; i < pComponent->GetMaterialCount(); i++)
 			{
-				ImGui::PushID(i);
+				ImGui::PushID(static_cast<int32_t>(i));
 
 				ImGui::Text(std::to_string(i).c_str());
 				ImGui::SameLine();
@@ -1771,7 +1771,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 	{
 		for (size_t i = 0; i < pComponent->GetFieldsCount(); i++)
 		{
-			ImGui::PushID(i);
+			ImGui::PushID(static_cast<int32_t>(i));
 
 			const auto field = pComponent->GetField(i);
 			switch (field.Type)

@@ -48,6 +48,23 @@ void Arg::Gameplay::SoundPlayerComponent::VOnComponentRemoved()
 {
 }
 
+void Arg::Gameplay::SoundPlayerComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const SoundPlayerComponent* pSoundPlayerComponent = dynamic_cast<const SoundPlayerComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pSoundPlayerComponent != nullptr);
+	SetSound(pSoundPlayerComponent->GetSound());
+	SetPlayOnStart(pSoundPlayerComponent->GetPlayOnStart());
+	SetIs3D(pSoundPlayerComponent->GetIs3D());
+	SetVolume(pSoundPlayerComponent->GetVolume());
+	SetVolumeVariance(pSoundPlayerComponent->GetVolumeVariance());
+	SetPitch(pSoundPlayerComponent->GetPitch());
+	SetPitchVariance(pSoundPlayerComponent->GetPitchVariance());
+	SetIsLooping(pSoundPlayerComponent->GetIsLooping());
+	SetDistance(pSoundPlayerComponent->GetDistance());
+}
+
 void Arg::Gameplay::SoundPlayerComponent::Play()
 {
 	if (m_SoundHandle.IsValid())

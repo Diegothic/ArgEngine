@@ -79,6 +79,21 @@ void Arg::Gameplay::StaticModelComponent::VOnComponentRemoved()
 	}
 }
 
+void Arg::Gameplay::StaticModelComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const StaticModelComponent* pStaticModelComponent = dynamic_cast<const StaticModelComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pStaticModelComponent != nullptr);
+	SetStaticModel(pStaticModelComponent->GetStaticModel());
+	SetCastShadows(pStaticModelComponent->GetCastShadows());
+	SetReceiveShadows(pStaticModelComponent->GetReceiveShadows());
+	for (size_t i = 0; i < pStaticModelComponent->GetMaterialCount(); i++)
+	{
+		SetMaterial(i, pStaticModelComponent->GetMaterial(i));
+	}
+}
+
 void Arg::Gameplay::StaticModelComponent::SetStaticModel(
 	const Content::ResourceHandle<Content::StaticModelResource>& staticModel
 )

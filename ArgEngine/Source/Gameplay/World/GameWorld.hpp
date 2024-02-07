@@ -43,6 +43,7 @@ namespace Arg
 			auto CreateActor() -> GUID;
 			auto CreateActor(Actor& parentActor) -> GUID;
 			void DestroyActor(Actor& actor);
+			void DestroyActorWithChildren(Actor& actor);
 			void ReparentActor(Actor& actor, Actor& newParentActor);
 
 		public:
@@ -112,7 +113,6 @@ namespace Arg
 			}
 
 		public:
-			auto GetWindow() const -> Window*;
 			auto GetPhysicsWorld() const -> Physics::PhysicsWorld* { return m_pPhysicsWorld.get(); }
 			auto GetSound() const -> Sound::SoundEngine&;
 

@@ -77,6 +77,8 @@ namespace Arg
 
 			auto VIsScriptable() -> bool override { return true; }
 
+			void VClone(const ActorComponent* pActorComponent) override;
+
 		public:
 			auto GetFieldsCount() const -> size_t { return m_pBase->m_Fields.size(); }
 			auto GetField(size_t index) const -> const ScriptComponentField&;

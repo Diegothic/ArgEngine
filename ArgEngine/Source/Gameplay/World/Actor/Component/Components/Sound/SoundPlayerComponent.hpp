@@ -32,6 +32,8 @@ namespace Arg
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
+			void VClone(const ActorComponent* pActorComponent) override;
+
 		public:
 			void Play();
 			void Pause();

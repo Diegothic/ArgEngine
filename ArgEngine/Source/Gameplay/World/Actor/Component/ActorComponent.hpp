@@ -58,6 +58,8 @@ namespace Arg
 			auto CanEverTick() const -> const bool& { return m_bCanEverTick; }
 			auto CanEverRender() const -> const bool& { return m_bCanEverRender; }
 
+			virtual void VClone(const ActorComponent* pActorComponent) = 0;
+
 		protected:
 			virtual auto VOnSerialize(YAML::Node& node) const -> bool override { return true; }
 			virtual auto VOnDeserialize(const YAML::Node& node) -> bool override { return true; }

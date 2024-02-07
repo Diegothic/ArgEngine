@@ -814,6 +814,109 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 			}
 
 			return sol::nil;
+		},
+		"AddComponent",
+		[&](
+		Gameplay::ActorHandle& self,
+		const std::string& componentID
+	) -> bool
+		{
+			Gameplay::Actor& actor = self.Get();
+			const GUID ID = std::hash<std::string>{}(componentID);
+			const Gameplay::ComponentRegistry* pComponentsRegistry =
+				actor.GetWorld()->GetComponentRegistry();
+			if (!pComponentsRegistry->ContainsComponent(ID)
+				|| actor.HasComponent(ID))
+			{
+				return false;
+			}
+
+			const auto pActorComponent = pComponentsRegistry->CreateComponent(
+				componentID
+			);
+			actor.AddComponent(pActorComponent);
+
+			return true;
+		},
+		"RemoveComponent",
+		[&](
+		Gameplay::ActorHandle& self,
+		const std::string& componentID
+	)
+		{
+			Gameplay::Actor& actor = self.Get();
+			const GUID ID = std::hash<std::string>{}(componentID);
+			if (!actor.HasComponent(ID))
+			{
+				return;
+			}
+
+			actor.RemoveComponent(ID);
+		},
+		"Spawn",
+		sol::overload(
+			[&](
+			Gameplay::ActorHandle& self,
+			const std::string& name,
+			const Gameplay::ActorHandle& parentActor,
+			const Gameplay::ActorHandle& templateActor
+		) -> Gameplay::ActorHandle
+			{
+				if (!parentActor.IsValid() || !templateActor.IsValid())
+				{
+					return Gameplay::ActorHandle(nullptr, GUID::Empty);
+				}
+
+				const Gameplay::Actor& actor = self.Get();
+				Gameplay::GameWorld* pWorld = actor.GetWorld();
+				const GUID newActorID = pWorld->CreateActor(parentActor.Get());
+				Gameplay::Actor& newActor = pWorld->GetActor(newActorID);
+				newActor.SetName(name);
+
+				newActor.Clone(templateActor.Get());
+
+				return Gameplay::ActorHandle(pWorld, newActorID);
+			},
+			[&](
+			Gameplay::ActorHandle& self,
+			const std::string& name,
+			const Gameplay::ActorHandle& parentActor
+		) -> Gameplay::ActorHandle
+			{
+				if (!parentActor.IsValid())
+				{
+					return Gameplay::ActorHandle(nullptr, GUID::Empty);
+				}
+
+				const Gameplay::Actor& actor = self.Get();
+				Gameplay::GameWorld* pWorld = actor.GetWorld();
+				const GUID newActorID = pWorld->CreateActor(parentActor.Get());
+				Gameplay::Actor& newActor = pWorld->GetActor(newActorID);
+				newActor.SetName(name);
+
+				return Gameplay::ActorHandle(pWorld, newActorID);
+			},
+			[&](
+			Gameplay::ActorHandle& self,
+			const std::string& name
+		) -> Gameplay::ActorHandle
+			{
+				Gameplay::Actor& actor = self.Get();
+				Gameplay::GameWorld* pWorld = actor.GetWorld();
+				const GUID newActorID = pWorld->CreateActor(actor);
+				Gameplay::Actor& newActor = pWorld->GetActor(newActorID);
+				newActor.SetName(name);
+
+				return Gameplay::ActorHandle(pWorld, newActorID);
+			}
+		),
+		"Destroy",
+		[&](
+		Gameplay::ActorHandle& self
+	)
+		{
+			Gameplay::Actor& actor = self.Get();
+			actor.MarkForDestruction();
 		}
 	);
 }
@@ -1111,7 +1214,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		[](StaticModelComponentHandle& self) -> int32_t
 		{
 			Gameplay::StaticModelComponent& component = self.Get();
-			return component.GetMaterialCount();
+			return static_cast<int32_t>(component.GetMaterialCount());
 		},
 		"MaterialAtIndex",
 		[](StaticModelComponentHandle& self, int32_t index) -> MaterialHandle
@@ -1210,7 +1313,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 		[](SkeletalModelComponentHandle& self) -> int32_t
 		{
 			Gameplay::SkeletalModelComponent& component = self.Get();
-			return component.GetMaterialCount();
+			return static_cast<int32_t>(component.GetMaterialCount());
 		},
 		"MaterialAtIndex",
 		[](SkeletalModelComponentHandle& self, int32_t index) -> MaterialHandle

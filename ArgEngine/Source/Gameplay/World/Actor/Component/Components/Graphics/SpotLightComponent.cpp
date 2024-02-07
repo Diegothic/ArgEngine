@@ -59,6 +59,19 @@ void Arg::Gameplay::SpotLightComponent::VOnComponentRemoved()
 {
 }
 
+void Arg::Gameplay::SpotLightComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const SpotLightComponent* pSpotLightComponent = dynamic_cast<const SpotLightComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pSpotLightComponent != nullptr);
+	SetLightColor(pSpotLightComponent->GetLightColor());
+	SetLightRange(pSpotLightComponent->GetLightRange());
+	SetLightIntensity(pSpotLightComponent->GetLightIntensity());
+	SetInnerConeAngle(pSpotLightComponent->GetInnerConeAngle());
+	SetOuterConeAngle(pSpotLightComponent->GetOuterConeAngle());
+}
+
 bool Arg::Gameplay::SpotLightComponent::VOnSerialize(YAML::Node& node) const
 {
 	const bool bIsSuccess = ActorComponent::VOnSerialize(node);

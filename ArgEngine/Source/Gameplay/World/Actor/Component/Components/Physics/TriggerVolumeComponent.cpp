@@ -126,6 +126,17 @@ void Arg::Gameplay::TriggerVolumeComponent::VOnComponentRemoved()
 	}
 }
 
+void Arg::Gameplay::TriggerVolumeComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const TriggerVolumeComponent* pTriggerVolumeComponent = dynamic_cast<const TriggerVolumeComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pTriggerVolumeComponent != nullptr);
+	m_pTriggerVolume = std::make_unique<Physics::TriggerVolume>(GetOwner()->GetID());
+	SetPhysicsShape(pTriggerVolumeComponent->GetPhysicsShape());
+	SetSize(pTriggerVolumeComponent->GetSize());
+}
+
 auto Arg::Gameplay::TriggerVolumeComponent::GetPhysicsShape() const -> Physics::TriggerVolumeShape
 {
 	return m_pTriggerVolume->GetShape();

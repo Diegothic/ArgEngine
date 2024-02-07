@@ -31,7 +31,13 @@ auto Arg::Gameplay::Actor::GetComponent(const GUID& componentID) -> std::shared_
 	return m_ComponentsRegistry.at(componentID);
 }
 
-auto Arg::Gameplay::Actor::GetComponentByIndex(const size_t index) -> std::shared_ptr<ActorComponent>&
+auto Arg::Gameplay::Actor::GetComponentByIndex(size_t index) -> std::shared_ptr<ActorComponent>&
+{
+	ARG_ASSERT(index < m_Components.size());
+	return m_Components[index];
+}
+
+auto Arg::Gameplay::Actor::GetComponentByIndex(size_t index) const -> const std::shared_ptr<ActorComponent>&
 {
 	ARG_ASSERT(index < m_Components.size());
 	return m_Components[index];
@@ -349,6 +355,42 @@ void Arg::Gameplay::Actor::Destroy()
 	for (const auto& componentID : componentsToRemove)
 	{
 		RemoveComponent(componentID);
+	}
+}
+
+void Arg::Gameplay::Actor::Clone(const Actor& actor)
+{
+	// Remove components and children
+	Destroy();
+	GameWorld* pWorld = GetWorld();
+	for (size_t i = GetChildActorsCount(); i > 0; i--)
+	{
+		pWorld->DestroyActorWithChildren(*actor.GetChildActor(i - 1));
+	}
+
+	// Clone components and children
+	SetLocalPosition(actor.GetLocalPosition());
+	SetLocalRotation(actor.GetLocalRotation());
+	SetLocalScale(actor.GetLocalScale());
+
+	const ComponentRegistry* pComponentRegistry = GetComponentRegistry();
+	for (size_t i = 0; i < actor.GetComponentCount(); i++)
+	{
+		const auto& pComponent = actor.GetComponentByIndex(i);
+		const auto pActorComponent = pComponentRegistry->CreateComponent(
+			pComponent->VGetID()
+		);
+		pActorComponent->SetOwner(this);
+		pActorComponent->VClone(pComponent.get());
+		AddComponent(pActorComponent);
+	}
+	for (size_t i = 0; i < actor.GetChildActorsCount(); i++)
+	{
+		const Actor* pChildActor = actor.GetChildActor(i);
+		const GUID newChildActorID = pWorld->CreateActor(*this);
+		Actor& newChildActor = pWorld->GetActor(newChildActorID);
+		newChildActor.SetName(pChildActor->GetName());
+		newChildActor.Clone(*pChildActor);
 	}
 }
 

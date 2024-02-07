@@ -66,6 +66,42 @@ void Arg::Script::ScriptComponent::VTick(const Gameplay::GameTime& gameTime, con
 	{
 		state[m_Name]["_Tick"](scriptInstances[m_OwnerIDString], gameTime, gameInput);
 	}
+
+	auto Fn_ScriptGetFieldValues = [&]<typename T>(
+		const std::unordered_map<std::string, T>& baseValues,
+		std::unordered_map<std::string, T>& currentValues
+	)
+	{
+		for (const auto& fieldName : baseValues | std::ranges::views::keys)
+		{
+			const T scriptValue = scriptInstances[m_OwnerIDString][fieldName];
+			if (!currentValues.contains(fieldName))
+			{
+				currentValues[fieldName] = scriptValue;
+			}
+			else
+			{
+				const T& fieldValue = currentValues.at(fieldName);
+				if (fieldValue != scriptValue)
+				{
+					currentValues[fieldName] = scriptValue;
+				}
+			}
+		}
+	};
+
+	Fn_ScriptGetFieldValues(m_pBase->m_FloatFieldValues, m_FloatFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_IntegerFieldValues, m_IntegerFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_BooleanFieldValues, m_BooleanFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_Vec3FieldValues, m_Vec3FieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_ActorFieldValues, m_ActorFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_TextureFieldValues, m_TextureFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_StaticModelFieldValues, m_StaticModelFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_SkeletonFieldValues, m_SkeletonFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_SkeletalModelFieldValues, m_SkeletalModelFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_SkeletalAnimationFieldValues, m_SkeletalAnimationFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_MaterialFieldValues, m_MaterialFieldValues);
+	Fn_ScriptGetFieldValues(m_pBase->m_SoundFieldValues, m_SoundFieldValues);
 }
 
 void Arg::Script::ScriptComponent::VDrawDebug(Renderer::RenderContext& context)
@@ -135,6 +171,39 @@ void Arg::Script::ScriptComponent::VOnComponentRemoved()
 	}
 
 	scriptInstances[m_OwnerIDString] = sol::nil;
+}
+
+void Arg::Script::ScriptComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const ScriptComponent* pScriptComponent = dynamic_cast<const ScriptComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pScriptComponent != nullptr);
+	auto Fn_ScriptCloneFieldValues = [&]<typename T>(
+		const std::unordered_map<std::string, T>& baseValues,
+		std::unordered_map<std::string, T>& currentValues
+	)
+	{
+		for (const auto& fieldName : baseValues | std::ranges::views::keys)
+		{
+			T value;
+			pScriptComponent->GetFieldValue(fieldName, value);
+			currentValues[fieldName] = value;
+		}
+	};
+
+	Fn_ScriptCloneFieldValues(m_pBase->m_FloatFieldValues, m_FloatFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_IntegerFieldValues, m_IntegerFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_BooleanFieldValues, m_BooleanFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_Vec3FieldValues, m_Vec3FieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_ActorFieldValues, m_ActorFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_TextureFieldValues, m_TextureFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_StaticModelFieldValues, m_StaticModelFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_SkeletonFieldValues, m_SkeletonFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_SkeletalModelFieldValues, m_SkeletalModelFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_SkeletalAnimationFieldValues, m_SkeletalAnimationFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_MaterialFieldValues, m_MaterialFieldValues);
+	Fn_ScriptCloneFieldValues(m_pBase->m_SoundFieldValues, m_SoundFieldValues);
 }
 
 auto Arg::Script::ScriptComponent::GetField(size_t index) const -> const ScriptComponentField&
@@ -660,8 +729,8 @@ void Arg::Script::ScriptComponent::UpdateScriptFields()
 	const std::string& ownerIDString = m_OwnerIDString;
 
 	auto Fn_ScriptSetFieldValues = [&]<typename T>(
-		std::unordered_map<std::string, T> baseValues,
-		std::unordered_map<std::string, T> currentValues)
+		const std::unordered_map<std::string, T>& baseValues,
+		const std::unordered_map<std::string, T>& currentValues)
 	{
 		for (const auto& fieldName : baseValues | std::ranges::views::keys)
 		{
@@ -685,8 +754,8 @@ void Arg::Script::ScriptComponent::UpdateScriptFields()
 	Fn_ScriptSetFieldValues(m_pBase->m_SoundFieldValues, m_SoundFieldValues);
 
 	auto Fn_ScriptRefreshFieldValues = [&]<typename T>(
-		std::unordered_map<std::string, T> baseValues,
-		std::unordered_map<std::string, T> currentValues)
+		const std::unordered_map<std::string, T>& baseValues,
+		std::unordered_map<std::string, T>& currentValues)
 	{
 		std::vector<std::string> fieldsToRemove;
 		fieldsToRemove.reserve(currentValues.size());

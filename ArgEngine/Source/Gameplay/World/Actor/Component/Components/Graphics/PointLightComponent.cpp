@@ -49,6 +49,17 @@ void Arg::Gameplay::PointLightComponent::VOnComponentRemoved()
 {
 }
 
+void Arg::Gameplay::PointLightComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const PointLightComponent* pPointLightComponent = dynamic_cast<const PointLightComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pPointLightComponent != nullptr);
+	SetLightColor(pPointLightComponent->GetLightColor());
+	SetLightRange(pPointLightComponent->GetLightRange());
+	SetLightIntensity(pPointLightComponent->GetLightIntensity());
+}
+
 bool Arg::Gameplay::PointLightComponent::VOnSerialize(YAML::Node& node) const
 {
 	const bool bIsSuccess = ActorComponent::VOnSerialize(node);

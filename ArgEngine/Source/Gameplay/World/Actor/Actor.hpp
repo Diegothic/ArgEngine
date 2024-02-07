@@ -39,7 +39,8 @@ namespace Arg
 			auto GetComponentCount() const -> size_t;
 			auto HasComponent(const GUID& componentID) const -> bool;
 			auto GetComponent(const GUID& componentID) -> std::shared_ptr<ActorComponent>&;
-			auto GetComponentByIndex(const size_t index) -> std::shared_ptr<ActorComponent>&;
+			auto GetComponentByIndex(size_t index) -> std::shared_ptr<ActorComponent>&;
+			auto GetComponentByIndex( size_t index) const -> const std::shared_ptr<ActorComponent>&;
 			auto AddComponent(const std::shared_ptr<ActorComponent>& component) -> bool;
 			auto RemoveComponent(const GUID& componentID) -> bool;
 
@@ -86,6 +87,8 @@ namespace Arg
 			void MarkForDestruction() { m_bIsDestroyed = true; }
 			auto IsMarkedForDestruction() const -> bool { return m_bIsDestroyed; }
 			void Destroy();
+
+			void Clone(const Actor& actor);
 
 		protected:
 			auto VOnSerialize(YAML::Node& node) const -> bool override;

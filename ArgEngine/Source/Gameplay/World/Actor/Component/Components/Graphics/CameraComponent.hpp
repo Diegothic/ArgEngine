@@ -34,6 +34,8 @@ namespace Arg
 			void VOnComponentAdded() override;
 			void VOnComponentRemoved() override;
 
+			void VClone(const ActorComponent* pActorComponent) override;
+
 		public:
 			auto GetCamera() const -> Renderer::Camera* { return m_pCamera.get(); }
 

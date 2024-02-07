@@ -118,7 +118,7 @@ void Arg::Sound::SoundEngine::ClearGarbage()
 	}
 }
 
-Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound2D(
+auto Arg::Sound::SoundEngine::PlaySound2D(
 	const SoundResourceHandle& sound,
 	const SoundSpec& spec
 ) -> SoundHandle
@@ -162,7 +162,7 @@ Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound2D(
 	return {this, soundID};
 }
 
-Arg::Sound::SoundHandle Arg::Sound::SoundEngine::PlaySound3D(
+auto Arg::Sound::SoundEngine::PlaySound3D(
 	const SoundResourceHandle& sound,
 	const SoundSpec& spec
 ) -> SoundHandle

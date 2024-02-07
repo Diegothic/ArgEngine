@@ -125,6 +125,25 @@ void Arg::Gameplay::SkeletalModelComponent::VOnComponentRemoved()
 	}
 }
 
+void Arg::Gameplay::SkeletalModelComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const SkeletalModelComponent* pSkeletalModelComponent = dynamic_cast<const SkeletalModelComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pSkeletalModelComponent != nullptr);
+	SetSkeleton(pSkeletalModelComponent->GetSkeleton());
+	SetModel(pSkeletalModelComponent->GetModel());
+	SetCastShadows(pSkeletalModelComponent->GetCastShadows());
+	SetReceiveShadows(pSkeletalModelComponent->GetReceiveShadows());
+	for (size_t i = 0; i < pSkeletalModelComponent->GetMaterialCount(); i++)
+	{
+		SetMaterial(i, pSkeletalModelComponent->GetMaterial(i));
+	}
+	SetCurrentAnimation(pSkeletalModelComponent->GetCurrentAnimation());
+	SetPlayOnStart(pSkeletalModelComponent->GetPlayOnStart());
+	SetLooping(pSkeletalModelComponent->GetLooping());
+}
+
 void Arg::Gameplay::SkeletalModelComponent::SetSkeleton(const SkeletonHandle& skeleton)
 {
 	if (m_Skeleton.IsValid())

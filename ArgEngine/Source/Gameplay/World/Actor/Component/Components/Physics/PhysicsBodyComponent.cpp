@@ -152,6 +152,30 @@ void Arg::Gameplay::PhysicsBodyComponent::VOnComponentRemoved()
 	}
 }
 
+void Arg::Gameplay::PhysicsBodyComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const PhysicsBodyComponent* pPhysicsBodyComponent = dynamic_cast<const PhysicsBodyComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pPhysicsBodyComponent != nullptr);
+	m_pPhysicsBody = std::make_unique<Physics::PhysicsBody>(GetOwner()->GetID());
+	SetGeneratesOnCollisionEvents(pPhysicsBodyComponent->GetGeneratesOnCollisionEvents());
+	SetIsDynamic(pPhysicsBodyComponent->GetIsDynamic());
+	SetMass(pPhysicsBodyComponent->GetMass());
+	SetDamping(pPhysicsBodyComponent->GetDamping());
+	SetAngularDamping(pPhysicsBodyComponent->GetAngularDamping());
+	SetBounciness(pPhysicsBodyComponent->GetBounciness());
+	SetPhysicsShape(pPhysicsBodyComponent->GetPhysicsShape());
+	SetPhysicsShapeMesh(pPhysicsBodyComponent->GetPhysicsShapeMesh());
+	SetSize(pPhysicsBodyComponent->GetSize());
+	SetMovementLockX(pPhysicsBodyComponent->GetMovementLockX());
+	SetMovementLockY(pPhysicsBodyComponent->GetMovementLockY());
+	SetMovementLockZ(pPhysicsBodyComponent->GetMovementLockZ());
+	SetRotationLockX(pPhysicsBodyComponent->GetRotationLockX());
+	SetRotationLockY(pPhysicsBodyComponent->GetRotationLockY());
+	SetRotationLockZ(pPhysicsBodyComponent->GetRotationLockZ());
+}
+
 auto Arg::Gameplay::PhysicsBodyComponent::GetGeneratesOnCollisionEvents() const -> bool
 {
 	return m_pPhysicsBody->GetGenerateOnCollisionEvents();

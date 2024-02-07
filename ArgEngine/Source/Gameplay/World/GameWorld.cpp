@@ -131,6 +131,30 @@ void Arg::Gameplay::GameWorld::DestroyActor(Actor& actor)
 	);
 }
 
+void Arg::Gameplay::GameWorld::DestroyActorWithChildren(Actor& actor)
+{
+	for (size_t i = actor.GetChildActorsCount(); i > 0; i--)
+	{
+		DestroyActorWithChildren(*actor.GetChildActor(i - 1));
+	}
+
+	Actor* parentActor = actor.GetParentActor();
+	parentActor->RemoveChildActor(&actor);
+	actor.Destroy();
+
+	const GUID actorID = actor.GetID();
+	ARG_ASSERT(m_ActorsRegistry.contains(actorID));
+	m_ActorsRegistry.erase(actorID);
+
+	std::erase_if(
+		m_Actors,
+		[&](const std::unique_ptr<Actor>& pActor)
+		{
+			return pActor->GetID() == actorID;
+		}
+	);
+}
+
 void Arg::Gameplay::GameWorld::ReparentActor(Actor& actor, Actor& newParentActor)
 {
 	actor.GetParentActor()->RemoveChildActor(&actor);
@@ -501,7 +525,7 @@ void Arg::Gameplay::GameWorld::ClearGarbage()
 	for (const auto& actorID : actorsToDestroy)
 	{
 		Actor& actor = GetActor(actorID);
-		DestroyActor(actor);
+		DestroyActorWithChildren(actor);
 	}
 }
 

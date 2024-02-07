@@ -452,14 +452,19 @@ void Arg::Editor::Editor::CreateProject(const std::filesystem::path& destination
 
 auto Arg::Editor::Editor::GetSelectedActor(Gameplay::Actor*& pOutActor) const -> bool
 {
+	pOutActor = nullptr;
 	if (m_pGameEngine->IsWorldLoaded())
 	{
 		const auto& pWorld = m_pGameEngine->GetLoadedWorld();
+		if (!pWorld->HasActor(m_SelectedActorID))
+		{
+			return false;
+		}
+
 		pOutActor = &pWorld->GetActor(m_SelectedActorID);
 		return true;
 	}
 
-	pOutActor = nullptr;
 	return false;
 }
 

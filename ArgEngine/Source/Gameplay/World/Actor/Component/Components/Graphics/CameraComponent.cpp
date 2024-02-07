@@ -56,6 +56,17 @@ void Arg::Gameplay::CameraComponent::VOnComponentRemoved()
 {
 }
 
+void Arg::Gameplay::CameraComponent::VClone(const ActorComponent* pActorComponent)
+{
+	const CameraComponent* pCameraComponent = dynamic_cast<const CameraComponent*>(
+		pActorComponent
+	);
+	ARG_ASSERT(pCameraComponent != nullptr);
+	SetMode(pCameraComponent->GetMode());
+	SetFOVAngle(pCameraComponent->GetFOVAngle());
+	SetSize(pCameraComponent->GetSize());
+}
+
 void Arg::Gameplay::CameraComponent::SetMode(const CameraMode& mode)
 {
 	m_Mode = mode;
