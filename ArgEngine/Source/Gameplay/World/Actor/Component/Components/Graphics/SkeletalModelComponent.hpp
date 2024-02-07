@@ -8,6 +8,7 @@
 #include "Content/Resource/GameResources/MaterialResource.hpp"
 #include "Content/Resource/GameResources/SkeletalAnimationResource.hpp"
 #include "Content/Resource/GameResources/SkeletonResource.hpp"
+#include "Core/Event/Event.hpp"
 #include "Gameplay/World/Actor/ActorHandle.hpp"
 
 namespace Arg
@@ -25,6 +26,15 @@ namespace Arg
 			int32_t BoneIndex;
 		};
 
+		enum SkeletalAnimationState
+		{
+			StateIdle,
+			StateStarted,
+			StatePlaying,
+			StatePaused,
+			StateFinished
+		};
+
 		class SkeletalModelComponent : public ActorComponent
 		{
 		public:
@@ -40,6 +50,7 @@ namespace Arg
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
 
 			void VBeginPlay() override;
+			void VEndPlay() override;
 			void VTick(const GameTime& gameTime, const GameInput& gameInput) override;
 			void VRender(Renderer::RenderContext& context) override;
 
@@ -47,6 +58,11 @@ namespace Arg
 			void VOnComponentRemoved() override;
 
 			void VClone(const ActorComponent* pActorComponent) override;
+
+		public:
+			Event<void()> Ev_OnAnimationStart;
+			Event<void()> Ev_OnAnimationEnd;
+			Event<void(const std::string&)> Ev_OnAnimationEvent;
 
 		public:
 			auto GetSkeleton() const -> SkeletonHandle { return m_Skeleton; }
@@ -82,6 +98,8 @@ namespace Arg
 
 		public:
 			void Play(const SkeletalAnimationHandle& animation);
+			void Pause();
+			void Unpause();
 			void Stop();
 
 		protected:
@@ -100,11 +118,11 @@ namespace Arg
 			bool m_bCastShadows = true;
 
 			SkeletalAnimationHandle m_CurrentAnimation;
+			SkeletalAnimationState m_CurrentAnimationState = StateIdle;
 			bool m_bPlayOnStart = true;
 			bool m_bLooping = true;
-
-			bool m_bIsPlaying = false;
 			float m_ElapsedTime = 0.0f;
+			int32_t m_CurrentAnimationFrame = -1;
 
 			std::vector<SkeletonAttachment> m_Attachments;
 		};

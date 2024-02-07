@@ -20,14 +20,15 @@ namespace Arg
 
 			auto GetMaterial() const -> const std::shared_ptr<Renderer::Material>&
 			{
+				ARG_ASSERT(m_pMaterial != nullptr);
 				return m_pMaterial;
 			}
 
 		protected:
-			auto GetResourceFileExtension() const -> const std::string & override;
+			auto GetResourceFileExtension() const -> const std::string& override;
 
 			void VPreLoad() override;
-			auto VGetSerializableData() const->ISerializable* override;
+			auto VGetSerializableData() const -> ISerializable* override;
 			void VPostLoad() override;
 			void VUnload() override;
 

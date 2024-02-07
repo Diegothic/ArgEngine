@@ -5,6 +5,7 @@
 #include "GUI/EditorGUIPanel.hpp"
 #include "Content/Content.hpp"
 #include "Renderer/Material.hpp"
+#include "Renderer/Animation/SkeletalAnimation.hpp"
 
 namespace Arg
 {
@@ -31,6 +32,11 @@ namespace Arg
 				void DrawGameResourceDetails(
 					const EditorGUIContext& context,
 					std::shared_ptr<Renderer::Material>& pMaterial
+				);
+
+				void DrawGameResourceDetails(
+					const EditorGUIContext& context,
+					Renderer::SkeletalAnimation* pAnimation
 				);
 			};
 		}

@@ -767,119 +767,139 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorComponentProperties(
 
 			ImGui::TableNextColumn();
 
-			Gameplay::GameWorld* pWorld = pActor->GetWorld();
-			const size_t childActorsCount = pActor->GetChildActorsCount();
-			bool bRemoveAttachment = false;
-			size_t removeAttachmentIndex = 0;
-			for (size_t i = 0; i < pComponent->GetAttachmentCount(); i++)
+			if (ImGui::CollapsingHeader(
+				"Elements List ",
+				ImGuiTreeNodeFlags_DefaultOpen
+				| ImGuiTreeNodeFlags_AllowOverlap
+			))
 			{
-				ImGui::PushID(static_cast<int32_t>(i));
-
-				ImGui::Text(std::to_string(i).c_str());
-				ImGui::SameLine();
-
-				const auto attachment = pComponent->GetAttachment(i);
+				Gameplay::GameWorld* pWorld = pActor->GetWorld();
+				const size_t childActorsCount = pActor->GetChildActorsCount();
+				bool bRemoveAttachment = false;
+				size_t removeAttachmentIndex = 0;
+				for (size_t i = 0; i < pComponent->GetAttachmentCount(); i++)
 				{
-					Gameplay::ActorHandle actorHandle =
-						attachment.ChildActorIndex >= 0
-						&& attachment.ChildActorIndex < static_cast<int32_t>(childActorsCount)
-							? Gameplay::ActorHandle(
-								pWorld,
-								pActor->GetChildActor(attachment.ChildActorIndex)->GetID())
-							: Gameplay::ActorHandle(pWorld, GUID::Empty);
+					ImGui::PushID(static_cast<int32_t>(i));
 
-					const char* actorName = nullptr;
-					std::string name;
-					if (actorHandle.IsValid())
-					{
-						name = actorHandle.Get().GetName();
-						actorName = name.c_str();
-					}
-
-					ActorHandleProperty(
-						"##ActorProperty",
-						Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
-						actorName,
-						[&](GUID droppedActorID)
-						{
-							if (
-								!pWorld->HasActor(droppedActorID)
-								|| pWorld->GetActor(droppedActorID).GetParentActor()->GetID() != pActor->GetID()
-							)
-							{
-								return;
-							}
-
-							int32_t childActorIndex = 0;
-							for (size_t j = 0; j < pActor->GetChildActorsCount(); j++)
-							{
-								if (pActor->GetChildActor(j)->GetID() == droppedActorID)
-								{
-									childActorIndex = static_cast<int32_t>(j);
-									break;
-								}
-							}
-
-							pComponent->SetAttachment(i, Gameplay::SkeletonAttachment{
-								                          childActorIndex, attachment.BoneIndex
-							                          });
-						},
-						[&]
-						{
-							pComponent->SetAttachment(i, Gameplay::SkeletonAttachment{-1, attachment.BoneIndex});
-						}
+					const std::string elementHeader = std::format("Element {}", i);
+					const bool bElementHeaderOpen = ImGui::CollapsingHeader(
+						elementHeader.c_str(),
+						ImGuiTreeNodeFlags_DefaultOpen
+						| ImGuiTreeNodeFlags_FramePadding
+						| ImGuiTreeNodeFlags_AllowOverlap
 					);
-				}
 
-				if (ImGui::Button("-"))
-				{
-					bRemoveAttachment = true;
-					removeAttachmentIndex = i;
-				}
-
-				ImGui::SameLine();
-				{
-					int32_t boneIndex = attachment.BoneIndex;
-					const Renderer::Skeleton& skeleton = pComponent->GetSkeleton().Get()->GetSkeleton();
-					ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 180.0f);
-					if (ImGui::BeginCombo("##Bone", skeleton.GetBoneName(boneIndex).c_str()))
+					ImGui::SameLine(ImGui::GetWindowSize().x - 180.0f);
+					if (ImGui::Button("-", ImVec2(60.0f, 24.0f)))
 					{
-						for (size_t j = 0; j < skeleton.GetBoneCount(); j++)
+						bRemoveAttachment = true;
+						removeAttachmentIndex = i;
+					}
+
+					if (bElementHeaderOpen)
+					{
+						const auto attachment = pComponent->GetAttachment(i);
 						{
-							const bool bIsSelected = boneIndex == j;
-							if (ImGui::Selectable(skeleton.GetBoneName(j).c_str(), bIsSelected))
+							ImGui::Text("Child Actor");
+
+							Gameplay::ActorHandle actorHandle =
+								attachment.ChildActorIndex >= 0
+								&& attachment.ChildActorIndex < static_cast<int32_t>(childActorsCount)
+									? Gameplay::ActorHandle(
+										pWorld,
+										pActor->GetChildActor(attachment.ChildActorIndex)->GetID())
+									: Gameplay::ActorHandle(pWorld, GUID::Empty);
+
+							const char* actorName = nullptr;
+							std::string name;
+							if (actorHandle.IsValid())
 							{
-								boneIndex = j;
-								pComponent->SetAttachment(
-									i,
-									Gameplay::SkeletonAttachment{
-										attachment.ChildActorIndex,
-										boneIndex
-									}
-								);
+								name = actorHandle.Get().GetName();
+								actorName = name.c_str();
 							}
 
-							if (bIsSelected)
-							{
-								ImGui::SetItemDefaultFocus();
-							}
+							ActorHandleProperty(
+								"##ActorProperty",
+								Vec2(ImGui::GetWindowWidth() - 180.0f, 25.0f),
+								actorName,
+								[&](GUID droppedActorID)
+								{
+									if (
+										!pWorld->HasActor(droppedActorID)
+										|| pWorld->GetActor(droppedActorID).GetParentActor()->GetID() != pActor->GetID()
+									)
+									{
+										return;
+									}
+
+									int32_t childActorIndex = 0;
+									for (size_t j = 0; j < pActor->GetChildActorsCount(); j++)
+									{
+										if (pActor->GetChildActor(j)->GetID() == droppedActorID)
+										{
+											childActorIndex = static_cast<int32_t>(j);
+											break;
+										}
+									}
+
+									pComponent->SetAttachment(i, Gameplay::SkeletonAttachment{
+										                          childActorIndex, attachment.BoneIndex
+									                          });
+								},
+								[&]
+								{
+									pComponent->
+										SetAttachment(i, Gameplay::SkeletonAttachment{-1, attachment.BoneIndex});
+								}
+							);
 						}
 
-						ImGui::EndCombo();
+						{
+							ImGui::Text("Bone");
+
+							int32_t boneIndex = attachment.BoneIndex;
+							const Renderer::Skeleton& skeleton = pComponent->GetSkeleton().Get()->GetSkeleton();
+							ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 180.0f);
+							if (ImGui::BeginCombo("##Bone", skeleton.GetBoneName(boneIndex).c_str()))
+							{
+								for (size_t j = 0; j < skeleton.GetBoneCount(); j++)
+								{
+									const bool bIsSelected = boneIndex == j;
+									if (ImGui::Selectable(skeleton.GetBoneName(j).c_str(), bIsSelected))
+									{
+										boneIndex = j;
+										pComponent->SetAttachment(
+											i,
+											Gameplay::SkeletonAttachment{
+												attachment.ChildActorIndex,
+												boneIndex
+											}
+										);
+									}
+
+									if (bIsSelected)
+									{
+										ImGui::SetItemDefaultFocus();
+									}
+								}
+
+								ImGui::EndCombo();
+							}
+						}
 					}
+
+					ImGui::PopID();
 				}
 
-				ImGui::PopID();
-			}
+				if (bRemoveAttachment)
+				{
+					pComponent->RemoveAttachment(removeAttachmentIndex);
+				}
 
-			if (bRemoveAttachment)
-			{
-				pComponent->RemoveAttachment(removeAttachmentIndex);
-			}
-
-			if (ImGui::Button("+", ImVec2(ImGui::GetWindowWidth() - 165.0f, 25.0f)))
-			{
-				pComponent->AddAttachment(Gameplay::SkeletonAttachment{-1, 0});
+				if (ImGui::Button("+", ImVec2(ImGui::GetWindowWidth() - 165.0f, 25.0f)))
+				{
+					pComponent->AddAttachment(Gameplay::SkeletonAttachment{-1, 0});
+				}
 			}
 		}
 	}

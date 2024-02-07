@@ -24,7 +24,6 @@ void Arg::Gameplay::PhysicsBodyComponent::VBeginPlay()
 {
 	ActorComponent::VBeginPlay();
 
-	Ev_OnCollision.Clear();
 	RefreshPhysics();
 }
 

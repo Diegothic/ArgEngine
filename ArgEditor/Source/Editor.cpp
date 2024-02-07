@@ -488,9 +488,9 @@ auto Arg::Editor::Editor::GetSelectedResource() const -> std::shared_ptr<Content
 
 void Arg::Editor::Editor::SelectResource(const GUID resourceID)
 {
-	auto& resourceCache = IsProjectOpened()
-		                      ? m_pProject->GetResourceCache()
-		                      : m_pResourceCache;
+	const auto& resourceCache = IsProjectOpened()
+		                            ? m_pProject->GetResourceCache()
+		                            : m_pResourceCache;
 
 	if (m_SelectedResourceID != GUID::Empty
 		&& resourceCache->IsValid(m_SelectedResourceID))
@@ -509,6 +509,16 @@ void Arg::Editor::Editor::SelectResource(const GUID resourceID)
 
 void Arg::Editor::Editor::DeselectResource()
 {
+	const auto& resourceCache = IsProjectOpened()
+		                            ? m_pProject->GetResourceCache()
+		                            : m_pResourceCache;
+
+	if (m_SelectedResourceID != GUID::Empty
+		&& resourceCache->IsValid(m_SelectedResourceID))
+	{
+		resourceCache->GetGameResource(m_SelectedResourceID)->FreeRef();
+	}
+
 	m_SelectedResourceID = GUID::Empty;
 }
 

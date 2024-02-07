@@ -23,8 +23,6 @@ void Arg::Gameplay::TriggerVolumeComponent::VBeginPlay()
 {
 	ActorComponent::VBeginPlay();
 
-	Ev_OnEnter.Clear();
-	Ev_OnExit.Clear();
 	RefreshPhysics();
 }
 

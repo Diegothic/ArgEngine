@@ -25,8 +25,16 @@ namespace Arg
 				return *m_pAnimation;
 			}
 
+			auto GetAnimation() -> Renderer::SkeletalAnimation*
+			{
+				ARG_ASSERT(m_pAnimation != nullptr);
+				return m_pAnimation.get();
+			}
+
 		protected:
 			auto GetResourceFileExtension() const -> const std::string& override;
+
+			auto VIsSaveable() const -> bool override { return true; }
 
 			void VPreLoad() override;
 			void VOnLoad() override;
@@ -34,7 +42,6 @@ namespace Arg
 			void VUnload() override;
 
 		private:
-			std::unique_ptr<Renderer::SkeletalAnimationSpec> m_pAnimationSpec = nullptr;
 			std::unique_ptr<Renderer::SkeletalAnimation> m_pAnimation = nullptr;
 		};
 	}

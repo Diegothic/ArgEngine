@@ -81,7 +81,7 @@ namespace Arg
 			auto GetSound(const GUID& ID) const -> irrklang::ISound*;
 
 		private:
-			std::unique_ptr<irrklang::ISoundEngine> m_pEngine = nullptr;
+			irrklang::ISoundEngine* m_pEngine = nullptr;
 			std::unordered_map<GUID, irrklang::ISound*> m_Sounds;
 			Random::Random m_Random;
 

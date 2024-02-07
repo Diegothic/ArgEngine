@@ -81,7 +81,7 @@ void Arg::Sound::SoundHandle::UpdateLooping(bool value) const
 
 void Arg::Sound::SoundEngine::Initialize()
 {
-	m_pEngine = std::unique_ptr<irrklang::ISoundEngine>(irrklang::createIrrKlangDevice());
+	m_pEngine = irrklang::createIrrKlangDevice();
 	ARG_ASSERT(m_pEngine != nullptr);
 }
 
@@ -95,7 +95,6 @@ void Arg::Sound::SoundEngine::CleanUp()
 	m_Sounds.clear();
 	m_pEngine->removeAllSoundSources();
 	m_pEngine->drop();
-	m_pEngine = nullptr;
 }
 
 void Arg::Sound::SoundEngine::ClearGarbage()

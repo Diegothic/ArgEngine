@@ -14,7 +14,6 @@ auto Arg::Content::SkeletalAnimationResource::GetResourceFileExtension() const -
 void Arg::Content::SkeletalAnimationResource::VPreLoad()
 {
 	GameDataResource::VPreLoad();
-	m_pAnimationSpec = std::make_unique<Renderer::SkeletalAnimationSpec>();
 	m_pAnimation = std::make_unique<Renderer::SkeletalAnimation>();
 }
 
@@ -22,38 +21,39 @@ void Arg::Content::SkeletalAnimationResource::VOnLoad()
 {
 	GameDataResource::VOnLoad();
 	const auto data = GetData()->data();
+	const Renderer::SkeletalAnimationSpec& pSpec = m_pAnimation->GetSpec();
 	Renderer::SkeletalAnimationData animationData{
-		.Spec = *m_pAnimationSpec,
-		.Channels = std::vector<Renderer::SkeletalAnimationChannel>(m_pAnimationSpec->ChannelCount),
+		.Spec = pSpec,
+		.Channels = std::vector<Renderer::SkeletalAnimationChannel>(pSpec.ChannelCount),
 	};
 
 	std::stringstream stream;
 	stream.write((char*)data, GetData()->size() * sizeof(char));
 
-	for (size_t i = 0; i < m_pAnimationSpec->ChannelCount; i++)
+	for (size_t i = 0; i < pSpec.ChannelCount; i++)
 	{
 		animationData.Channels[i].BoneIndex = static_cast<int32_t>(i);
 		animationData.Channels[i].PositionKeys = std::vector<Renderer::SkeletalAnimationPositionKey>(
-			m_pAnimationSpec->ChannelPositionKeysCount[i]
+			pSpec.ChannelPositionKeysCount[i]
 		);
 		animationData.Channels[i].RotationKeys = std::vector<Renderer::SkeletalAnimationRotationKey>(
-			m_pAnimationSpec->ChannelRotationKeysCount[i]
+			pSpec.ChannelRotationKeysCount[i]
 		);
 		animationData.Channels[i].ScaleKeys = std::vector<Renderer::SkeletalAnimationScaleKey>(
-			m_pAnimationSpec->ChannelScaleKeysCount[i]
+			pSpec.ChannelScaleKeysCount[i]
 		);
 
 		stream.read(
 			(char*)animationData.Channels[i].PositionKeys.data(),
-			m_pAnimationSpec->ChannelPositionKeysCount[i] * sizeof(Renderer::SkeletalAnimationPositionKey)
+			pSpec.ChannelPositionKeysCount[i] * sizeof(Renderer::SkeletalAnimationPositionKey)
 		);
 		stream.read(
 			(char*)animationData.Channels[i].RotationKeys.data(),
-			m_pAnimationSpec->ChannelRotationKeysCount[i] * sizeof(Renderer::SkeletalAnimationRotationKey)
+			pSpec.ChannelRotationKeysCount[i] * sizeof(Renderer::SkeletalAnimationRotationKey)
 		);
 		stream.read(
 			(char*)animationData.Channels[i].ScaleKeys.data(),
-			m_pAnimationSpec->ChannelScaleKeysCount[i] * sizeof(Renderer::SkeletalAnimationScaleKey)
+			pSpec.ChannelScaleKeysCount[i] * sizeof(Renderer::SkeletalAnimationScaleKey)
 		);
 	}
 
@@ -62,11 +62,10 @@ void Arg::Content::SkeletalAnimationResource::VOnLoad()
 
 auto Arg::Content::SkeletalAnimationResource::VGetSerializableData() const -> ISerializable*
 {
-	return m_pAnimationSpec.get();
+	return &m_pAnimation->GetSpec();
 }
 
 void Arg::Content::SkeletalAnimationResource::VUnload()
 {
 	m_pAnimation = nullptr;
-	m_pAnimationSpec = nullptr;
 }

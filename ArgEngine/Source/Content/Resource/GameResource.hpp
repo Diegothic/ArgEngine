@@ -20,7 +20,7 @@ namespace Arg
 			void AddRef();
 			void FreeRef();
 
-			auto GetName() const-> const std::string&;
+			auto GetName() const -> const std::string&;
 
 		public:
 			virtual void VRemoveFiles();
@@ -30,17 +30,26 @@ namespace Arg
 			virtual void VMoveFiles(const std::filesystem::path& destination);
 
 		protected:
-			virtual auto GetResourceFileExtension() const -> const std::string & = 0;
+			virtual auto GetResourceFileExtension() const -> const std::string& = 0;
 			auto GetResource() const -> const std::shared_ptr<Resource>& { return m_pResource; }
-			auto GetResourceFilePath() const->std::filesystem::path;
+			auto GetResourceFilePath() const -> std::filesystem::path;
 			auto GetResourceCache() -> ResourceCache*;
 
 			void Load();
 
-			virtual void VPreLoad() {};
-			virtual void VOnLoad() {};
-			virtual void VPostLoad() {};
-			virtual auto VGetSerializableData() const->ISerializable* = 0;
+			virtual void VPreLoad()
+			{
+			}
+
+			virtual void VOnLoad()
+			{
+			}
+
+			virtual void VPostLoad()
+			{
+			}
+
+			virtual auto VGetSerializableData() const -> ISerializable* = 0;
 			virtual void VUnload() = 0;
 
 		private:

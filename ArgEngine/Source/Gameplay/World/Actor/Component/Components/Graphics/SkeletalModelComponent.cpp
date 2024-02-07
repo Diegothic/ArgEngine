@@ -21,29 +21,91 @@ void Arg::Gameplay::SkeletalModelComponent::VBeginPlay()
 {
 	ActorComponent::VBeginPlay();
 
-	if (m_bPlayOnStart)
+	m_CurrentAnimationState = SkeletalAnimationState::StateIdle;
+	if (m_bPlayOnStart && m_CurrentAnimation.IsValid())
 	{
 		Play(m_CurrentAnimation);
 	}
+}
+
+void Arg::Gameplay::SkeletalModelComponent::VEndPlay()
+{
+	ActorComponent::VEndPlay();
+
+	Ev_OnAnimationStart.Clear();
+	Ev_OnAnimationEnd.Clear();
+	Ev_OnAnimationEvent.Clear();
 }
 
 void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)
 {
 	ActorComponent::VTick(gameTime, gameInput);
 
-	if (m_bIsPlaying)
+	if (m_CurrentAnimation.IsValid())
 	{
-		m_ElapsedTime += gameTime.GetDeltaTime();
+		const Renderer::SkeletalAnimation* pAnimation = m_CurrentAnimation.Get()->GetAnimation();
+		switch (m_CurrentAnimationState)
+		{
+		case SkeletalAnimationState::StateIdle:
+			{
+				break;
+			}
+		case SkeletalAnimationState::StateStarted:
+			{
+				m_ElapsedTime = 0.0f;
+				Ev_OnAnimationStart.Invoke();
+				m_CurrentAnimationState = SkeletalAnimationState::StatePlaying;
+				break;
+			}
+		case SkeletalAnimationState::StatePlaying:
+			{
+				m_ElapsedTime += gameTime.GetDeltaTime();
+				const int32_t currentAnimationFrame = static_cast<int32_t>(Math::floor(
+					Math::mod(m_ElapsedTime, pAnimation->GetDuration() / pAnimation->GetTicksPerSecond())
+					/ (1.0f / pAnimation->GetTicksPerSecond())
+				));
+				if (currentAnimationFrame != m_CurrentAnimationFrame)
+				{
+					m_CurrentAnimationFrame = currentAnimationFrame;
+					for (size_t i = 0; i < pAnimation->GetEventsCount(); i++)
+					{
+						const Renderer::SkeletalAnimationEvent& event = pAnimation->GetEvent(i);
+						if (event.Frame == m_CurrentAnimationFrame)
+						{
+							Ev_OnAnimationEvent.Invoke(event.Name);
+						}
+					}
+				}
+
+				if (
+					!m_bLooping
+					&& m_ElapsedTime * pAnimation->GetTicksPerSecond() >= pAnimation->GetDuration()
+				)
+				{
+					m_CurrentAnimationState = SkeletalAnimationState::StateFinished;
+				}
+				break;
+			}
+		case SkeletalAnimationState::StatePaused:
+			{
+				break;
+			}
+		case SkeletalAnimationState::StateFinished:
+			{
+				Ev_OnAnimationEnd.Invoke();
+				m_CurrentAnimationState = SkeletalAnimationState::StateIdle;
+				break;
+			}
+		}
 	}
 
 	const Actor* pOwner = GetOwner();
 	if (m_Model.IsValid() && m_Skeleton.IsValid())
 	{
 		const auto& skeleton = m_Skeleton.Get()->GetSkeleton();
-
 		if (m_CurrentAnimation.IsValid())
 		{
-			m_CurrentAnimation.Get()->GetAnimation().CalculateTransforms(
+			m_CurrentAnimation.Get()->GetAnimation()->CalculateTransforms(
 				m_ElapsedTime,
 				m_bLooping,
 				m_AnimationBoneTransforms
@@ -183,6 +245,7 @@ void Arg::Gameplay::SkeletalModelComponent::SetSkeleton(const SkeletonHandle& sk
 		m_Skeleton.FreeRef();
 	}
 
+	SetCurrentAnimation(SkeletalAnimationHandle(GUID::Empty, nullptr));
 	SetModel(SkeletalModelHandle(GUID::Empty, nullptr));
 
 	m_Skeleton = skeleton;
@@ -254,6 +317,8 @@ void Arg::Gameplay::SkeletalModelComponent::SetCastShadows(bool bCastShadows)
 
 void Arg::Gameplay::SkeletalModelComponent::SetCurrentAnimation(const SkeletalAnimationHandle& animation)
 {
+	m_CurrentAnimationState = SkeletalAnimationState::StateIdle;
+
 	if (m_CurrentAnimation.IsValid())
 	{
 		m_CurrentAnimation.FreeRef();
@@ -309,13 +374,32 @@ void Arg::Gameplay::SkeletalModelComponent::RemoveAttachment(size_t index)
 void Arg::Gameplay::SkeletalModelComponent::Play(const SkeletalAnimationHandle& animation)
 {
 	SetCurrentAnimation(animation);
-	m_ElapsedTime = 0.0f;
-	m_bIsPlaying = true;
+	m_CurrentAnimationState = SkeletalAnimationState::StateStarted;
+}
+
+void Arg::Gameplay::SkeletalModelComponent::Pause()
+{
+	if (m_CurrentAnimationState != SkeletalAnimationState::StatePlaying)
+	{
+		return;
+	}
+
+	m_CurrentAnimationState = SkeletalAnimationState::StatePaused;
+}
+
+void Arg::Gameplay::SkeletalModelComponent::Unpause()
+{
+	if (m_CurrentAnimationState != SkeletalAnimationState::StatePaused)
+	{
+		return;
+	}
+
+	m_CurrentAnimationState = SkeletalAnimationState::StatePlaying;
 }
 
 void Arg::Gameplay::SkeletalModelComponent::Stop()
 {
-	m_bIsPlaying = false;
+	m_CurrentAnimationState = SkeletalAnimationState::StateFinished;
 }
 
 bool Arg::Gameplay::SkeletalModelComponent::VOnSerialize(YAML::Node& node) const

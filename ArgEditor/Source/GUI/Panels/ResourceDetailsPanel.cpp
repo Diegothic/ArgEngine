@@ -53,13 +53,15 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawResourceDetails(
 	ImGui::Text(resourceName.c_str());
 	ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "\tID: %llu", resourceID);
 
-	const auto resourceType = pResource->GetType();
-	switch (pResource->GetType())
+	const auto& resourceType = pResource->GetType();
+	switch (resourceType)
 	{
 	case Content::ResourceType::ResourceTypeMaterial:
 		{
-			auto materialHandle = pResource->GetResourceCache()
-			                               ->CreateHandle<Content::MaterialResource>(resourceID);
+			const auto materialHandle = pResource->GetResourceCache()
+			                                     ->CreateHandle<Content::MaterialResource>(
+				                                     resourceID
+			                                     );
 			if (!materialHandle.IsValid())
 			{
 				break;
@@ -67,6 +69,21 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawResourceDetails(
 
 			auto material = materialHandle.Get()->GetMaterial();
 			DrawGameResourceDetails(context, material);
+			break;
+		}
+	case Content::ResourceType::ResourceTypeSkeletalAnimation:
+		{
+			const auto animationHandle = pResource->GetResourceCache()
+			                                      ->CreateHandle<Content::SkeletalAnimationResource>(
+				                                      resourceID
+			                                      );
+			if (!animationHandle.IsValid())
+			{
+				break;
+			}
+
+			Renderer::SkeletalAnimation* pAnimation = animationHandle.Get()->GetAnimation();
+			DrawGameResourceDetails(context, pAnimation);
 			break;
 		}
 	}
@@ -244,6 +261,161 @@ void Arg::Editor::GUI::ResourceDetailsPanel::DrawGameResourceDetails(
 				pMaterial->SetReflectivity(reflectivity);
 			}
 		}
+
+		ImGui::EndTable();
+	}
+}
+
+void Arg::Editor::GUI::ResourceDetailsPanel::DrawGameResourceDetails(
+	const EditorGUIContext& context,
+	Renderer::SkeletalAnimation* pAnimation
+)
+{
+	Editor* pEditor = context.pEditor;
+	const bool isProjectOpened = pEditor->IsProjectOpened();
+	auto& pResourceCache = isProjectOpened
+		                       ? pEditor->GetProject()->GetResourceCache()
+		                       : pEditor->GetResourceCache();
+	auto& pContent = isProjectOpened
+		                 ? pEditor->GetProject()->GetContent()
+		                 : pEditor->GetContent();
+
+	if (ImGui::CollapsingHeader("Skeletal Animation",
+	                            ImGuiTreeNodeFlags_DefaultOpen)
+	)
+	{
+		if (ImGui::BeginTable(
+			"##EventsTable",
+			2,
+			ImGuiTableFlags_BordersInnerV
+			| ImGuiTableFlags_BordersOuter
+			| ImGuiTableFlags_NoSavedSettings
+			| ImGuiTableFlags_SizingFixedFit
+		))
+		{
+			{
+				ImGui::TableNextColumn();
+				ImGui::Dummy(ImVec2(100.0f, 0.0f));
+
+				ImGui::Text("Events");
+
+				ImGui::TableNextColumn();
+
+				if (ImGui::CollapsingHeader(
+					"Elements List ",
+					ImGuiTreeNodeFlags_DefaultOpen
+					| ImGuiTreeNodeFlags_AllowOverlap
+				))
+				{
+					bool bRemoveEvent = false;
+					size_t removeEventIndex = 0;
+					for (size_t i = 0; i < pAnimation->GetEventsCount(); i++)
+					{
+						ImGui::PushID(static_cast<int32_t>(i));
+						const auto& animationEvent = pAnimation->GetEvent(i);
+
+						const std::string elementHeader = std::format("Element {}", i);
+						const bool bElementHeaderOpen = ImGui::CollapsingHeader(
+							elementHeader.c_str(),
+							ImGuiTreeNodeFlags_DefaultOpen
+							| ImGuiTreeNodeFlags_FramePadding
+							| ImGuiTreeNodeFlags_AllowOverlap
+						);
+
+						ImGui::SameLine(ImGui::GetWindowSize().x - 180.0f);
+						if (ImGui::Button("-", ImVec2(60.0f, 24.0f)))
+						{
+							bRemoveEvent = true;
+							removeEventIndex = i;
+						}
+
+						if (bElementHeaderOpen)
+						{
+							{
+								ImGui::Text("Frame");
+
+								int32_t frame = animationEvent.Frame;
+								ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 180.0f);
+								ImGui::InputInt("##Frame", &frame, 0.0f, 1.0f);
+								if (frame != animationEvent.Frame)
+								{
+									pAnimation->SetEvent(
+										i,
+										Renderer::SkeletalAnimationEvent{
+											frame,
+											animationEvent.Name
+										}
+									);
+								}
+							}
+
+							{
+								ImGui::Text("Name");
+
+								const std::string& name = animationEvent.Name;
+								ImGui::SetNextItemWidth(ImGui::GetWindowWidth() - 180.0f);
+								char buffer[512];
+								strcpy_s(buffer, name.c_str());
+								static bool bRename = false;
+								static std::string newName;
+								ImGui::InputText(
+									"##Name",
+									buffer,
+									512,
+									ImGuiInputTextFlags_CallbackAlways,
+									[](ImGuiInputTextCallbackData* data) -> int32_t
+									{
+										if (data->BufTextLen < 1)
+										{
+											return 0;
+										}
+
+										if (ImGui::IsKeyDown(ImGuiKey_Escape))
+										{
+											return 1;
+										}
+
+										if (ImGui::IsKeyDown(ImGuiKey_Enter))
+										{
+											newName = data->Buf;
+											bRename = true;
+											return 1;
+										}
+
+										return 0;
+									}
+								);
+
+								if (bRename)
+								{
+									bRename = false;
+									pAnimation->SetEvent(
+										i,
+										Renderer::SkeletalAnimationEvent{
+											animationEvent.Frame,
+											newName
+										}
+									);
+								}
+							}
+						}
+
+						ImGui::PopID();
+					}
+
+					if (bRemoveEvent)
+					{
+						pAnimation->RemoveEvent(removeEventIndex);
+					}
+
+					if (ImGui::Button("+", ImVec2(ImGui::GetWindowWidth() - 165.0f, 25.0f)))
+					{
+						pAnimation->AddEvent(Renderer::SkeletalAnimationEvent{0, "Empty"});
+					}
+				}
+			}
+		}
+
 		ImGui::EndTable();
 	}
 }

@@ -1405,11 +1405,95 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 				component.SetLooping(false);
 				component.Play(animation);
 			}),
+		"Pause",
+		[](SkeletalModelComponentHandle& self)
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			component.Pause();
+		},
+		"Pause",
+		[](SkeletalModelComponentHandle& self)
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			component.Unpause();
+		},
 		"Stop",
 		[](SkeletalModelComponentHandle& self)
 		{
 			Gameplay::SkeletalModelComponent& component = self.Get();
 			component.Stop();
+		},
+		"AddOnAnimationStartListener",
+		[](
+		SkeletalModelComponentHandle& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			return component.Ev_OnAnimationStart.AddListener(
+				[listener, obj]()
+				{
+					if (listener.valid() && obj.valid())
+					{
+						listener(obj);
+					}
+				}
+			);
+		},
+		"RemoveOnAnimationStartListener",
+		[](SkeletalModelComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			component.Ev_OnAnimationStart.RemoveListener(handle);
+		},
+		"AddOnAnimationEndListener",
+		[](
+		SkeletalModelComponentHandle& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			return component.Ev_OnAnimationEnd.AddListener(
+				[listener, obj]()
+				{
+					if (listener.valid() && obj.valid())
+					{
+						listener(obj);
+					}
+				}
+			);
+		},
+		"RemoveOnAnimationEndListener",
+		[](SkeletalModelComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			component.Ev_OnAnimationEnd.RemoveListener(handle);
+		},
+		"AddOnAnimationEventListener",
+		[](
+		SkeletalModelComponentHandle& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			return component.Ev_OnAnimationEvent.AddListener(
+				[listener, obj](const std::string& eventName)
+				{
+					if (listener.valid() && obj.valid())
+					{
+						listener(obj, eventName);
+					}
+				}
+			);
+		},
+		"RemoveOnAnimationEventListener",
+		[](SkeletalModelComponentHandle& self, const EventListenerHandle& handle)
+		{
+			Gameplay::SkeletalModelComponent& component = self.Get();
+			component.Ev_OnAnimationEvent.RemoveListener(handle);
 		}
 	);
 }

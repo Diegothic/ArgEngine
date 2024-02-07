@@ -1,6 +1,8 @@
 ﻿#include <arg_pch.hpp>
 #include "SkeletalAnimation.hpp"
 
+#include "Debug/Assert.hpp"
+
 void Arg::Renderer::SkeletalAnimation::CalculateTransforms(
 	float time,
 	bool bLooping,
@@ -134,6 +136,29 @@ void Arg::Renderer::SkeletalAnimation::SetData(const SkeletalAnimationData& data
 	m_Channels = data.Channels;
 }
 
+auto Arg::Renderer::SkeletalAnimation::GetEvent(size_t index) const -> const SkeletalAnimationEvent&
+{
+	ARG_ASSERT(index < m_Spec.Events.size());
+	return m_Spec.Events[index];
+}
+
+void Arg::Renderer::SkeletalAnimation::SetEvent(size_t index, const SkeletalAnimationEvent& event)
+{
+	ARG_ASSERT(index < m_Spec.Events.size());
+	m_Spec.Events[index] = event;
+}
+
+void Arg::Renderer::SkeletalAnimation::AddEvent(const SkeletalAnimationEvent& event)
+{
+	m_Spec.Events.push_back(event);
+}
+
+void Arg::Renderer::SkeletalAnimation::RemoveEvent(size_t index)
+{
+	ARG_ASSERT(index < m_Spec.Events.size());
+	m_Spec.Events.erase(m_Spec.Events.begin() + static_cast<long long>(index));
+}
+
 auto Arg::Renderer::SkeletalAnimationSpec::VOnSerialize(YAML::Node& node) const -> bool
 {
 	auto header = node["SkeletalAnimation"];
@@ -149,8 +174,19 @@ auto Arg::Renderer::SkeletalAnimationSpec::VOnSerialize(YAML::Node& node) const 
 		channelCountsNode["Rotation"][i] = ChannelRotationKeysCount[i];
 		channelCountsNode["Scale"][i] = ChannelScaleKeysCount[i];
 	}
-
 	header["ChannelCounts"] = channelCountsNode;
+
+	auto eventsNode = header["Events"];
+	eventsNode.reset();
+	for (size_t i = 0; i < Events.size(); i++)
+	{
+		YAML::Node eventNode;
+		eventNode["Frame"] = Events[i].Frame;
+		eventNode["Name"] = Events[i].Name;
+		eventsNode.push_back(eventNode);
+	}
+	header["Events"] = eventsNode;
+
 	node["SkeletalAnimation"] = header;
 
 	return true;
@@ -188,6 +224,20 @@ auto Arg::Renderer::SkeletalAnimationSpec::VOnDeserialize(const YAML::Node& node
 		for (size_t i = 0; i < ChannelCount; i++)
 		{
 			ChannelScaleKeysCount[i] = ValueOr<size_t>(channelCountsNode["Scale"][i], 0);
+		}
+	}
+
+	Events.clear();
+	const auto& eventsNode = header["Events"];
+	if (eventsNode)
+	{
+		const size_t eventCount = eventsNode.size();
+		for (size_t i = 0; i < eventCount; i++)
+		{
+			Events.push_back({
+				ValueOr<int32_t>(eventsNode[i]["Frame"], 0),
+				ValueOr<std::string>(eventsNode[i]["Name"], "Empty")
+			});
 		}
 	}
 
