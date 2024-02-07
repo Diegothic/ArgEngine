@@ -1,0 +1,5 @@
+Texture:
+  Data: icon_world.data
+  Width: 128
+  Height: 128
+  TextureFormat: 1

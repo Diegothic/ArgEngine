@@ -10,15 +10,15 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnInitialize(const EditorGUIContext& 
 	Editor* pEditor = context.pEditor;
 	auto& pResourceCache = pEditor->GetResourceCache();
 
-	m_WorldTexture = pResourceCache->CreateHandle<Content::TextureResource>(
-		"Icons\\world_icon"
+	m_MapIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_map"
 	);
-	m_WorldTexture.AddRef();
+	m_MapIcon.AddRef();
 
-	m_ActorTexture = pResourceCache->CreateHandle<Content::TextureResource>(
-		"Icons\\actor_icon"
+	m_ActorIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_object"
 	);
-	m_ActorTexture.AddRef();
+	m_ActorIcon.AddRef();
 }
 
 void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& context)
@@ -28,7 +28,7 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 	auto& pResourceCache = pEditor->GetResourceCache();
 	auto& pGameEngine = pEditor->GetGameEngine();
 
-	const auto& worldTexture = m_WorldTexture.Get()->GetTexture();
+	const auto& worldTexture = m_MapIcon.Get()->GetTexture();
 	m_bHasClickedActor = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -76,24 +76,29 @@ void Arg::Editor::GUI::WorldOutlinerPanel::OnDraw(const EditorGUIContext& contex
 
 		if (isHeaderOpen)
 		{
-			DrawActorTree(context, pRootActor, 0);
-		}
-
-		if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-		{
-			if (const ImGuiPayload* payload = ImGui::GetDragDropPayload())
+			if (ImGui::BeginChild("##WorldActors"))
 			{
-				if (payload->IsDataType("Actor"))
+				DrawActorTree(context, pRootActor, 0);
+				ImGui::Dummy(ImVec2(1.0f, 50.0f));
+				if (ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 				{
-					const GUID droppedActorID = *((GUID*)payload->Data);
-					Gameplay::Actor& actor = pWorld->GetActor(droppedActorID);
-					pWorld->ReparentActor(actor, pWorld->GetRootActor());
+					if (const ImGuiPayload* payload = ImGui::GetDragDropPayload())
+					{
+						if (payload->IsDataType("Actor"))
+						{
+							const GUID droppedActorID = *((GUID*)payload->Data);
+							Gameplay::Actor& actor = pWorld->GetActor(droppedActorID);
+							pWorld->ReparentActor(actor, pWorld->GetRootActor());
+						}
+					}
+					else if (!m_bHasClickedActor)
+					{
+						pEditor->DeselectActor();
+					}
 				}
 			}
-			else if (!m_bHasClickedActor)
-			{
-				pEditor->DeselectActor();
-			}
+
+			ImGui::EndChild();
 		}
 	}
 
@@ -114,7 +119,7 @@ void Arg::Editor::GUI::WorldOutlinerPanel::DrawActorTree(
 	}
 	auto& pWorld = pGameEngine->GetLoadedWorld();
 
-	const auto& actorTexture = m_ActorTexture.Get()->GetTexture();
+	const auto& actorTexture = m_ActorIcon.Get()->GetTexture();
 
 	for (size_t i = 0; i < pActor->GetChildActorsCount(); i++)
 	{

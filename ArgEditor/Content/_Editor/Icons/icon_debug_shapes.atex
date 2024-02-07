@@ -1,0 +1,5 @@
+Texture:
+  Data: icon_debug_shapes.data
+  Width: 128
+  Height: 128
+  TextureFormat: 1

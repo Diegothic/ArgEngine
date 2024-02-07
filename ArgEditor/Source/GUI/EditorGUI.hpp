@@ -26,7 +26,7 @@ namespace Arg
 			{
 				std::filesystem::path ConfigFile;
 			};
-			
+
 			enum EditorGizmoOperation
 			{
 				Translate,
@@ -62,12 +62,11 @@ namespace Arg
 				void EditTransform(
 					const EditorGizmoOperation& operation,
 					const EditorGizmoMode& mode,
-					const ::Arg::Renderer::Camera* pCamera,
+					const Renderer::Camera* pCamera,
 					Mat4& outTransform
 				);
 
 			protected:
-
 				void StyleColors();
 
 			private:
@@ -79,6 +78,17 @@ namespace Arg
 				ResourceDetailsPanel m_ResourceDetails;
 				WorldSettingsPanel m_WorldSettings;
 				ProjectSettingsPanel m_ProjectSettings;
+
+				Content::ResourceHandle<Content::TextureResource> m_SaveIcon;
+				Content::ResourceHandle<Content::TextureResource> m_ReloadScriptsIcon;
+				Content::ResourceHandle<Content::TextureResource> m_PlayIcon;
+				Content::ResourceHandle<Content::TextureResource> m_StopIcon;
+				Content::ResourceHandle<Content::TextureResource> m_DebugShapesIcon;
+				Content::ResourceHandle<Content::TextureResource> m_LocalIcon;
+				Content::ResourceHandle<Content::TextureResource> m_GlobalIcon;
+				Content::ResourceHandle<Content::TextureResource> m_MoveIcon;
+				Content::ResourceHandle<Content::TextureResource> m_RotateIcon;
+				Content::ResourceHandle<Content::TextureResource> m_ScaleIcon;
 			};
 		}
 	}

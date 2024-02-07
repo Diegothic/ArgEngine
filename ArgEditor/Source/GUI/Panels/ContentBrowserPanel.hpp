@@ -45,9 +45,18 @@ namespace Arg
 
 			private:
 				std::shared_ptr<Content::ResourceFolder> m_pOpenedFolder;
-				Content::ResourceHandle<Content::TextureResource> m_FolderOpenTexture;
-				Content::ResourceHandle<Content::TextureResource> m_FolderClosedTexture;
-				Content::ResourceHandle<Content::TextureResource> m_FileTexture;
+				Content::ResourceHandle<Content::TextureResource> m_FolderOpenIcon;
+				Content::ResourceHandle<Content::TextureResource> m_FolderClosedIcon;
+				Content::ResourceHandle<Content::TextureResource> m_FileIcon;
+
+				Content::ResourceHandle<Content::TextureResource> m_FileIconMap;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconTexture;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconStaticModel;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconMaterial;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconSkeleton;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconSkeletalModel;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconSkeletalAnimation;
+				Content::ResourceHandle<Content::TextureResource> m_FileIconSound;
 			};
 		}
 	}

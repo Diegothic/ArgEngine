@@ -104,7 +104,7 @@ void Arg::Editor::Editor::Initialize()
 			.pEditor = this
 		};
 		m_pGUI->Initialize(guiContext, m_pWindow->GetHandle());
-		const auto fontPath = (std::filesystem::path("Content\\Fonts") / m_Config.GuiFont)
+		const auto fontPath = (std::filesystem::path("Content\\_Editor\\Fonts") / m_Config.GuiFont)
 			.replace_extension(".ttf");
 		m_pGUI->SetFont(fontPath, m_Config.GuiFontSize);
 	}

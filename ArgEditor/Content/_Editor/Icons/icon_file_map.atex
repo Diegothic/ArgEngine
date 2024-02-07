@@ -1,0 +1,5 @@
+Texture:
+  Data: icon_file_map.data
+  Width: 128
+  Height: 128
+  TextureFormat: 1

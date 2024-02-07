@@ -31,19 +31,76 @@ void Arg::Editor::GUI::EditorGUI::Initialize(
 	ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)pWindowHandle, true);
 	ImGui_ImplOpenGL3_Init("#version 150");
 
-	m_ContentBrowser.Initialize(context);
-	m_ProjectSettings.Initialize(context);
-	m_WorldOutliner.Initialize(context);
-	m_Details.Initialize(context);
-	m_ResourceDetails.Initialize(context);
-	m_WorldSettings.Initialize(context);
+	{
+		m_ContentBrowser.Initialize(context);
+		m_ProjectSettings.Initialize(context);
+		m_WorldOutliner.Initialize(context);
+		m_Details.Initialize(context);
+		m_ResourceDetails.Initialize(context);
+		m_WorldSettings.Initialize(context);
 
-	m_ContentBrowser.Open();
-	m_ProjectSettings.Open();
-	m_WorldOutliner.Open();
-	m_Details.Open();
-	m_ResourceDetails.Open();
-	m_WorldSettings.Open();
+		m_ContentBrowser.Open();
+		m_ProjectSettings.Open();
+		m_WorldOutliner.Open();
+		m_Details.Open();
+		m_ResourceDetails.Open();
+		m_WorldSettings.Open();
+	}
+
+	{
+		Editor* pEditor = context.pEditor;
+		Content::ResourceCache* pResourceCache = pEditor->GetResourceCache().get();
+
+		m_SaveIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_save"
+		);
+		m_SaveIcon.AddRef();
+
+		m_ReloadScriptsIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_reload_scripts"
+		);
+		m_ReloadScriptsIcon.AddRef();
+
+		m_PlayIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_play"
+		);
+		m_PlayIcon.AddRef();
+
+		m_StopIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_stop"
+		);
+		m_StopIcon.AddRef();
+
+		m_DebugShapesIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_debug_shapes"
+		);
+		m_DebugShapesIcon.AddRef();
+
+		m_LocalIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_local"
+		);
+		m_LocalIcon.AddRef();
+
+		m_GlobalIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_world"
+		);
+		m_GlobalIcon.AddRef();
+
+		m_MoveIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_move"
+		);
+		m_MoveIcon.AddRef();
+
+		m_RotateIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_rotate"
+		);
+		m_RotateIcon.AddRef();
+
+		m_ScaleIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+			"_Editor\\Icons\\icon_scale"
+		);
+		m_ScaleIcon.AddRef();
+	}
 }
 
 void Arg::Editor::GUI::EditorGUI::CleanUp()
@@ -378,8 +435,19 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 			ImGui::PopStyleVar();
 
 			{
+				const auto& saveIconTexture = m_SaveIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(5.0f, 5.0f));
-				if (ImGui::Button("Save", ImVec2(40.0f, 40.0f)))
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)saveIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					pGameEngine->IsPlaying()
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
 					if (!pGameEngine->IsPlaying())
 					{
@@ -387,8 +455,19 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					}
 				}
 
+				const auto& reloadScriptsIconTexture = m_ReloadScriptsIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(50.0f, 5.0f));
-				if (ImGui::Button("ReloadScripts", ImVec2(40.0f, 40.0f)))
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)reloadScriptsIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					pGameEngine->IsPlaying()
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
 					if (!pGameEngine->IsPlaying())
 					{
@@ -396,36 +475,87 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					}
 				}
 
+				const auto& moveIconTexture = m_MoveIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(170.0f, 5.0f));
-				if (ImGui::Button("Move", ImVec2(40.0f, 40.0f)))
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)moveIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					pEditor->GetGuizmoOperation() != EditorGizmoOperation::Translate
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
 					pEditor->SetGuizmoOperation(EditorGizmoOperation::Translate);
 				}
 
+				const auto& rotateIconTexture = m_RotateIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(215.0f, 5.0f));
-				if (ImGui::Button("Rotate", ImVec2(40.0f, 40.0f)))
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)rotateIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					pEditor->GetGuizmoOperation() != EditorGizmoOperation::Rotate
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
 					pEditor->SetGuizmoOperation(EditorGizmoOperation::Rotate);
 				}
 
+				const auto& scaleIconTexture = m_ScaleIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(260.0f, 5.0f));
-				if (ImGui::Button("Scale", ImVec2(40.0f, 40.0f)))
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)scaleIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					pEditor->GetGuizmoOperation() != EditorGizmoOperation::Scale
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
 					pEditor->SetGuizmoOperation(EditorGizmoOperation::Scale);
 					pEditor->SetGuizmoMode(EditorGizmoMode::Local);
 				}
 
+				const auto& localIconTexture = m_LocalIcon.Get()->GetTexture();
+				const auto& globalIconTexture = m_GlobalIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(305.0f, 5.0f));
 				if (pEditor->GetGuizmoMode() == EditorGizmoMode::Global)
 				{
-					if (ImGui::Button("Local", ImVec2(40.0f, 40.0f)))
+					if (ImGui::ImageButton(
+						(void*)(intptr_t)globalIconTexture->GetRendererID(),
+						ImVec2(35.0f, 35.0f),
+						ImVec2(0.0f, 1.0f),
+						ImVec2(1.0f, 0.0f),
+						-1,
+						ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+						ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+					))
 					{
 						pEditor->SetGuizmoMode(EditorGizmoMode::Local);
 					}
 				}
 				else
 				{
-					if (ImGui::Button("Global", ImVec2(40.0f, 40.0f)))
+					if (ImGui::ImageButton(
+						(void*)(intptr_t)localIconTexture->GetRendererID(),
+						ImVec2(35.0f, 35.0f),
+						ImVec2(0.0f, 1.0f),
+						ImVec2(1.0f, 0.0f),
+						-1,
+						ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+						ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+					))
 					{
 						if (pEditor->GetGuizmoOperation() != EditorGizmoOperation::Scale)
 						{
@@ -434,33 +564,59 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 					}
 				}
 
+				const auto& debugShapesIconTexture = m_DebugShapesIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2(425.0f, 5.0f));
-				if (pEditor->GetDrawDebug())
+				if (ImGui::ImageButton(
+					(void*)(intptr_t)debugShapesIconTexture->GetRendererID(),
+					ImVec2(35.0f, 35.0f),
+					ImVec2(0.0f, 1.0f),
+					ImVec2(1.0f, 0.0f),
+					-1,
+					ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+					!pEditor->GetDrawDebug()
+						? ImVec4(0.5f, 0.5f, 0.5f, 1.00f)
+						: ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+				))
 				{
-					if (ImGui::Button("Debug-", ImVec2(40.0f, 40.0f)))
+					if (pEditor->GetDrawDebug())
 					{
 						pEditor->SetDrawDebug(false);
 					}
-				}
-				else
-				{
-					if (ImGui::Button("Debug+", ImVec2(40.0f, 40.0f)))
+					else
 					{
 						pEditor->SetDrawDebug(true);
 					}
 				}
 
+				const auto& playIconTexture = m_PlayIcon.Get()->GetTexture();
+				const auto& stopIconTexture = m_StopIcon.Get()->GetTexture();
 				ImGui::SetCursorPos(ImVec2((viewportSize.x * 0.5f) - 20.0f, 5.0f));
 				if (!pGameEngine->IsPlaying())
 				{
-					if (ImGui::Button("Play", ImVec2(40.0f, 40.0f)))
+					if (ImGui::ImageButton(
+						(void*)(intptr_t)playIconTexture->GetRendererID(),
+						ImVec2(35.0f, 35.0f),
+						ImVec2(0.0f, 1.0f),
+						ImVec2(1.0f, 0.0f),
+						-1,
+						ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+						ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+					))
 					{
 						pEditor->PlayGame();
 					}
 				}
 				else
 				{
-					if (ImGui::Button("Pause", ImVec2(40.0f, 40.0f)))
+					if (ImGui::ImageButton(
+						(void*)(intptr_t)stopIconTexture->GetRendererID(),
+						ImVec2(35.0f, 35.0f),
+						ImVec2(0.0f, 1.0f),
+						ImVec2(1.0f, 0.0f),
+						-1,
+						ImVec4(0.0f, 0.0f, 0.0f, 0.0f),
+						ImVec4(0.44f, 0.27f, 0.81f, 1.00f)
+					))
 					{
 						pEditor->StopGame();
 					}

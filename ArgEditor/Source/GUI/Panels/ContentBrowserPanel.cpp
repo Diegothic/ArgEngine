@@ -30,20 +30,60 @@ void Arg::Editor::GUI::ContentBrowserPanel::OnInitialize(const EditorGUIContext&
 		m_pOpenedFolder = pEditor->GetContent()->GetRootFolder();
 	}
 
-	m_FolderOpenTexture = pResourceCache->CreateHandle<Content::TextureResource>(
-		"Icons\\folder_open_icon"
+	m_FolderOpenIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_folder_open"
 	);
-	m_FolderOpenTexture.AddRef();
+	m_FolderOpenIcon.AddRef();
 
-	m_FolderClosedTexture = pResourceCache->CreateHandle<Content::TextureResource>(
-		"Icons\\folder_icon"
+	m_FolderClosedIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_folder_closed"
 	);
-	m_FolderClosedTexture.AddRef();
+	m_FolderClosedIcon.AddRef();
 
-	m_FileTexture = pResourceCache->CreateHandle<Content::TextureResource>(
-		"Icons\\file_icon"
+	m_FileIcon = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file"
 	);
-	m_FileTexture.AddRef();
+	m_FileIcon.AddRef();
+
+	m_FileIconMap = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_map"
+	);
+	m_FileIconMap.AddRef();
+
+	m_FileIconTexture = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_texture"
+	);
+	m_FileIconTexture.AddRef();
+
+	m_FileIconStaticModel = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_static_model"
+	);
+	m_FileIconStaticModel.AddRef();
+
+	m_FileIconMaterial = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_material"
+	);
+	m_FileIconMaterial.AddRef();
+
+	m_FileIconSkeleton = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_skeleton"
+	);
+	m_FileIconSkeleton.AddRef();
+
+	m_FileIconSkeletalModel = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_skeletal_model"
+	);
+	m_FileIconSkeletalModel.AddRef();
+
+	m_FileIconSkeletalAnimation = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_skeletal_animation"
+	);
+	m_FileIconSkeletalAnimation.AddRef();
+
+	m_FileIconSound = pResourceCache->CreateHandle<Content::TextureResource>(
+		"_Editor\\Icons\\icon_file_sound"
+	);
+	m_FileIconSound.AddRef();
 }
 
 void Arg::Editor::GUI::ContentBrowserPanel::OnDraw(const EditorGUIContext& context)
@@ -75,8 +115,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 		                 ? pEditor->GetProject()->GetContent()
 		                 : pEditor->GetContent();
 
-	const auto& folderOpenTexture = m_FolderOpenTexture.Get()->GetTexture();
-	const auto& fileTexture = m_FileTexture.Get()->GetTexture();
+	const auto& folderOpenIconTexture = m_FolderOpenIcon.Get()->GetTexture();
+	const auto& fileIconTexture = m_FileIcon.Get()->GetTexture();
 
 	if (ImGui::BeginTable(
 			"Content",
@@ -107,7 +147,12 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 			if (isOpen)
 			{
-				DrawFolderTree(context, rootFolder, 0);
+				if (ImGui::BeginChild("##ContentFolders"))
+				{
+					DrawFolderTree(context, rootFolder, 0);
+				}
+
+				ImGui::EndChild();
 			}
 		}
 
@@ -135,7 +180,7 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 				ImGui::PopStyleColor(3);
 
 				ImGui::SameLine(5.0f);
-				const uint32_t imageID = folderOpenTexture->GetRendererID();
+				const uint32_t imageID = folderOpenIconTexture->GetRendererID();
 				ImGui::Image((void*)(intptr_t)imageID, ImVec2(25.0f, 25.0f), ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f),
 				             ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
 				ImGui::SameLine(35.0f);
@@ -329,167 +374,224 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 				const int32_t itemsInRow = static_cast<int32_t>(columnWidth / (itemSize.x + itemOffset.x));
 
-				if (ImGui::BeginTable(
-					"Items",
-					itemsInRow,
-					ImGuiTableFlags_NoBordersInBody
-				))
+				if (ImGui::BeginChild("##ResourceItems"))
 				{
-					for (size_t i = 0; i < m_pOpenedFolder->GetResourceCount(); i++)
+					if (ImGui::BeginTable(
+						"Items",
+						itemsInRow,
+						ImGuiTableFlags_NoBordersInBody
+					))
 					{
-						ImGui::PushID(static_cast<int32_t>(i));
-
-						const auto& resource = m_pOpenedFolder->GetResource(i);
-						const auto& ID = resource->GetID();
-						const auto resourceName = resource->GetName().c_str();
-
-						const bool bIsSelected = pEditor->HasSelectedResource()
-							&& pEditor->GetSelectedResource() == resource;
-
-						if (ImGui::TableNextColumn())
+						for (size_t i = 0; i < m_pOpenedFolder->GetResourceCount(); i++)
 						{
-							auto cursorPos = ImGui::GetCursorPos();
-							cursorPos.x += itemOffset.x;
-							cursorPos.y += itemOffset.y;
-							ImGui::SetCursorPos(cursorPos);
+							ImGui::PushID(static_cast<int32_t>(i));
 
-							if (bIsSelected)
+							const auto& resource = m_pOpenedFolder->GetResource(i);
+							const auto& ID = resource->GetID();
+							const auto resourceName = resource->GetName().c_str();
+
+							const bool bIsSelected = pEditor->HasSelectedResource()
+								&& pEditor->GetSelectedResource() == resource;
+
+							if (ImGui::TableNextColumn())
 							{
+								auto cursorPos = ImGui::GetCursorPos();
+								cursorPos.x += itemOffset.x;
+								cursorPos.y += itemOffset.y;
+								ImGui::SetCursorPos(cursorPos);
+
 								if (bIsSelected)
 								{
-									ImGui::PushStyleColor(
-										ImGuiCol_Button,
-										ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
-									);
-									ImGui::PushStyleColor(
-										ImGuiCol_ButtonHovered,
-										ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
-									);
-									ImGui::PushStyleColor(
-										ImGuiCol_ButtonActive,
-										ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
-									);
-								}
-							}
-							ImGui::Button("##ItemButton", itemSize);
-							if (bIsSelected)
-							{
-								ImGui::PopStyleColor(3);
-							}
-
-							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
-							{
-								ImGui::OpenPopup(ImGui::GetID("##ResourceContextMenu"));
-							}
-
-							if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
-							{
-								pEditor->SelectResource(ID);
-							}
-
-							if (ImGui::BeginDragDropSource())
-							{
-								ImGui::SetDragDropPayload("Resource", &ID, sizeof(GUID));
-								ImGui::Text(resourceName);
-								ImGui::EndDragDropSource();
-							}
-
-							static bool isRenameResource = false;
-							static GUID renamedResource;
-							if (ImGui::BeginPopupContextItem("##ResourceContextMenu"))
-							{
-								if (resource->GetType() == Content::ResourceType::ResourceTypeWorld)
-								{
-									if (ImGui::MenuItem("Open"))
+									if (bIsSelected)
 									{
-										pEditor->DeselectActor();
-										pEditor->DeselectResource();
-										pGameEngine->LoadWorld(resource->GetID());
-										pEditor->GetCamera()->Reset();
+										ImGui::PushStyleColor(
+											ImGuiCol_Button,
+											ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
+										);
+										ImGui::PushStyleColor(
+											ImGuiCol_ButtonHovered,
+											ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
+										);
+										ImGui::PushStyleColor(
+											ImGuiCol_ButtonActive,
+											ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
+										);
+									}
+								}
+								ImGui::Button("##ItemButton", itemSize);
+								if (bIsSelected)
+								{
+									ImGui::PopStyleColor(3);
+								}
+
+								if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+								{
+									ImGui::OpenPopup(ImGui::GetID("##ResourceContextMenu"));
+								}
+
+								if (ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+								{
+									pEditor->SelectResource(ID);
+								}
+
+								if (ImGui::BeginDragDropSource())
+								{
+									ImGui::SetDragDropPayload("Resource", &ID, sizeof(GUID));
+									ImGui::Text(resourceName);
+									ImGui::EndDragDropSource();
+								}
+
+								static bool isRenameResource = false;
+								static GUID renamedResource;
+								if (ImGui::BeginPopupContextItem("##ResourceContextMenu"))
+								{
+									if (resource->GetType() == Content::ResourceType::ResourceTypeWorld)
+									{
+										if (ImGui::MenuItem("Open"))
+										{
+											pEditor->DeselectActor();
+											pEditor->DeselectResource();
+											pGameEngine->LoadWorld(resource->GetID());
+											pEditor->GetCamera()->Reset();
+										}
+
+										ImGui::Separator();
+									}
+
+									if (ImGui::MenuItem("Rename"))
+									{
+										isRenameResource = true;
+										renamedResource = ID;
 									}
 
 									ImGui::Separator();
-								}
 
-								if (ImGui::MenuItem("Rename"))
-								{
-									isRenameResource = true;
-									renamedResource = ID;
-								}
-
-								ImGui::Separator();
-
-								if (ImGui::MenuItem("Remove"))
-								{
-									pContent->RemoveResource(resource, m_pOpenedFolder);
-								}
-
-								ImGui::EndPopup();
-							}
-
-							const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
-							                               cursorPos.y + itemSize.x * 0.10f);
-							ImGui::SetCursorPos(imagePos);
-							const uint32_t imageID = fileTexture->GetRendererID();
-							ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
-							             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-
-							const auto textSize = ImGui::CalcTextSize(resourceName);
-							const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
-							                              cursorPos.y + itemSize.x * 0.85f);
-							ImGui::SetCursorPos(textPos);
-							if (isRenameResource && renamedResource == ID)
-							{
-								ImGui::SetKeyboardFocusHere();
-								char buffer[1024];
-								strcpy_s(buffer, resourceName);
-								ImGui::InputText(
-									"##FolderNewName",
-									buffer,
-									1024,
-									ImGuiInputTextFlags_CallbackAlways,
-									[](ImGuiInputTextCallbackData* data) -> int32_t
+									if (ImGui::MenuItem("Remove"))
 									{
-										if (data->BufTextLen < 1)
-										{
-											return 0;
-										}
+										pContent->RemoveResource(resource, m_pOpenedFolder);
+									}
 
-										if (ImGui::IsKeyDown(ImGuiKey_Escape))
-										{
-											isRenameResource = false;
-											return 1;
-										}
+									ImGui::EndPopup();
+								}
 
-										if (ImGui::IsKeyDown(ImGuiKey_Enter))
+								const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
+								                               cursorPos.y + itemSize.x * 0.10f);
+								ImGui::SetCursorPos(imagePos);
+								uint32_t imageID = fileIconTexture->GetRendererID();
+								switch (resource->GetType())
+								{
+								case Content::ResourceType::ResourceTypeWorld:
+									{
+										const auto& resourceIconTexture = m_FileIconMap.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeTexture:
+									{
+										const auto& resourceIconTexture = m_FileIconTexture.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeStaticModel:
+									{
+										const auto& resourceIconTexture = m_FileIconStaticModel.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeMaterial:
+									{
+										const auto& resourceIconTexture = m_FileIconMaterial.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeSkeleton:
+									{
+										const auto& resourceIconTexture = m_FileIconSkeleton.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeSkeletalModel:
+									{
+										const auto& resourceIconTexture = m_FileIconSkeletalModel.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeSkeletalAnimation:
+									{
+										const auto& resourceIconTexture = m_FileIconSkeletalAnimation.Get()->
+											GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								case Content::ResourceType::ResourceTypeSound:
+									{
+										const auto& resourceIconTexture = m_FileIconSound.Get()->GetTexture();
+										imageID = resourceIconTexture->GetRendererID();
+										break;
+									}
+								}
+
+								ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
+								             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+								const auto textSize = ImGui::CalcTextSize(resourceName);
+								const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
+								                              cursorPos.y + itemSize.x * 0.85f);
+								ImGui::SetCursorPos(textPos);
+								if (isRenameResource && renamedResource == ID)
+								{
+									ImGui::SetKeyboardFocusHere();
+									char buffer[1024];
+									strcpy_s(buffer, resourceName);
+									ImGui::InputText(
+										"##ResourceNewName",
+										buffer,
+										1024,
+										ImGuiInputTextFlags_CallbackAlways,
+										[](ImGuiInputTextCallbackData* data) -> int32_t
 										{
-											Content::ResourceCache* resourceCache = (Content::ResourceCache*)
-												data->UserData;
-											const auto& resource = resourceCache->GetResource(renamedResource);
-											const std::string newName(data->Buf);
-											if (!std::filesystem::exists(resource->GetPath() / newName))
+											if (data->BufTextLen < 1)
 											{
-												resourceCache->RenameResource(renamedResource, newName);
+												return 0;
 											}
-											isRenameResource = false;
-											return 1;
-										}
 
-										return 0;
-									},
-									pResourceCache.get());
+											if (ImGui::IsKeyDown(ImGuiKey_Escape))
+											{
+												isRenameResource = false;
+												return 1;
+											}
+
+											if (ImGui::IsKeyDown(ImGuiKey_Enter))
+											{
+												Content::ResourceCache* resourceCache = (Content::ResourceCache*)
+													data->UserData;
+												const auto& resource = resourceCache->GetResource(renamedResource);
+												const std::string newName(data->Buf);
+												if (!std::filesystem::exists(resource->GetPath() / newName))
+												{
+													resourceCache->RenameResource(renamedResource, newName);
+												}
+												isRenameResource = false;
+												return 1;
+											}
+
+											return 0;
+										},
+										pResourceCache.get());
+								}
+								else
+								{
+									ImGui::Text(resourceName);
+								}
 							}
-							else
-							{
-								ImGui::Text(resourceName);
-							}
+
+							ImGui::PopID();
 						}
-
-						ImGui::PopID();
 					}
-				}
 
-				ImGui::EndTable();
+					ImGui::EndTable();
+				}
+				ImGui::EndChild();
 			}
 			else
 			{
@@ -516,8 +618,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawFolderTree(
 		                 ? pEditor->GetProject()->GetContent()
 		                 : pEditor->GetContent();
 
-	const auto& folderOpenTexture = m_FolderOpenTexture.Get()->GetTexture();
-	const auto& folderClosedTexture = m_FolderClosedTexture.Get()->GetTexture();
+	const auto& folderOpenTexture = m_FolderOpenIcon.Get()->GetTexture();
+	const auto& folderClosedTexture = m_FolderClosedIcon.Get()->GetTexture();
 
 	for (auto i = 0; i < folder->GetSubfolderCount(); i++)
 	{
