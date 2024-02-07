@@ -8,6 +8,7 @@
 #include "Content/Resource/GameResources/MaterialResource.hpp"
 #include "Content/Resource/GameResources/SkeletalAnimationResource.hpp"
 #include "Content/Resource/GameResources/SkeletonResource.hpp"
+#include "Gameplay/World/Actor/ActorHandle.hpp"
 
 namespace Arg
 {
@@ -18,6 +19,12 @@ namespace Arg
 
 	namespace Gameplay
 	{
+		struct SkeletonAttachment
+		{
+			int32_t ChildActorIndex;
+			int32_t BoneIndex;
+		};
+
 		class SkeletalModelComponent : public ActorComponent
 		{
 		public:
@@ -67,6 +74,12 @@ namespace Arg
 			auto GetLooping() const -> bool { return m_bLooping; }
 			void SetLooping(bool bLooping) { m_bLooping = bLooping; }
 
+			auto GetAttachmentCount() const -> size_t { return m_Attachments.size(); }
+			auto GetAttachment(size_t index) const -> const SkeletonAttachment&;
+			void SetAttachment(size_t index, const SkeletonAttachment& attachment);
+			void AddAttachment(const SkeletonAttachment& attachment);
+			void RemoveAttachment(size_t index);
+
 		public:
 			void Play(const SkeletalAnimationHandle& animation);
 			void Stop();
@@ -92,6 +105,8 @@ namespace Arg
 
 			bool m_bIsPlaying = false;
 			float m_ElapsedTime = 0.0f;
+
+			std::vector<SkeletonAttachment> m_Attachments;
 		};
 	}
 }

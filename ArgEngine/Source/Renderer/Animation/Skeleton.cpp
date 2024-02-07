@@ -1,6 +1,8 @@
 ﻿#include <arg_pch.hpp>
 #include "Skeleton.hpp"
 
+#include "Debug/Assert.hpp"
+
 void Arg::Renderer::SkeletonPose::Apply(ShaderProgram* pShader) const
 {
 	for (auto i = 0; i < BoneTransforms.size(); i++)
@@ -10,6 +12,23 @@ void Arg::Renderer::SkeletonPose::Apply(ShaderProgram* pShader) const
 			BoneTransforms[i]
 		);
 	}
+}
+
+auto Arg::Renderer::Skeleton::GetBoneCount() const -> size_t
+{
+	return m_Bones.size();
+}
+
+auto Arg::Renderer::Skeleton::GetBoneName(size_t boneIndex) const -> const std::string&
+{
+	ARG_ASSERT(boneIndex < m_Bones.size());
+	return m_Spec.BoneNames[boneIndex];
+}
+
+auto Arg::Renderer::Skeleton::FindWorldBoneTransform(size_t boneIndex, const SkeletonPose& pose) const -> Mat4
+{
+	ARG_ASSERT(boneIndex < m_Bones.size());
+	return pose.BoneTransforms[boneIndex] * Math::inverse(m_Bones[boneIndex].OffsetTransform);
 }
 
 void Arg::Renderer::Skeleton::CalculateRestPose(

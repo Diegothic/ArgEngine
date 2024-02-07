@@ -35,25 +35,11 @@ void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime, cons
 	{
 		m_ElapsedTime += gameTime.GetDeltaTime();
 	}
-}
 
-void Arg::Gameplay::SkeletalModelComponent::VRender(Renderer::RenderContext& context)
-{
-	ActorComponent::VRender(context);
-
+	const Actor* pOwner = GetOwner();
 	if (m_Model.IsValid() && m_Skeleton.IsValid())
 	{
 		const auto& skeleton = m_Skeleton.Get()->GetSkeleton();
-		const auto& model = m_Model.Get()->GetModel();
-		const auto& transform = GetOwner()->GetTransform();
-
-		std::vector<Renderer::Material*> materials(m_Materials.size());
-		for (size_t i = 0; i < m_Materials.size(); i++)
-		{
-			materials[i] = m_Materials[i].IsValid()
-				               ? m_Materials[i].Get()->GetMaterial().get()
-				               : nullptr;
-		}
 
 		if (m_CurrentAnimation.IsValid())
 		{
@@ -67,6 +53,46 @@ void Arg::Gameplay::SkeletalModelComponent::VRender(Renderer::RenderContext& con
 		else
 		{
 			skeleton.CalculateRestPose(m_Pose);
+		}
+
+		for (const auto& attachment : m_Attachments)
+		{
+			if (attachment.ChildActorIndex < 0
+				|| attachment.ChildActorIndex >= static_cast<int32_t>(pOwner->GetChildActorsCount())
+				|| attachment.BoneIndex >= static_cast<int32_t>(m_Pose.BoneTransforms.size()))
+			{
+				continue;
+			}
+
+			Actor* pChildActor = pOwner->GetChildActor(attachment.ChildActorIndex);
+			const Mat4& boneTransform = m_Skeleton.Get()->GetSkeleton()
+			                                      .FindWorldBoneTransform(attachment.BoneIndex, m_Pose);
+			Vec3 position;
+			Quat rotation;
+			Vec3 scale;
+			Math::Decompose(boneTransform, position, rotation, scale);
+			pChildActor->SetLocalPosition(position);
+			pChildActor->SetLocalRotation(rotation);
+			pChildActor->SetLocalScale(scale);
+		}
+	}
+}
+
+void Arg::Gameplay::SkeletalModelComponent::VRender(Renderer::RenderContext& context)
+{
+	ActorComponent::VRender(context);
+
+	if (m_Model.IsValid() && m_Skeleton.IsValid())
+	{
+		const auto& model = m_Model.Get()->GetModel();
+		const auto& transform = GetOwner()->GetTransform();
+
+		std::vector<Renderer::Material*> materials(m_Materials.size());
+		for (size_t i = 0; i < m_Materials.size(); i++)
+		{
+			materials[i] = m_Materials[i].IsValid()
+				               ? m_Materials[i].Get()->GetMaterial().get()
+				               : nullptr;
 		}
 
 		context.DrawSkeletalModel(
@@ -142,10 +168,16 @@ void Arg::Gameplay::SkeletalModelComponent::VClone(const ActorComponent* pActorC
 	SetCurrentAnimation(pSkeletalModelComponent->GetCurrentAnimation());
 	SetPlayOnStart(pSkeletalModelComponent->GetPlayOnStart());
 	SetLooping(pSkeletalModelComponent->GetLooping());
+	for (size_t i = 0; i < pSkeletalModelComponent->GetAttachmentCount(); i++)
+	{
+		AddAttachment(pSkeletalModelComponent->GetAttachment(i));
+	}
 }
 
 void Arg::Gameplay::SkeletalModelComponent::SetSkeleton(const SkeletonHandle& skeleton)
 {
+	m_Attachments.clear();
+
 	if (m_Skeleton.IsValid())
 	{
 		m_Skeleton.FreeRef();
@@ -157,6 +189,7 @@ void Arg::Gameplay::SkeletalModelComponent::SetSkeleton(const SkeletonHandle& sk
 	if (m_Skeleton.IsValid())
 	{
 		m_Skeleton.AddRef();
+		skeleton.Get()->GetSkeleton().CalculateRestPose(m_Pose);
 	}
 }
 
@@ -234,6 +267,45 @@ void Arg::Gameplay::SkeletalModelComponent::SetCurrentAnimation(const SkeletalAn
 	}
 }
 
+auto Arg::Gameplay::SkeletalModelComponent::GetAttachment(size_t index) const -> const SkeletonAttachment&
+{
+	ARG_ASSERT(index < m_Attachments.size());
+	return m_Attachments[index];
+}
+
+void Arg::Gameplay::SkeletalModelComponent::SetAttachment(size_t index, const SkeletonAttachment& attachment)
+{
+	ARG_ASSERT(index < m_Attachments.size());
+	for (auto& currentAttachment : m_Attachments)
+	{
+		if (currentAttachment.ChildActorIndex == attachment.ChildActorIndex)
+		{
+			currentAttachment.ChildActorIndex = -1;
+		}
+	}
+
+	m_Attachments[index] = attachment;
+}
+
+void Arg::Gameplay::SkeletalModelComponent::AddAttachment(const SkeletonAttachment& attachment)
+{
+	for (auto& currentAttachment : m_Attachments)
+	{
+		if (currentAttachment.ChildActorIndex == attachment.ChildActorIndex)
+		{
+			currentAttachment.ChildActorIndex = -1;
+		}
+	}
+
+	m_Attachments.push_back(attachment);
+}
+
+void Arg::Gameplay::SkeletalModelComponent::RemoveAttachment(size_t index)
+{
+	ARG_ASSERT(index < m_Attachments.size());
+	m_Attachments.erase(m_Attachments.begin() + static_cast<long long>(index));
+}
+
 void Arg::Gameplay::SkeletalModelComponent::Play(const SkeletalAnimationHandle& animation)
 {
 	SetCurrentAnimation(animation);
@@ -268,8 +340,18 @@ bool Arg::Gameplay::SkeletalModelComponent::VOnSerialize(YAML::Node& node) const
 		materialNode["ID"] = material.GetID();
 		materialsNode.push_back(materialNode);
 	}
-
 	node["Materials"] = materialsNode;
+
+	auto attachmentsNode = node["Attachments"];
+	attachmentsNode.reset();
+	for (const auto& attachment : m_Attachments)
+	{
+		YAML::Node attachmentNode;
+		attachmentNode["ChildActorIndex"] = attachment.ChildActorIndex;
+		attachmentNode["BoneIndex"] = attachment.BoneIndex;
+		attachmentsNode.push_back(attachmentNode);
+	}
+	node["Attachments"] = attachmentsNode;
 
 	node["AnimationID"] = m_CurrentAnimation.GetID();
 	node["PlayOnStart"] = m_bPlayOnStart;
@@ -287,13 +369,13 @@ bool Arg::Gameplay::SkeletalModelComponent::VOnDeserialize(const YAML::Node& nod
 	}
 
 	const GUID skeletonID = ValueOr<GUID>(node["SkeletonID"], GUID::Empty);
-	m_Skeleton = GetResourceCache()->CreateHandle<Content::SkeletonResource>(skeletonID);
+	SetSkeleton(GetResourceCache()->CreateHandle<Content::SkeletonResource>(skeletonID));
 
 	const GUID modelID = ValueOr<GUID>(node["ModelID"], GUID::Empty);
-	m_Model = GetResourceCache()->CreateHandle<Content::SkeletalModelResource>(modelID);
+	SetModel(GetResourceCache()->CreateHandle<Content::SkeletalModelResource>(modelID));
 
-	m_bCastShadows = ValueOr<bool>(node["CastShadows"], true);
-	m_bReceiveShadows = ValueOr<bool>(node["ReceiveShadows"], true);
+	SetCastShadows(ValueOr<bool>(node["CastShadows"], true));
+	SetReceiveShadows(ValueOr<bool>(node["ReceiveShadows"], true));
 
 	m_Materials.clear();
 	const auto& materialsNode = node["Materials"];
@@ -304,19 +386,33 @@ bool Arg::Gameplay::SkeletalModelComponent::VOnDeserialize(const YAML::Node& nod
 		for (size_t i = 0; i < materialsCount; i++)
 		{
 			const GUID materialID = ValueOr<GUID>(materialsNode[i]["ID"], GUID::Empty);
-			m_Materials[i] = GetResourceCache()->CreateHandle<Content::MaterialResource>(materialID);
+			SetMaterial(i, GetResourceCache()->CreateHandle<Content::MaterialResource>(materialID));
 		}
 	}
 	else
 	{
 		m_Materials = std::vector<MaterialHandle>(1);
-		m_Materials[0] = GetResourceCache()->CreateHandle<Content::MaterialResource>(GUID::Empty);
+		SetMaterial(0, GetResourceCache()->CreateHandle<Content::MaterialResource>(GUID::Empty));
+	}
+
+	m_Attachments.clear();
+	const auto& attachmentsNode = node["Attachments"];
+	if (attachmentsNode)
+	{
+		const size_t attachmentsCount = attachmentsNode.size();
+		for (size_t i = 0; i < attachmentsCount; i++)
+		{
+			AddAttachment({
+				ValueOr<int32_t>(attachmentsNode[i]["ChildActorIndex"], 0),
+				ValueOr<int32_t>(attachmentsNode[i]["BoneIndex"], 0)
+			});
+		}
 	}
 
 	const GUID animationID = ValueOr<GUID>(node["AnimationID"], GUID::Empty);
-	m_CurrentAnimation = GetResourceCache()->CreateHandle<Content::SkeletalAnimationResource>(animationID);
-	m_bPlayOnStart = ValueOr<bool>(node["PlayOnStart"], true);
-	m_bLooping = ValueOr<bool>(node["Looping"], true);
+	SetCurrentAnimation(GetResourceCache()->CreateHandle<Content::SkeletalAnimationResource>(animationID));
+	SetPlayOnStart(ValueOr<bool>(node["PlayOnStart"], true));
+	SetLooping(ValueOr<bool>(node["Looping"], true));
 
 	return true;
 }

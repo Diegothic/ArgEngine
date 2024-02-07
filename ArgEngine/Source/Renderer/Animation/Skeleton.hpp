@@ -49,6 +49,12 @@ namespace Arg
 			Skeleton(const Skeleton&) = delete;
 			~Skeleton() = default;
 
+		public:
+			auto GetBoneCount() const -> size_t;
+			auto GetBoneName(size_t boneIndex) const -> const std::string&;
+			auto FindWorldBoneTransform(size_t boneIndex, const SkeletonPose& pose) const -> Mat4;
+
+		public:
 			void CalculateRestPose(
 				SkeletonPose& outPose
 			) const;
@@ -57,6 +63,7 @@ namespace Arg
 				SkeletonPose& outPose
 			) const;
 
+		public:
 			void SetData(const SkeletonData& data);
 
 		private:
