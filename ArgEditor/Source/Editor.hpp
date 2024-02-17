@@ -62,6 +62,7 @@ namespace Arg
 
 			void OpenProject(const std::filesystem::path& projectFile);
 			void CreateProject(const std::filesystem::path& destination);
+			void PackageGame();
 
 			auto HasSelectedActor() const -> bool { return m_SelectedActorID != GUID::Empty; }
 			auto GetSelectedActor(Arg::Gameplay::Actor*& pOutActor) const -> bool;

@@ -13,6 +13,11 @@
 #include "Resource/GameResources/SkeletonResource.hpp"
 #include "Resource/GameResources/SoundResource.hpp"
 
+void Arg::Content::ResourceCache::Initialize(const std::filesystem::path& rootDirectory)
+{
+	m_RootDirectory = rootDirectory;
+}
+
 void Arg::Content::ResourceCache::AddResource(const std::shared_ptr<Resource>& resource)
 {
 	ARG_ASSERT(!m_pResources.contains(resource->GetID()));
@@ -116,6 +121,7 @@ void Arg::Content::ResourceCache::RenameResource(
 {
 	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources.at(ID);
+	m_pResourcesByPathID.erase(resource->GetPathID());
 
 	if (resource->GetType() == ResourceType::ResourceTypeFolder)
 	{
@@ -131,6 +137,8 @@ void Arg::Content::ResourceCache::RenameResource(
 	}
 
 	resource->Rename(name);
+	resource->SetPath(resource->GetPath(), m_RootDirectory);
+	m_pResourcesByPathID[resource->GetPathID()] = resource;
 }
 
 void Arg::Content::ResourceCache::MoveResource(
@@ -140,6 +148,7 @@ void Arg::Content::ResourceCache::MoveResource(
 {
 	ARG_ASSERT(m_pResources.contains(ID));
 	const auto& resource = m_pResources.at(ID);
+	m_pResourcesByPathID.erase(resource->GetPathID());
 	resource->Move(destination);
 
 	if (resource->GetType() != ResourceType::ResourceTypeFolder)
@@ -147,6 +156,9 @@ void Arg::Content::ResourceCache::MoveResource(
 		ARG_ASSERT(m_pGameResources.contains(ID));
 		m_pGameResources.at(ID)->VMoveFiles(destination);
 	}
+
+	resource->SetPath(destination, m_RootDirectory);
+	m_pResourcesByPathID[resource->GetPathID()] = resource;
 }
 
 void Arg::Content::ResourceCache::RemoveResource(const GUID ID)

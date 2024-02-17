@@ -67,6 +67,7 @@ namespace Arg
 
 			auto VGetID() const -> GUID override;
 			auto VGetName() const -> const std::string& override;
+			auto VGetDisplayName() const -> const std::string& override;
 
 			void VBeginPlay() override;
 			void VTick(const Gameplay::GameTime& gameTime, const Gameplay::GameInput& gameInput) override;
@@ -136,6 +137,7 @@ namespace Arg
 			auto VOnDeserialize(const YAML::Node& node) -> bool override;
 
 		private:
+			void InitializeComponent();
 			void UpdateScriptFields();
 
 		private:
@@ -143,6 +145,7 @@ namespace Arg
 
 			GUID m_ID = GUID::Empty;
 			std::string m_Name;
+			std::string m_DisplayName;
 			std::string m_OwnerIDString;
 
 			ScriptComponent* m_pBase = nullptr;

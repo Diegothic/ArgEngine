@@ -27,6 +27,8 @@ void Arg::Content::Content::Initialize()
 	LoadConfig();
 	m_IDGenerator.SetSeed(m_Config.LastGeneratedID);
 
+	m_pResourceCache->Initialize(m_RootDirectory);
+
 	auto resource = std::make_shared<Resource>();
 	resource->Create(
 		m_pResourceCache.get(),

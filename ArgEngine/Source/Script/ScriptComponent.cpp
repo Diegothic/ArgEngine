@@ -16,6 +16,7 @@ Arg::Script::ScriptComponent::ScriptComponent(
 {
 	m_bCanEverRender = false;
 	m_ID = std::hash<std::string>{}(m_Name);
+	m_DisplayName = std::format("Script: {}", m_Name);
 }
 
 Arg::Script::ScriptComponent::ScriptComponent(ScriptComponent* pBase)
@@ -40,6 +41,16 @@ auto Arg::Script::ScriptComponent::VGetID() const -> GUID
 auto Arg::Script::ScriptComponent::VGetName() const -> const std::string&
 {
 	return m_Name;
+}
+
+auto Arg::Script::ScriptComponent::VGetDisplayName() const -> const std::string&
+{
+	if (m_pBase != nullptr)
+	{
+		return m_pBase->VGetDisplayName();
+	}
+
+	return m_DisplayName;
 }
 
 void Arg::Script::ScriptComponent::VBeginPlay()
@@ -122,36 +133,7 @@ void Arg::Script::ScriptComponent::VOnComponentAdded()
 	auto& state = m_pScriptEngine->GetState();
 	sol::table scriptInstances = state[m_Name]["_instances"];
 
-	Gameplay::GameWorld* pWorld = GetOwner()->GetWorld();
-	const GUID& ownerID = GetOwner()->GetID();
-	m_OwnerIDString = std::to_string(ownerID);
-
-	sol::table componentTable = scriptInstances[m_OwnerIDString]
-		.get_or_create<sol::table>();
-
-	auto componentHandle = ScriptComponentHandle(pWorld, ownerID, m_ID);
-	componentTable["__component"] = componentHandle;
-
-	componentTable[sol::metatable_key] = state[m_Name];
-	{
-		componentTable.set_function("Owner", [&](sol::table self)
-		{
-			return state["ScriptComponent"]["Owner"](self["__component"]);
-		});
-		componentTable.set_function("World", [&](sol::table self)
-		{
-			return state["ScriptComponent"]["World"](self["__component"]);
-		});
-		componentTable.set_function(
-			sol::meta_function::new_index,
-			[](sol::table self,
-			   const sol::object& key,
-			   const sol::object& value)
-			{
-				self[key] = value;
-			});
-	}
-
+	InitializeComponent();
 	UpdateScriptFields();
 
 	if (state[m_Name]["_OnCreate"].valid())
@@ -720,6 +702,45 @@ bool Arg::Script::ScriptComponent::VOnDeserialize(const YAML::Node& node)
 	}
 
 	return true;
+}
+
+void Arg::Script::ScriptComponent::InitializeComponent()
+{
+	auto& state = m_pScriptEngine->GetState();
+	sol::table scriptInstances = state[m_Name]["_instances"];
+
+	Gameplay::GameWorld* pWorld = GetOwner()->GetWorld();
+	const GUID& ownerID = GetOwner()->GetID();
+	m_OwnerIDString = std::to_string(ownerID);
+
+	scriptInstances[m_OwnerIDString] = sol::nil;
+	sol::table componentTable = scriptInstances[m_OwnerIDString]
+		.get_or_create<sol::table>();
+
+	auto componentHandle = ScriptComponentHandle(pWorld, ownerID, m_ID);
+	componentTable["__component"] = componentHandle;
+
+	componentTable[sol::metatable_key] = state[m_Name];
+	{
+		componentTable.set_function("Owner", [&](sol::table self)
+		{
+			return state["ScriptComponent"]["Owner"](self["__component"]);
+		});
+		componentTable.set_function("World", [&](sol::table self)
+		{
+			return state["ScriptComponent"]["World"](self["__component"]);
+		});
+		componentTable.set_function(
+			sol::meta_function::new_index,
+			[](sol::table self,
+			   const sol::object& key,
+			   const sol::object& value)
+			{
+				self[key] = value;
+			}
+		);
+		componentTable["__index"] = componentTable;
+	}
 }
 
 void Arg::Script::ScriptComponent::UpdateScriptFields()

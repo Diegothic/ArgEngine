@@ -5,9 +5,9 @@
 #include "Gameplay/World/Actor/Actor.hpp"
 
 const Arg::GUID Arg::Gameplay::SoundPlayerComponent::COMPONENT_ID
-	= std::hash<std::string>{}("SoundPlayerComponent");
+	= std::hash<std::string>{}("SoundPlayer");
 
-const std::string Arg::Gameplay::SoundPlayerComponent::COMPONENT_NAME = "SoundPlayerComponent";
+const std::string Arg::Gameplay::SoundPlayerComponent::COMPONENT_NAME = "SoundPlayer";
 
 Arg::Gameplay::SoundPlayerComponent::SoundPlayerComponent()
 {
@@ -17,6 +17,12 @@ Arg::Gameplay::SoundPlayerComponent::SoundPlayerComponent()
 auto Arg::Gameplay::SoundPlayerComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<SoundPlayerComponent>();
+}
+
+auto Arg::Gameplay::SoundPlayerComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Sound Player";
+	return displayName;
 }
 
 void Arg::Gameplay::SoundPlayerComponent::VBeginPlay()

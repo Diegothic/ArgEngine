@@ -41,6 +41,7 @@ namespace Arg
 			void Close();
 			void Save() const;
 
+			auto GetRootDirectory() const -> const std::filesystem::path& { return m_RootDirectory; }
 			auto GetResourceCache() -> std::shared_ptr<Content::ResourceCache>& { return m_pResourceCache; }
 			auto GetContent() -> std::unique_ptr<Content::Content>& { return m_pContent; }
 

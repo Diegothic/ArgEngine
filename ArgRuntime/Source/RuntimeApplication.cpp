@@ -63,4 +63,6 @@ void Arg::RuntimeApplication::VOnRun()
 			deltaTime = 1.0f / 30.0f;
 		}
 	}
+
+	m_pRuntime->CleanUp();
 }

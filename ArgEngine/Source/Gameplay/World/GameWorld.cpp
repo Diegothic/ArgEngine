@@ -420,10 +420,15 @@ auto Arg::Gameplay::GameWorld::PhysicsCheckSphere(
 	{
 		const Physics::PhysicsBody* pPhysicsBody = m_pPhysicsWorld->GetPhysicsBody(userIndex);
 		const GUID& actorID = pPhysicsBody->GetActorID();
-		result.push_back({this, actorID});
+		result.emplace_back(this, actorID);
 	}
 
 	return result;
+}
+
+auto Arg::Gameplay::GameWorld::GetEngine() const -> GameEngine*
+{
+	return s_pEngine;
 }
 
 auto Arg::Gameplay::GameWorld::GetSound() const -> Sound::SoundEngine&

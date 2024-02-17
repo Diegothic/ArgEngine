@@ -5,9 +5,9 @@
 #include "Physics/PhysicsWorld.hpp"
 
 const Arg::GUID Arg::Gameplay::TriggerVolumeComponent::COMPONENT_ID
-	= std::hash<std::string>{}("TriggerVolumeComponent");
+	= std::hash<std::string>{}("TriggerVolume");
 
-const std::string Arg::Gameplay::TriggerVolumeComponent::COMPONENT_NAME = "TriggerVolumeComponent";
+const std::string Arg::Gameplay::TriggerVolumeComponent::COMPONENT_NAME = "TriggerVolume";
 
 Arg::Gameplay::TriggerVolumeComponent::TriggerVolumeComponent()
 {
@@ -17,6 +17,12 @@ Arg::Gameplay::TriggerVolumeComponent::TriggerVolumeComponent()
 auto Arg::Gameplay::TriggerVolumeComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<TriggerVolumeComponent>();
+}
+
+auto Arg::Gameplay::TriggerVolumeComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Trigger Volume";
+	return displayName;
 }
 
 void Arg::Gameplay::TriggerVolumeComponent::VBeginPlay()
@@ -61,9 +67,17 @@ void Arg::Gameplay::TriggerVolumeComponent::VTick(const GameTime& gameTime, cons
 		for (size_t i = 0; i < m_pTriggerVolume->GetTriggerExitCount(); i++)
 		{
 			const int32_t& exitBodyUserIndex = m_pTriggerVolume->GetTriggerExit(i);
-			const Physics::PhysicsBody* pOtherPhysicsBody = pPhysicsWorld->GetPhysicsBody(exitBodyUserIndex);
-
-			Ev_OnExit.Invoke(ActorHandle(pWorld, pOtherPhysicsBody->GetActorID()));
+			if (pPhysicsWorld->HasPhysicsBody(exitBodyUserIndex))
+			{
+				const Physics::PhysicsBody* pOtherPhysicsBody = pPhysicsWorld->GetPhysicsBody(
+					exitBodyUserIndex
+				);
+				Ev_OnExit.Invoke(ActorHandle(pWorld, pOtherPhysicsBody->GetActorID()));
+			}
+			else
+			{
+				Ev_OnExit.Invoke(ActorHandle(pWorld, GUID::Empty));
+			}
 		}
 	}
 
@@ -133,6 +147,11 @@ void Arg::Gameplay::TriggerVolumeComponent::VClone(const ActorComponent* pActorC
 	m_pTriggerVolume = std::make_unique<Physics::TriggerVolume>(GetOwner()->GetID());
 	SetPhysicsShape(pTriggerVolumeComponent->GetPhysicsShape());
 	SetSize(pTriggerVolumeComponent->GetSize());
+}
+
+void Arg::Gameplay::TriggerVolumeComponent::Clear() const
+{
+	m_pTriggerVolume->Clear();
 }
 
 auto Arg::Gameplay::TriggerVolumeComponent::GetPhysicsShape() const -> Physics::TriggerVolumeShape

@@ -43,6 +43,8 @@ namespace Arg
 			auto HasOverlappedWith(const int32_t& userIndex) const -> bool;
 			auto HasOverlappedLastWith(const int32_t& userIndex) const -> bool;
 
+			void Clear();
+
 			auto GetOverlappedLastCount() const -> size_t;
 			auto GetOverlappedLast(size_t index) const -> const int32_t&;
 

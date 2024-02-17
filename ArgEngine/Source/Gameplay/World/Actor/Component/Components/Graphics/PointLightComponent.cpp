@@ -4,9 +4,9 @@
 #include "Gameplay/World/Actor/Actor.hpp"
 
 const Arg::GUID Arg::Gameplay::PointLightComponent::COMPONENT_ID
-	= std::hash<std::string>{}("PointLightComponent");
+	= std::hash<std::string>{}("PointLight");
 
-const std::string Arg::Gameplay::PointLightComponent::COMPONENT_NAME = "PointLightComponent";
+const std::string Arg::Gameplay::PointLightComponent::COMPONENT_NAME = "PointLight";
 
 Arg::Gameplay::PointLightComponent::PointLightComponent()
 {
@@ -16,6 +16,12 @@ Arg::Gameplay::PointLightComponent::PointLightComponent()
 auto Arg::Gameplay::PointLightComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<PointLightComponent>();
+}
+
+auto Arg::Gameplay::PointLightComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Point Light";
+	return displayName;
 }
 
 void Arg::Gameplay::PointLightComponent::VRender(Renderer::RenderContext& context)

@@ -79,7 +79,6 @@ in VS_OUT
 	vec3 Normal;
 	vec2 TexUV;
 
-	bool ReceiveShadows;
 	vec4 FragPosDirLightSpace;
 	vec4 FragPosDirLightSpaceFar;
 } fs_in;

@@ -48,6 +48,7 @@ namespace Arg
 
 			auto VGetID() const -> GUID override { return COMPONENT_ID; }
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
+			auto VGetDisplayName() const -> const std::string& override;
 
 			void VBeginPlay() override;
 			void VEndPlay() override;
@@ -112,6 +113,7 @@ namespace Arg
 			std::vector<MaterialHandle> m_Materials;
 
 			Renderer::SkeletonPose m_Pose;
+			Renderer::SkeletonPose m_CachedPose;
 			std::vector<Mat4> m_AnimationBoneTransforms;
 
 			bool m_bReceiveShadows = true;

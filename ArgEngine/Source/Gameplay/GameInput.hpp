@@ -18,7 +18,7 @@ namespace Arg
 			void Initialize(Window* pWindow);
 
 			void BeginPlay();
-			void Tick(float deltaTime);
+			void Tick(float deltaTime, bool bIsGameFocused);
 
 		public:
 			auto GetKeyPressed(const Input::KeyCode& keyCode) const -> bool;
@@ -43,8 +43,10 @@ namespace Arg
 
 		private:
 			Window* m_pWindow = nullptr;
+			bool m_bIsGameFocused = false;
 			Vec2 m_ScreenSize = Vec2(1.0f);
 			Vec2 m_CursorPos = Vec2(0.0f);
+			Vec2 m_CursorDelta = Vec2(0.0f);
 		};
 	}
 }

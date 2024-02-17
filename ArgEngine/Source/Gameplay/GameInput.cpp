@@ -12,13 +12,20 @@ void Arg::Gameplay::GameInput::BeginPlay()
 	m_CursorPos = m_ScreenSize * 0.5f;
 }
 
-void Arg::Gameplay::GameInput::Tick(float deltaTime)
+void Arg::Gameplay::GameInput::Tick(float deltaTime, bool bIsGameFocused)
 {
+	m_bIsGameFocused = bIsGameFocused;
+	if (!m_bIsGameFocused)
+	{
+		return;
+	}
+
 	m_ScreenSize = Vec2(m_pWindow->GetWidth(), m_pWindow->GetHeight());
 
 	const auto& mouseState = m_pWindow->GetInput().GetMouseState();
 	const Vec2 mouseDelta = mouseState.GetPositionDelta();
 	m_CursorPos += mouseDelta;
+	m_CursorDelta = mouseDelta;
 
 	m_CursorPos.x = Math::clamp(m_CursorPos.x, 0.0f, m_ScreenSize.x);
 	m_CursorPos.y = Math::clamp(m_CursorPos.y, 0.0f, m_ScreenSize.y);
@@ -26,18 +33,33 @@ void Arg::Gameplay::GameInput::Tick(float deltaTime)
 
 auto Arg::Gameplay::GameInput::GetKeyPressed(const Input::KeyCode& keyCode) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& keyboardState = m_pWindow->GetInput().GetKeyboardState();
 	return keyboardState.IsKeyPressed(keyCode);
 }
 
 auto Arg::Gameplay::GameInput::GetKeyReleased(const Input::KeyCode& keyCode) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& keyboardState = m_pWindow->GetInput().GetKeyboardState();
 	return keyboardState.IsKeyReleased(keyCode);
 }
 
 auto Arg::Gameplay::GameInput::GetKeyDown(const Input::KeyCode& keyCode) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& keyboardState = m_pWindow->GetInput().GetKeyboardState();
 	return keyboardState.IsKeyDown(keyCode);
 }
@@ -49,25 +71,43 @@ auto Arg::Gameplay::GameInput::GetMousePos() const -> Vec2
 
 auto Arg::Gameplay::GameInput::GetMouseDelta() const -> Vec2
 {
-	const auto& mouseState = m_pWindow->GetInput().GetMouseState();
-	const Vec2 mouseDelta = mouseState.GetPositionDelta();
-	return {mouseDelta.x / m_ScreenSize.x, mouseDelta.y / m_ScreenSize.y};
+	if (!m_bIsGameFocused)
+	{
+		return Vec2(0.0f);
+	}
+
+	return {m_CursorDelta.x, m_CursorDelta.y};
 }
 
 auto Arg::Gameplay::GameInput::GetMouseButtonPressed(const Input::MouseButton& mouseButton) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& mouseState = m_pWindow->GetInput().GetMouseState();
 	return mouseState.IsButtonPressed(mouseButton);
 }
 
 auto Arg::Gameplay::GameInput::GetMouseButtonReleased(const Input::MouseButton& mouseButton) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& mouseState = m_pWindow->GetInput().GetMouseState();
 	return mouseState.IsButtonReleased(mouseButton);
 }
 
 auto Arg::Gameplay::GameInput::GetMouseButtonDown(const Input::MouseButton& mouseButton) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	const auto& mouseState = m_pWindow->GetInput().GetMouseState();
 	return mouseState.IsButtonDown(mouseButton);
 }
@@ -84,6 +124,11 @@ auto Arg::Gameplay::GameInput::GetGamepadButtonPressed(
 	const Input::GamepadButton& gamepadButton
 ) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	ID = Math::clamp(ID, 0, Input::GAMEPADS_CONNECTED_MAX - 1);
 	const auto& gamepadState = m_pWindow->GetInput().GetGamepadState(ID);
 	return gamepadState.IsButtonPressed(gamepadButton);
@@ -94,6 +139,11 @@ auto Arg::Gameplay::GameInput::GetGamepadButtonReleased(
 	const Input::GamepadButton& gamepadButton
 ) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	ID = Math::clamp(ID, 0, Input::GAMEPADS_CONNECTED_MAX - 1);
 	const auto& gamepadState = m_pWindow->GetInput().GetGamepadState(ID);
 	return gamepadState.IsButtonReleased(gamepadButton);
@@ -104,6 +154,11 @@ auto Arg::Gameplay::GameInput::GetGamepadButtonDown(
 	const Input::GamepadButton& gamepadButton
 ) const -> bool
 {
+	if (!m_bIsGameFocused)
+	{
+		return false;
+	}
+
 	ID = Math::clamp(ID, 0, Input::GAMEPADS_CONNECTED_MAX - 1);
 	const auto& gamepadState = m_pWindow->GetInput().GetGamepadState(ID);
 	return gamepadState.IsButtonDown(gamepadButton);
@@ -114,6 +169,11 @@ auto Arg::Gameplay::GameInput::GetGamepadAxis(
 	const Input::GamepadAxis& gamepadAxis
 ) const -> float
 {
+	if (!m_bIsGameFocused)
+	{
+		return 0.0f;
+	}
+
 	ID = Math::clamp(ID, 0, Input::GAMEPADS_CONNECTED_MAX - 1);
 	const auto& gamepadState = m_pWindow->GetInput().GetGamepadState(ID);
 	return gamepadState.GetAxis(gamepadAxis);
@@ -124,6 +184,11 @@ auto Arg::Gameplay::GameInput::GetGamepadAxis2D(
 	const Input::GamepadAxis2D& gamepadAxis
 ) const -> Vec2
 {
+	if (!m_bIsGameFocused)
+	{
+		return Vec2(0.0f);
+	}
+
 	ID = Math::clamp(ID, 0, Input::GAMEPADS_CONNECTED_MAX - 1);
 	const auto& gamepadState = m_pWindow->GetInput().GetGamepadState(ID);
 	return gamepadState.GetAxis2D(gamepadAxis);

@@ -4,9 +4,9 @@
 #include "Gameplay/World/Actor/Actor.hpp"
 
 const Arg::GUID Arg::Gameplay::SkeletalModelComponent::COMPONENT_ID
-	= std::hash<std::string>{}("SkeletalModelComponent");
+	= std::hash<std::string>{}("SkeletalModel");
 
-const std::string Arg::Gameplay::SkeletalModelComponent::COMPONENT_NAME = "SkeletalModelComponent";
+const std::string Arg::Gameplay::SkeletalModelComponent::COMPONENT_NAME = "SkeletalModel";
 
 Arg::Gameplay::SkeletalModelComponent::SkeletalModelComponent()
 {
@@ -15,6 +15,12 @@ Arg::Gameplay::SkeletalModelComponent::SkeletalModelComponent()
 auto Arg::Gameplay::SkeletalModelComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<SkeletalModelComponent>();
+}
+
+auto Arg::Gameplay::SkeletalModelComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Skeletal Model";
+	return displayName;
 }
 
 void Arg::Gameplay::SkeletalModelComponent::VBeginPlay()
@@ -52,6 +58,8 @@ void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime, cons
 			}
 		case SkeletalAnimationState::StateStarted:
 			{
+				m_CachedPose.BoneTransforms = m_AnimationBoneTransforms;
+
 				m_ElapsedTime = 0.0f;
 				Ev_OnAnimationStart.Invoke();
 				m_CurrentAnimationState = SkeletalAnimationState::StatePlaying;
@@ -105,12 +113,54 @@ void Arg::Gameplay::SkeletalModelComponent::VTick(const GameTime& gameTime, cons
 		const auto& skeleton = m_Skeleton.Get()->GetSkeleton();
 		if (m_CurrentAnimation.IsValid())
 		{
-			m_CurrentAnimation.Get()->GetAnimation()->CalculateTransforms(
-				m_ElapsedTime,
-				m_bLooping,
-				m_AnimationBoneTransforms
-			);
-			skeleton.CalculatePose(m_AnimationBoneTransforms, m_Pose);
+			if (m_ElapsedTime < 0.1f && !m_CachedPose.BoneTransforms.empty())
+			{
+				m_CurrentAnimation.Get()->GetAnimation()->CalculateTransforms(
+					m_ElapsedTime,
+					m_bLooping,
+					m_AnimationBoneTransforms
+				);
+
+				float interpFactor = (0.1f - m_ElapsedTime) / 0.1f;
+				interpFactor *= interpFactor;
+				interpFactor = 1.0f - interpFactor;
+				for (size_t i = 0; i < m_AnimationBoneTransforms.size(); i++)
+				{
+					const Mat4& boneTransform = m_AnimationBoneTransforms[i];
+					Vec3 position;
+					Quat rotation;
+					Vec3 scale;
+					Math::Decompose(boneTransform, position, rotation, scale);
+
+					const Mat4& cachedBoneTransform = m_CachedPose.BoneTransforms[i];
+					Vec3 cachedPosition;
+					Quat cachedRotation;
+					Vec3 cachedScale;
+					Math::Decompose(cachedBoneTransform, cachedPosition, cachedRotation, cachedScale);
+
+					const Vec3 interpPosition = Math::Lerp(cachedPosition, position, interpFactor);
+					const Quat interpRotation = Math::SLerp(cachedRotation, rotation, interpFactor);
+					const Vec3 interpScale = Math::Lerp(cachedScale, scale, interpFactor);
+
+					m_AnimationBoneTransforms[i] = Math::CalculateTransform(
+						interpPosition,
+						interpRotation,
+						interpScale
+					);
+				}
+
+				skeleton.CalculatePose(m_AnimationBoneTransforms, m_Pose);
+			}
+			else
+			{
+				m_CurrentAnimation.Get()->GetAnimation()->CalculateTransforms(
+					m_ElapsedTime,
+					m_bLooping,
+					m_AnimationBoneTransforms
+				);
+
+				skeleton.CalculatePose(m_AnimationBoneTransforms, m_Pose);
+			}
 		}
 		else
 		{

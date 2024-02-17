@@ -21,12 +21,12 @@ namespace Arg
 			ResourceHandle(const ResourceHandle<TResourceType>& other);
 			~ResourceHandle();
 
-			auto operator=(const ResourceHandle<TResourceType>& other)->ResourceHandle<TResourceType>&;
+			auto operator=(const ResourceHandle<TResourceType>& other) -> ResourceHandle<TResourceType>&;
 			auto operator==(const ResourceHandle<TResourceType>& other) const -> bool;
 
 			auto GetID() const -> const GUID& { return m_ResourceID; }
 			auto IsValid() const -> bool;
-			auto Get() const->std::shared_ptr<TResourceType>;
+			auto Get() const -> std::shared_ptr<TResourceType>;
 
 			void AddRef();
 			void FreeRef();
@@ -43,10 +43,13 @@ namespace Arg
 			ResourceCache(const ResourceCache&) = delete;
 			~ResourceCache() = default;
 
-			template<typename TResourceType>
+			void Initialize(const std::filesystem::path& rootDirectory);
+
+		public:
+			template <typename TResourceType>
 			auto CreateHandle(const GUID ID) -> ResourceHandle<TResourceType>;
 
-			template<typename TResourceType>
+			template <typename TResourceType>
 			auto CreateHandle(const std::string& path) -> ResourceHandle<TResourceType>;
 
 			void AddResource(const std::shared_ptr<Resource>& resource);
@@ -65,6 +68,8 @@ namespace Arg
 
 			auto IsValid(const GUID ID) -> bool;
 
+			auto GetRootDirectory() const -> const std::filesystem::path& { return m_RootDirectory; }
+
 			auto GetResource(const GUID ID) -> std::shared_ptr<Resource>&;
 
 			auto GetGameResource(const GUID ID) -> std::shared_ptr<GameResource>&;
@@ -75,6 +80,8 @@ namespace Arg
 			void SaveAll() const;
 
 		private:
+			std::filesystem::path m_RootDirectory;
+
 			std::unordered_map<GUID, std::shared_ptr<Resource>> m_pResources;
 			std::unordered_map<GUID, std::shared_ptr<Resource>> m_pResourcesByPathID;
 
@@ -98,13 +105,12 @@ namespace Arg
 		template <typename TResourceType>
 		Arg::Content::ResourceHandle<TResourceType>::~ResourceHandle()
 		{
-
 		}
 
 		template <typename TResourceType>
 		auto Arg::Content::ResourceHandle<TResourceType>::operator=(
 			const ResourceHandle<TResourceType>& other
-			) ->ResourceHandle<TResourceType>&
+		) -> ResourceHandle<TResourceType>&
 		{
 			m_ResourceID = other.m_ResourceID;
 			m_pResourceCache = other.m_pResourceCache;
@@ -114,7 +120,7 @@ namespace Arg
 		template <typename TResourceType>
 		auto Arg::Content::ResourceHandle<TResourceType>::operator==(
 			const ResourceHandle<TResourceType>& other
-			) const -> bool
+		) const -> bool
 		{
 			return m_ResourceID == other.m_ResourceID;
 		}
@@ -143,20 +149,20 @@ namespace Arg
 			m_pResourceCache->GetGameResource(m_ResourceID)->FreeRef();
 		}
 
-		template<typename TResourceType>
+		template <typename TResourceType>
 		auto Arg::Content::ResourceCache::CreateHandle(const GUID ID) -> ResourceHandle<TResourceType>
 		{
 			ResourceHandle<TResourceType> handle(ID, this);
 			return handle;
 		}
 
-		template<typename TResourceType>
-		auto Arg::Content::ResourceCache::CreateHandle(const std::string& path) ->ResourceHandle<TResourceType>
+		template <typename TResourceType>
+		auto Arg::Content::ResourceCache::CreateHandle(const std::string& path) -> ResourceHandle<TResourceType>
 		{
 			const GUID pathID = std::hash<std::string>{}(path);
 			const GUID ID = m_pResourcesByPathID.contains(pathID)
-				? m_pResourcesByPathID.at(pathID)->GetID()
-				: GUID::Empty;
+				                ? m_pResourcesByPathID.at(pathID)->GetID()
+				                : GUID::Empty;
 			ResourceHandle<TResourceType> handle(ID, this);
 			return handle;
 		}

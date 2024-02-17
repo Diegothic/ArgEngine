@@ -165,7 +165,7 @@ void Arg::Renderer::RenderContext::DrawDebugSphere(
 	const Vec3& color
 )
 {
-	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius));
+	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius * 2.0f));
 	m_DebugSpheres.push_back({transform, color});
 }
 
@@ -177,7 +177,7 @@ void Arg::Renderer::RenderContext::DrawDebugCylinder(
 	const Vec3& color
 )
 {
-	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius, radius, height));
+	const Mat4 transform = Math::CalculateTransform(position, rotation, Vec3(radius * 2.0f, radius * 2.0f, height));
 	m_DebugCylinders.push_back({transform, color});
 }
 

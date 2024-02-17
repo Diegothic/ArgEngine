@@ -1,6 +1,7 @@
 ﻿#include <arg_pch.hpp>
 #include "ScriptGlueGameplay.hpp"
 
+#include "GameEngine.hpp"
 #include "Gameplay/World/Actor/ActorHandle.hpp"
 #include "Gameplay/World/Actor/Component/ActorComponentHandle.hpp"
 #include "Gameplay/World/Actor/Component/Components/Graphics/PointLightComponent.hpp"
@@ -340,6 +341,12 @@ void Arg::Script::ScriptExport_World(const ScriptEngine& scriptEngine)
 
 	scriptState.new_usertype<Gameplay::GameWorld>(
 		"World",
+		"Load",
+		[](Gameplay::GameWorld& self, const std::string& worldPath)
+		{
+			GameEngine* pEngine = self.GetEngine();
+			pEngine->RequestWorld(worldPath);
+		},
 		"SunlightColor",
 		[](Gameplay::GameWorld& self) -> Vec3
 		{
@@ -641,6 +648,7 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 
 	scriptState.new_usertype<Gameplay::ActorHandle>(
 		"Actor",
+		sol::constructors<Gameplay::ActorHandle(), Gameplay::ActorHandle(const Gameplay::ActorHandle&)>(),
 		sol::meta_function::equal_to, sol::overload([](
 			const Gameplay::ActorHandle& lhs,
 			const Gameplay::ActorHandle& rhs
@@ -796,6 +804,16 @@ void Arg::Script::ScriptExport_Actor(const ScriptEngine& scriptEngine)
 				);
 			}
 
+			if (componentID == Gameplay::TriggerVolumeComponent::COMPONENT_NAME)
+			{
+				return sol::make_object(
+					lua,
+					TriggerVolumeComponentHandle(
+						actor.GetWorld(), ownerID, ID
+					)
+				);
+			}
+
 			if (componentID == Gameplay::SoundPlayerComponent::COMPONENT_NAME)
 			{
 				return sol::make_object(
@@ -934,7 +952,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 	);
 
 	scriptState.new_usertype<CameraComponentHandle>(
-		"CameraComponent",
+		"Camera",
 		sol::meta_function::equal_to, sol::overload([](
 			const CameraComponentHandle& lhs,
 			const CameraComponentHandle& rhs
@@ -1018,7 +1036,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 	);
 
 	scriptState.new_usertype<PointLightComponentHandle>(
-		"PointLightComponent",
+		"PointLight",
 		sol::meta_function::equal_to, sol::overload([](
 			const PointLightComponentHandle& lhs,
 			const PointLightComponentHandle& rhs
@@ -1083,7 +1101,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 	);
 
 	scriptState.new_usertype<SpotLightComponentHandle>(
-		"SpotLightComponent",
+		"SpotLight",
 		sol::meta_function::equal_to, sol::overload([](
 			const SpotLightComponentHandle& lhs,
 			const SpotLightComponentHandle& rhs
@@ -1172,7 +1190,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 	);
 
 	scriptState.new_usertype<StaticModelComponentHandle>(
-		"StaticModelComponent",
+		"StaticModel",
 		sol::meta_function::equal_to, sol::overload([](
 			const StaticModelComponentHandle& lhs,
 			const StaticModelComponentHandle& rhs
@@ -1259,7 +1277,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 	);
 
 	scriptState.new_usertype<SkeletalModelComponentHandle>(
-		"StaticModelComponent",
+		"SkeletalModel",
 		sol::meta_function::equal_to, sol::overload([](
 			const SkeletalModelComponentHandle& lhs,
 			const SkeletalModelComponentHandle& rhs
@@ -1411,7 +1429,7 @@ void Arg::Script::ScriptExport_ActorComponents_Graphics(const ScriptEngine& scri
 			Gameplay::SkeletalModelComponent& component = self.Get();
 			component.Pause();
 		},
-		"Pause",
+		"Unpause",
 		[](SkeletalModelComponentHandle& self)
 		{
 			Gameplay::SkeletalModelComponent& component = self.Get();
@@ -1519,7 +1537,7 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 	);
 
 	scriptState.new_usertype<PhysicsBodyComponentHandle>(
-		"PhysicsBodyComponent",
+		"PhysicsBody",
 		sol::meta_function::equal_to, sol::overload([](
 			const PhysicsBodyComponentHandle& lhs,
 			const PhysicsBodyComponentHandle& rhs
@@ -1749,7 +1767,7 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 	);
 
 	scriptState.new_usertype<TriggerVolumeComponentHandle>(
-		"PhysicsBodyComponent",
+		"TriggerVolume",
 		sol::meta_function::equal_to, sol::overload([](
 			const TriggerVolumeComponentHandle& lhs,
 			const TriggerVolumeComponentHandle& rhs
@@ -1774,6 +1792,12 @@ void Arg::Script::ScriptExport_ActorComponents_Physics(const ScriptEngine& scrip
 			const Gameplay::TriggerVolumeComponent& component = self.Get();
 			const Gameplay::Actor* actor = component.GetOwner();
 			return *actor->GetWorld();
+		},
+		"Clear",
+		[](TriggerVolumeComponentHandle& self)
+		{
+			Gameplay::TriggerVolumeComponent& component = self.Get();
+			return component.Clear();
 		},
 		"Shape",
 		[](TriggerVolumeComponentHandle& self) -> Physics::TriggerVolumeShape
@@ -1853,7 +1877,7 @@ void Arg::Script::ScriptExport_ActorComponents_Sound(const ScriptEngine& scriptE
 	auto& scriptState = scriptEngine.GetState();
 
 	scriptState.new_usertype<SoundPlayerComponentHandle>(
-		"SoundPlayerComponent",
+		"SoundPlayer",
 		sol::meta_function::equal_to, sol::overload([](
 			const SoundPlayerComponentHandle& lhs,
 			const SoundPlayerComponentHandle& rhs

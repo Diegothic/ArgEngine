@@ -61,6 +61,7 @@ namespace Arg
 			void AddPhysicsBody(PhysicsBody* pPhysicsBody);
 			void RemovePhysicsBody(PhysicsBody* pPhysicsBody);
 			auto HasPhysicsBody(const PhysicsBody* pPhysicsBody) const -> bool;
+			auto HasPhysicsBody(const int32_t& userIndex) const -> bool;
 			auto GetPhysicsBody(const int32_t& userIndex) const -> PhysicsBody*;
 
 			void AddTriggerVolume(TriggerVolume* pTriggerVolume);

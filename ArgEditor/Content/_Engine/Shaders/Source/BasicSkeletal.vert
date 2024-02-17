@@ -31,7 +31,6 @@ out VS_OUT
 	vec3 Normal;
 	vec2 TexUV;
 
-	bool ReceiveShadows;
 	vec4 FragPosDirLightSpace;
 	vec4 FragPosDirLightSpaceFar;
 } vs_out;
@@ -72,7 +71,6 @@ void main()
 			1.0
 		);
 	}
-	vs_out.ReceiveShadows = u_ReceiveShadows;
 
 	// Final vertex position
     gl_Position = u_Proj * viewModelPos;

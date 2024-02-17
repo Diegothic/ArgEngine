@@ -66,7 +66,9 @@ uniform int u_PointLightsCount;
 uniform SpotLight u_SpotLights[SPOT_LIGHTS_MAX];
 uniform int u_SpotLightsCount;
 
-uniform samplerCube u_SkyBox;
+uniform samplerCube u_Skybox;
+uniform vec3 u_SkyboxColor;
+uniform bool u_UsingSkybox;
 uniform mat4 u_View;
 
 uniform bool u_ReceiveShadows;
@@ -129,19 +131,24 @@ void main()
 
 	// Environment ambient
 	vec3 fragNormalWorld = inverse(mat3(u_View)) * fragNormal;
-	vec3 skyBoxColor = texture(u_SkyBox, fragNormalWorld).rgb;
+	vec3 skyBoxColor = u_SkyboxColor;
+	if (u_UsingSkybox)
+	{
+		skyBoxColor = texture(u_Skybox, fragNormalWorld).rgb;
+	}
+
 	result += skyBoxColor * 0.05;
 
-	vec3 baseAmbient = vec3(texture(u_Material.diffuseMap, fs_in.TexUV)) 
+	vec3 baseAmbient = vec3(texture(u_Material.diffuseMap, fs_in.TexUV))
 		* u_Material.diffuse;
 
-	vec3 baseDiffuse = vec3(texture(u_Material.diffuseMap, fs_in.TexUV)) 
+	vec3 baseDiffuse = vec3(texture(u_Material.diffuseMap, fs_in.TexUV))
 		* u_Material.diffuse;
 
 	vec3 baseSpecular = vec3(texture(u_Material.specularMap, fs_in.TexUV))
 		* u_Material.specular;
 
-	vec3 baseReflection = vec3(texture(u_Material.reflectionMap, fs_in.TexUV)) 
+	vec3 baseReflection = vec3(texture(u_Material.reflectionMap, fs_in.TexUV))
 		* u_Material.reflection;
 
 	// Calculate directional lights
@@ -197,8 +204,8 @@ void main()
 		fragNormal, 
 		viewDirection
 	);
-	//result = mix(result, reflectionColor, baseReflection);
-	result += reflectionColor * baseReflection;
+	result = mix(result, reflectionColor, baseReflection);
+	//result += reflectionColor * baseReflection;
 
     vec4 fragColor = vec4(result, 1.0);
 
@@ -216,7 +223,13 @@ vec3 CalculateReflectionColor(
 {
 	vec3 reflected = reflect(-viewDirection, fragNormal);
 	vec3 reflectedWorld = inverse(mat3(u_View)) * reflected;
-	return texture(u_SkyBox, reflectedWorld).rgb;
+
+	if (u_UsingSkybox)
+	{
+		return texture(u_Skybox, reflectedWorld).rgb;
+	}
+
+	return u_SkyboxColor;
 }
 
 float ShadowCalculation(

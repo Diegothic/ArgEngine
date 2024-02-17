@@ -6,9 +6,9 @@
 #include "Renderer/Camera/PerspectiveCamera.hpp"
 
 const Arg::GUID Arg::Gameplay::CameraComponent::COMPONENT_ID
-	= std::hash<std::string>{}("CameraComponent");
+	= std::hash<std::string>{}("Camera");
 
-const std::string Arg::Gameplay::CameraComponent::COMPONENT_NAME = "CameraComponent";
+const std::string Arg::Gameplay::CameraComponent::COMPONENT_NAME = "Camera";
 
 Arg::Gameplay::CameraComponent::CameraComponent()
 {
@@ -18,6 +18,12 @@ Arg::Gameplay::CameraComponent::CameraComponent()
 auto Arg::Gameplay::CameraComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<CameraComponent>();
+}
+
+auto Arg::Gameplay::CameraComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Camera";
+	return displayName;
 }
 
 void Arg::Gameplay::CameraComponent::VTick(const GameTime& gameTime, const GameInput& gameInput)

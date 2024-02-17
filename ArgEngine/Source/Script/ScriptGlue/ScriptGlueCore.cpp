@@ -4,6 +4,7 @@
 #include "Core/GUID.hpp"
 #include "Core/Math/Math.hpp"
 #include "Core/Event/Event.hpp"
+#include "Script/ScriptEvent.hpp"
 
 void Arg::Script::ScriptExport_Core(const ScriptEngine& scriptEngine)
 {
@@ -19,6 +20,38 @@ void Arg::Script::ScriptExport_Core(const ScriptEngine& scriptEngine)
 
 	scriptState.new_usertype<EventListenerHandle>(
 		"EventListenerHandle"
+	);
+
+	scriptState.new_usertype<ScriptEvent>(
+		"Event",
+		sol::constructors<ScriptEvent()>(),
+		"Invoke",
+		[](const ScriptEvent& self, const sol::table& data)
+		{
+			self.Invoke(data);
+		},
+		"AddListener",
+		[](
+		ScriptEvent& self,
+		const sol::function& listener,
+		const sol::object& obj
+	) -> EventListenerHandle
+		{
+			return self.AddListener(listener, obj);
+		},
+		"RemoveListener",
+		[](
+		ScriptEvent& self,
+		const EventListenerHandle& handle
+	)
+		{
+			self.RemoveListener(handle);
+		},
+		"Clear",
+		[](ScriptEvent& self)
+		{
+			self.Clear();
+		}
 	);
 }
 
@@ -81,6 +114,19 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 
 	sol::table mathTable = scriptState["Mathf"].get_or_create<sol::table>();
 	mathTable.set_function(
+		"Clamp",
+		sol::overload(
+			[](const float& n, const float& min, const float& max) -> float
+			{
+				return Math::min(max, Math::max(min, n));
+			},
+			[](const int32_t& n, const int32_t& min, const int32_t& max) -> int32_t
+			{
+				return Math::min(max, Math::max(min, n));
+			}
+		)
+	);
+	mathTable.set_function(
 		"Lerp",
 		sol::overload(
 			[](const float& a, const float& b, float t) -> float
@@ -106,6 +152,30 @@ void Arg::Script::ScriptExport_Math(const ScriptEngine& scriptEngine)
 				Math::ToQuat(Math::radians(b)),
 				t
 			)));
+		}
+	);
+	mathTable.set_function(
+		"LookAtRotation",
+		[](const Vec3& direction) -> Vec3
+		{
+			const Vec3 directionNormalized = Math::normalize(direction);
+			const float yaw = Math::atan(
+				directionNormalized.y,
+				directionNormalized.x
+			);
+			const Vec3 forward = Vec3(directionNormalized.x, directionNormalized.y, 0.0f);
+			const float dotForward = Math::length(forward) > 0.0f
+				                         ? Math::dot(
+					                         directionNormalized,
+					                         Math::normalize(forward)
+				                         )
+				                         : 0.0f;
+			const float dotUp = Math::dot(directionNormalized, Vec3(0.0f, 0.0f, 1.0f));
+			const float pitch = -Math::atan(
+				dotUp,
+				dotForward
+			);
+			return Math::degrees(Vec3(0.0f, pitch, yaw));
 		}
 	);
 }

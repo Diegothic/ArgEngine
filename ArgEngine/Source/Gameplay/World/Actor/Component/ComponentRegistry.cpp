@@ -63,6 +63,13 @@ auto Arg::Gameplay::ComponentRegistry::GetComponentName(size_t index) const -> c
 	return m_ComponentRegistry.at(componentID)->VGetName();
 }
 
+auto Arg::Gameplay::ComponentRegistry::GetComponentDisplayName(size_t index) const -> const std::string&
+{
+	const GUID componentID = GetComponentID(index);
+	ARG_ASSERT(m_ComponentRegistry.contains(componentID));
+	return m_ComponentRegistry.at(componentID)->VGetDisplayName();
+}
+
 void Arg::Gameplay::ComponentRegistry::RegisterComponents()
 {
 	Clear();

@@ -4,9 +4,9 @@
 #include "Gameplay/World/Actor/Actor.hpp"
 
 const Arg::GUID Arg::Gameplay::StaticModelComponent::COMPONENT_ID
-	= std::hash<std::string>{}("StaticModelComponent");
+	= std::hash<std::string>{}("StaticModel");
 
-const std::string Arg::Gameplay::StaticModelComponent::COMPONENT_NAME = "StaticModelComponent";
+const std::string Arg::Gameplay::StaticModelComponent::COMPONENT_NAME = "StaticModel";
 
 Arg::Gameplay::StaticModelComponent::StaticModelComponent()
 {
@@ -17,6 +17,12 @@ auto Arg::Gameplay::StaticModelComponent::VCreateDefault()
 	-> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<StaticModelComponent>();
+}
+
+auto Arg::Gameplay::StaticModelComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Static Model";
+	return displayName;
 }
 
 void Arg::Gameplay::StaticModelComponent::VRender(

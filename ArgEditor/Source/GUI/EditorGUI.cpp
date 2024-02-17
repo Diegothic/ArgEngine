@@ -239,22 +239,24 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 				std::filesystem::path path;
 				const bool isSuccess = Dialog::FileOpenDialog::GetDirectory(path);
 				if (isSuccess
-					&& std::filesystem::is_directory(path)
-					&& std::filesystem::is_empty(path))
+					&& std::filesystem::is_directory(path))
 				{
-					pEditor->CreateProject(path);
+					if (std::filesystem::is_empty(path))
+					{
+						pEditor->CreateProject(path);
 
-					std::string directoryName = path.filename().string();
-					std::filesystem::path settingsFile = path / directoryName;
-					settingsFile.replace_extension(".aproj");
-					pEditor->OpenProject(settingsFile);
-				}
-				else if (!std::filesystem::is_empty(path))
-				{
-					Dialog::MessageBoxDialog::ShowError(
-						"Directory is not empty!",
-						"Failed to create a project!"
-					);
+						std::string directoryName = path.filename().string();
+						std::filesystem::path settingsFile = path / directoryName;
+						settingsFile.replace_extension(".aproj");
+						pEditor->OpenProject(settingsFile);
+					}
+					else
+					{
+						Dialog::MessageBoxDialog::ShowError(
+							"Directory is not empty!",
+							"Failed to create a project!"
+						);
+					}
 				}
 				else
 				{
@@ -299,65 +301,81 @@ void Arg::Editor::GUI::EditorGUI::OnGUI(const EditorGUIContext& context)
 		{
 			if (ImGui::BeginMenu("Project"))
 			{
-				if (ImGui::MenuItem("Open"))
+				if (ImGui::MenuItem("Open", nullptr, false, !pGameEngine->IsPlaying()))
 				{
-					std::filesystem::path path;
-					const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
-					if (isSuccess
-						&& path.has_extension()
-						&& path.extension() == PROJECT_FILE_EXTENSION)
+					if (!pGameEngine->IsPlaying())
 					{
-						pEditor->DeselectActor();
-						pEditor->OpenProject(path);
-						m_ContentBrowser.Initialize(context);
-					}
-					else
-					{
-						Dialog::MessageBoxDialog::ShowError(
-							"Invalid project file.",
-							"Failed to open project!"
-						);
+						std::filesystem::path path;
+						const bool isSuccess = Dialog::FileOpenDialog::GetFile(path);
+						if (isSuccess
+							&& path.has_extension()
+							&& path.extension() == PROJECT_FILE_EXTENSION)
+						{
+							pEditor->DeselectActor();
+							pEditor->OpenProject(path);
+							m_ContentBrowser.Initialize(context);
+						}
+						else
+						{
+							Dialog::MessageBoxDialog::ShowError(
+								"Invalid project file.",
+								"Failed to open project!"
+							);
+						}
 					}
 				}
 
-				if (ImGui::MenuItem("Create"))
+				if (ImGui::MenuItem("Create", nullptr, false, !pGameEngine->IsPlaying()))
 				{
-					std::filesystem::path path;
-					const bool isSuccess = Dialog::FileOpenDialog::GetDirectory(path);
-					if (isSuccess
-						&& std::filesystem::is_directory(path)
-						&& std::filesystem::is_empty(path))
+					if (!pGameEngine->IsPlaying())
 					{
-						pEditor->CreateProject(path);
+						std::filesystem::path path;
+						const bool isSuccess = Dialog::FileOpenDialog::GetDirectory(path);
+						if (isSuccess
+							&& std::filesystem::is_directory(path)
+							&& std::filesystem::is_empty(path))
+						{
+							pEditor->CreateProject(path);
 
-						std::string directoryName = path.filename().string();
-						std::filesystem::path settingsFile = path / directoryName;
-						settingsFile.replace_extension(".aproj");
-						pEditor->OpenProject(settingsFile);
-					}
-					else if (!std::filesystem::is_empty(path))
-					{
-						Dialog::MessageBoxDialog::ShowError(
-							"Directory is not empty!",
-							"Failed to create a project!"
-						);
-					}
-					else
-					{
-						Dialog::MessageBoxDialog::ShowError(
-							"Invalid project directory.",
-							"Failed to create a project!"
-						);
+							std::string directoryName = path.filename().string();
+							std::filesystem::path settingsFile = path / directoryName;
+							settingsFile.replace_extension(".aproj");
+							pEditor->OpenProject(settingsFile);
+						}
+						else if (!std::filesystem::is_empty(path))
+						{
+							Dialog::MessageBoxDialog::ShowError(
+								"Directory is not empty!",
+								"Failed to create a project!"
+							);
+						}
+						else
+						{
+							Dialog::MessageBoxDialog::ShowError(
+								"Invalid project directory.",
+								"Failed to create a project!"
+							);
+						}
 					}
 				}
 
 				ImGui::Separator();
 
-				if (ImGui::MenuItem("Save"))
+				if (ImGui::MenuItem("Save", nullptr, false, !pGameEngine->IsPlaying()))
 				{
 					if (!pGameEngine->IsPlaying())
 					{
 						pProject->Save();
+					}
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Package Game", nullptr, false, !pGameEngine->IsPlaying()))
+				{
+					if (!pGameEngine->IsPlaying())
+					{
+						pEditor->PackageGame();
 					}
 				}
 

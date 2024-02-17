@@ -29,6 +29,7 @@ namespace Arg
 
 			virtual auto VGetID() const -> GUID = 0;
 			virtual auto VGetName() const -> const std::string& = 0;
+			virtual auto VGetDisplayName() const -> const std::string& = 0;
 
 			virtual void VBeginPlay()
 			{

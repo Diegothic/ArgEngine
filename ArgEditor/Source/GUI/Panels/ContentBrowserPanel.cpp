@@ -369,7 +369,7 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 				ImGui::PushItemWidth(200.0f);
 				ImGui::SliderFloat("##Zoom", &zoom, 0.0f, 1.0f);
 
-				const ImVec2 itemSize(150.0f * (zoom * 0.3f + 0.7f), 150.0f * (zoom * 0.3f + 0.7f));
+				const ImVec2 itemSize(150.0f * (zoom * 0.3f + 0.7f), 190.0f * (zoom * 0.3f + 0.7f));
 				const ImVec2 itemOffset(5.0f, 5.0f);
 
 				const int32_t itemsInRow = static_cast<int32_t>(columnWidth / (itemSize.x + itemOffset.x));
@@ -402,21 +402,18 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 								if (bIsSelected)
 								{
-									if (bIsSelected)
-									{
-										ImGui::PushStyleColor(
-											ImGuiCol_Button,
-											ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
-										);
-										ImGui::PushStyleColor(
-											ImGuiCol_ButtonHovered,
-											ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
-										);
-										ImGui::PushStyleColor(
-											ImGuiCol_ButtonActive,
-											ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
-										);
-									}
+									ImGui::PushStyleColor(
+										ImGuiCol_Button,
+										ImVec4(0.27f, 0.84f, 0.93f, 0.3f)
+									);
+									ImGui::PushStyleColor(
+										ImGuiCol_ButtonHovered,
+										ImVec4(0.37f, 0.94f, 1.0f, 0.3f)
+									);
+									ImGui::PushStyleColor(
+										ImGuiCol_ButtonActive,
+										ImVec4(0.17f, 0.74f, 0.83f, 0.3f)
+									);
 								}
 								ImGui::Button("##ItemButton", itemSize);
 								if (bIsSelected)
@@ -468,14 +465,17 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 
 									if (ImGui::MenuItem("Remove"))
 									{
+										pEditor->DeselectResource();
 										pContent->RemoveResource(resource, m_pOpenedFolder);
 									}
 
 									ImGui::EndPopup();
 								}
 
-								const ImVec2 imagePos = ImVec2(cursorPos.x + itemSize.x * 0.15f,
-								                               cursorPos.y + itemSize.x * 0.10f);
+								const ImVec2 imagePos = ImVec2(
+									cursorPos.x + (itemSize.x * 0.15f),
+									cursorPos.y + (itemSize.x * 0.15f)
+								);
 								ImGui::SetCursorPos(imagePos);
 								uint32_t imageID = fileIconTexture->GetRendererID();
 								switch (resource->GetType())
@@ -531,13 +531,22 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 									}
 								}
 
-								ImGui::Image((void*)(intptr_t)imageID, ImVec2(itemSize.x * 0.70f, itemSize.y * 0.70f),
-								             ImVec2(0.0f, 1.0f), ImVec2(1.0f, 0.0f), ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+								ImGui::Image(
+									(void*)(intptr_t)imageID,
+									ImVec2(itemSize.x * 0.7f, itemSize.x * 0.7f),
+									ImVec2(0.0f, 1.0f),
+									ImVec2(1.0f, 0.0f),
+									ImVec4(1.0f, 1.0f, 1.0f, 1.0f)
+								);
 
-								const auto textSize = ImGui::CalcTextSize(resourceName);
-								const ImVec2 textPos = ImVec2(cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
-								                              cursorPos.y + itemSize.x * 0.85f);
+								const auto textSize = ImGui::CalcTextSize(resourceName, nullptr, false, itemSize.x - (itemSize.x * 0.1f));
+								const ImVec2 textPos = ImVec2(
+									cursorPos.x + (itemSize.x * 0.5f) - (textSize.x * 0.5f),
+									cursorPos.y + (itemSize.x * 0.85f)
+								);
+
 								ImGui::SetCursorPos(textPos);
+								ImGui::PushTextWrapPos(cursorPos.x + itemSize.x - (itemSize.x * 0.05f));
 								if (isRenameResource && renamedResource == ID)
 								{
 									ImGui::SetKeyboardFocusHere();
@@ -583,6 +592,8 @@ void Arg::Editor::GUI::ContentBrowserPanel::DrawBrowser(
 								{
 									ImGui::Text(resourceName);
 								}
+
+								ImGui::PopTextWrapPos();
 							}
 
 							ImGui::PopID();

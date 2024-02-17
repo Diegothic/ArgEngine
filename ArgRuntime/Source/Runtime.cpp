@@ -109,10 +109,13 @@ void Arg::Runtime::Runtime::Initialize()
 
 void Arg::Runtime::Runtime::CleanUp()
 {
+	m_pGameEngine->Deinitialize();
 }
 
 void Arg::Runtime::Runtime::InitPlay()
 {
+	m_pWindow->SetCursorMode(Input::CursorMode::Locked);
+
 	m_pGameEngine->Play();
 }
 

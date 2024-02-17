@@ -165,6 +165,7 @@ void Arg::Editor::Editor::CleanUp()
 		m_pGameEngine->Stop();
 	}
 
+	m_pGameEngine->Deinitialize();
 	m_pGUI->CleanUp();
 }
 
@@ -448,6 +449,100 @@ void Arg::Editor::Editor::CreateProject(const std::filesystem::path& destination
 	std::filesystem::path settingsFile = destination / directoryName;
 	settingsFile.replace_extension(".aproj");
 	projectSettings.Serialize(settingsFile);
+}
+
+void Arg::Editor::Editor::PackageGame()
+{
+	ARG_ASSERT(IsProjectOpened());
+
+	ReloadScripts();
+	m_pProject->Save();
+
+	const auto& projectDirectory = m_pProject->GetRootDirectory();
+	const std::filesystem::path buildDirectory = projectDirectory / "Build";
+	if (std::filesystem::exists(buildDirectory))
+	{
+		std::filesystem::remove_all(buildDirectory);
+	}
+
+	std::filesystem::create_directory(buildDirectory);
+
+	const std::filesystem::path gameDirectory = buildDirectory / m_pProject->GetName();
+	if (!std::filesystem::exists(gameDirectory))
+	{
+		std::filesystem::create_directory(gameDirectory);
+	}
+
+	const std::filesystem::path templateDirectory = "Build";
+	if (!std::filesystem::exists(templateDirectory))
+	{
+		return;
+	}
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(templateDirectory))
+	{
+		const auto& entryPath = entry.path();
+		const std::filesystem::path relativePath = std::filesystem::relative(
+			entryPath,
+			templateDirectory
+		);
+		const std::filesystem::path destinationPath = gameDirectory / relativePath;
+		if (entry.is_directory())
+		{
+			if (!std::filesystem::exists(destinationPath))
+			{
+				std::filesystem::create_directory(destinationPath);
+			}
+		}
+		else
+		{
+			std::filesystem::copy_file(entryPath, destinationPath);
+		}
+	}
+
+	const std::filesystem::path gameDataPath = gameDirectory / "Data";
+
+	const std::filesystem::path contentDirectory = projectDirectory / "Content";
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(contentDirectory))
+	{
+		const auto& entryPath = entry.path();
+		const std::filesystem::path relativePath = std::filesystem::relative(
+			entryPath,
+			projectDirectory
+		);
+		const std::filesystem::path destinationPath = gameDataPath / relativePath;
+		if (entry.is_directory())
+		{
+			if (!std::filesystem::exists(destinationPath))
+			{
+				std::filesystem::create_directory(destinationPath);
+			}
+		}
+		else
+		{
+			std::filesystem::copy_file(entryPath, destinationPath);
+		}
+	}
+
+	const std::filesystem::path scriptsFile = projectDirectory / "Scripts" / "Game.lua";
+	if (std::filesystem::exists(scriptsFile))
+	{
+		const std::filesystem::path destinationPath = gameDataPath / "Scripts" / "Game.lua";
+		std::filesystem::copy_file(scriptsFile, destinationPath);
+	}
+
+	const std::filesystem::path gameConfigPath = gameDirectory / "Config";
+	if (!std::filesystem::exists(gameConfigPath))
+	{
+		std::filesystem::create_directory(gameConfigPath);
+	}
+
+	const std::filesystem::path gameConfigFile = gameConfigPath / "Game.aconfig";
+	EngineConfig gameConfig;
+	gameConfig.WindowTitle = m_pProject->GetName();
+	gameConfig.StartingMap = m_pProject->GetGameMap();
+
+	gameConfig.Serialize(gameConfigFile);
 }
 
 auto Arg::Editor::Editor::GetSelectedActor(Gameplay::Actor*& pOutActor) const -> bool

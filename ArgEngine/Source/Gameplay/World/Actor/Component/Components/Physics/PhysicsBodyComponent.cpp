@@ -6,9 +6,9 @@
 #include "Physics/PhysicsWorld.hpp"
 
 const Arg::GUID Arg::Gameplay::PhysicsBodyComponent::COMPONENT_ID
-	= std::hash<std::string>{}("PhysicsBodyComponent");
+	= std::hash<std::string>{}("PhysicsBody");
 
-const std::string Arg::Gameplay::PhysicsBodyComponent::COMPONENT_NAME = "PhysicsBodyComponent";
+const std::string Arg::Gameplay::PhysicsBodyComponent::COMPONENT_NAME = "PhysicsBody";
 
 Arg::Gameplay::PhysicsBodyComponent::PhysicsBodyComponent()
 {
@@ -18,6 +18,12 @@ Arg::Gameplay::PhysicsBodyComponent::PhysicsBodyComponent()
 auto Arg::Gameplay::PhysicsBodyComponent::VCreateDefault() -> std::shared_ptr<ActorComponent>
 {
 	return std::make_shared<PhysicsBodyComponent>();
+}
+
+auto Arg::Gameplay::PhysicsBodyComponent::VGetDisplayName() const -> const std::string&
+{
+	static const std::string displayName = "Physics Body";
+	return displayName;
 }
 
 void Arg::Gameplay::PhysicsBodyComponent::VBeginPlay()

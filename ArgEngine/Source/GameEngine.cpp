@@ -77,7 +77,10 @@ void Arg::GameEngine::Deinitialize()
 		m_pLoadedWorld = nullptr;
 	}
 
-	m_pSoundEngine->CleanUp();
+	if (m_pSoundEngine != nullptr)
+	{
+		m_pSoundEngine->CleanUp();
+	}
 
 	m_ComponentRegistry.Clear();
 	m_pResourceCache = nullptr;
@@ -110,6 +113,12 @@ void Arg::GameEngine::LoadWorld(const std::string& worldName)
 void Arg::GameEngine::LoadWorld(const GUID& worldID)
 {
 	LoadWorld(m_pResourceCache->CreateHandle<Content::WorldResource>(worldID));
+}
+
+void Arg::GameEngine::RequestWorld(const std::string& worldName)
+{
+	m_bWorldRequested = true;
+	m_RequestedWorldHandle = m_pResourceCache->CreateHandle<Content::WorldResource>(worldName);
 }
 
 void Arg::GameEngine::InitializeWorld(Gameplay::GameWorld* pWorld)
@@ -150,11 +159,19 @@ void Arg::GameEngine::Stop()
 
 void Arg::GameEngine::Update(const float& deltaTime, bool bIsFocused)
 {
-	m_GameTime.Tick(deltaTime);
-	if (bIsFocused)
+	if (m_bWorldRequested)
 	{
-		m_GameInput.Tick(deltaTime);
+		m_bWorldRequested = false;
+		if (m_RequestedWorldHandle.IsValid())
+		{
+			LoadWorld(m_RequestedWorldHandle);
+			m_pLoadedWorld->BeginPlay();
+			return;
+		}
 	}
+
+	m_GameTime.Tick(deltaTime);
+	m_GameInput.Tick(deltaTime, bIsFocused);
 
 	if (!IsWorldLoaded())
 	{
@@ -242,6 +259,11 @@ void Arg::GameEngine::ClearGarbage()
 
 void Arg::GameEngine::LoadWorld(const WorldHandle& worldHandle)
 {
+	if (m_pSoundEngine != nullptr)
+	{
+		m_pSoundEngine->StopAllSounds();
+	}
+	
 	if (IsWorldLoaded())
 	{
 		if (m_WorldHandle.IsValid())

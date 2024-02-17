@@ -130,35 +130,36 @@ void Arg::Physics::PhysicsWorld::Tick(float deltaTime)
 	for (int32_t i = m_pDynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
 	{
 		btCollisionObject* pCollisionObject = m_pDynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
-		btTransform transform;
-		if (pRigidBody != nullptr)
-		{
-			transform = pRigidBody->getWorldTransform();
-		}
-		else
-		{
-			transform = pCollisionObject->getWorldTransform();
-		}
-
-		const btVector3 simPosition = transform.getOrigin();
-		const btQuaternion simRotation = transform.getRotation();
-		const Vec3 position = Convert(simPosition);
-		const Quat rotation = Convert(simRotation);
-
 		const int32_t userIndex = pCollisionObject->getUserIndex();
-		const GUID actorID = IsPhysicsBody(userIndex)
-			                     ? m_PhysicsBodyLookup.at(userIndex)->GetActorID()
-			                     : m_TriggerVolumeLookup.at(userIndex)->GetActorID();
-
-		Gameplay::Actor& actor = m_pWorld->GetActor(actorID);
-		actor.SetPosition(position);
-		actor.SetRotation(rotation);
-
-		if (pRigidBody != nullptr)
+		if (IsPhysicsBody(userIndex))
 		{
-			PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
-			pPhysicsBody->SetVelocity(Convert(pRigidBody->getLinearVelocity()));
+			btRigidBody* pRigidBody = btRigidBody::upcast(pCollisionObject);
+			btTransform transform;
+			if (pRigidBody != nullptr)
+			{
+				transform = pRigidBody->getWorldTransform();
+			}
+			else
+			{
+				transform = pCollisionObject->getWorldTransform();
+			}
+
+			const btVector3 simPosition = transform.getOrigin();
+			const btQuaternion simRotation = transform.getRotation();
+			const Vec3 position = Convert(simPosition);
+			const Quat rotation = Convert(simRotation);
+
+			const GUID actorID = m_PhysicsBodyLookup.at(userIndex)->GetActorID();
+
+			Gameplay::Actor& actor = m_pWorld->GetActor(actorID);
+			actor.SetPosition(position);
+			actor.SetRotation(rotation);
+
+			if (pRigidBody != nullptr)
+			{
+				PhysicsBody* pPhysicsBody = m_PhysicsBodyLookup.at(userIndex);
+				pPhysicsBody->SetVelocity(Convert(pRigidBody->getLinearVelocity()));
+			}
 		}
 	}
 
@@ -270,8 +271,13 @@ void Arg::Physics::PhysicsWorld::CleanUp()
 
 void Arg::Physics::PhysicsWorld::AddPhysicsBody(PhysicsBody* pPhysicsBody)
 {
-	const int32_t userIndex = m_LastUserIndex + 1;
-	m_LastUserIndex = userIndex;
+	int32_t userIndex = pPhysicsBody->GetUserIndex();
+	if (userIndex == -1)
+	{
+		userIndex = m_LastUserIndex + 1;
+		m_LastUserIndex = userIndex;
+	}
+
 	AddPhysicsBody(pPhysicsBody, userIndex);
 
 	btCollisionShape* pShape = nullptr;
@@ -287,11 +293,11 @@ void Arg::Physics::PhysicsWorld::AddPhysicsBody(PhysicsBody* pPhysicsBody)
 			));
 			break;
 		case PhysicsBodyShape::Sphere:
-			pShape = new btSphereShape(size.x * 0.5f);
+			pShape = new btSphereShape(size.x);
 			break;
 		case PhysicsBodyShape::Capsule:
 			pShape = new btCapsuleShapeZ(
-				size.x * 0.5f,
+				size.x,
 				size.z
 			);
 			break;
@@ -429,6 +435,11 @@ auto Arg::Physics::PhysicsWorld::HasPhysicsBody(const PhysicsBody* pPhysicsBody)
 	return std::ranges::find(m_PhysicsBodies, pPhysicsBody) != m_PhysicsBodies.end();
 }
 
+auto Arg::Physics::PhysicsWorld::HasPhysicsBody(const int32_t& userIndex) const -> bool
+{
+	return m_PhysicsBodyLookup.contains(userIndex);
+}
+
 auto Arg::Physics::PhysicsWorld::GetPhysicsBody(const int32_t& userIndex) const -> PhysicsBody*
 {
 	ARG_ASSERT(m_PhysicsBodyLookup.contains(userIndex));
@@ -437,8 +448,13 @@ auto Arg::Physics::PhysicsWorld::GetPhysicsBody(const int32_t& userIndex) const 
 
 void Arg::Physics::PhysicsWorld::AddTriggerVolume(TriggerVolume* pTriggerVolume)
 {
-	const int32_t userIndex = m_LastUserIndex + 1;
-	m_LastUserIndex = userIndex;
+	int32_t userIndex = pTriggerVolume->GetUserIndex();
+	if (userIndex == -1)
+	{
+		userIndex = m_LastUserIndex + 1;
+		m_LastUserIndex = userIndex;
+	}
+
 	AddTriggerVolume(pTriggerVolume, userIndex);
 
 	btCollisionShape* pShape = nullptr;
@@ -554,6 +570,11 @@ auto Arg::Physics::PhysicsWorld::Raycast(
 	float minFraction = result.m_hitFractions[0];
 	for (int32_t i = 1; i < result.m_hitFractions.size(); i++)
 	{
+		if (!IsPhysicsBody(result.m_collisionObjects[i]->getUserIndex()))
+		{
+			continue;
+		}
+
 		if (result.m_hitFractions[i] < minFraction)
 		{
 			minFraction = result.m_hitFractions[i];
@@ -603,7 +624,10 @@ auto Arg::Physics::PhysicsWorld::Raycast(
 	float minFraction = distance;
 	for (int32_t i = 0; i < result.m_hitFractions.size(); i++)
 	{
-		if (ignoreUserIndices.contains(result.m_collisionObjects[i]->getUserIndex()))
+		if (
+			ignoreUserIndices.contains(result.m_collisionObjects[i]->getUserIndex())
+			|| !IsPhysicsBody(result.m_collisionObjects[i]->getUserIndex())
+		)
 		{
 			continue;
 		}
@@ -648,6 +672,11 @@ auto Arg::Physics::PhysicsWorld::RaycastAll(
 
 	for (int32_t i = 0; i < result.m_hitFractions.size(); i++)
 	{
+		if (!IsPhysicsBody(result.m_collisionObjects[i]->getUserIndex()))
+		{
+			continue;
+		}
+
 		results.emplace_back(
 			true,
 			result.m_collisionObjects[i]->getUserIndex(),
@@ -692,7 +721,10 @@ auto Arg::Physics::PhysicsWorld::RaycastAll(
 
 	for (int32_t i = 0; i < result.m_hitFractions.size(); i++)
 	{
-		if (ignoreUserIndices.contains(result.m_collisionObjects[i]->getUserIndex()))
+		if (
+			ignoreUserIndices.contains(result.m_collisionObjects[i]->getUserIndex())
+			|| !IsPhysicsBody(result.m_collisionObjects[i]->getUserIndex())
+		)
 		{
 			continue;
 		}

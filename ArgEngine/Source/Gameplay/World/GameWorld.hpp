@@ -113,6 +113,7 @@ namespace Arg
 			}
 
 		public:
+			auto GetEngine() const -> GameEngine*;
 			auto GetPhysicsWorld() const -> Physics::PhysicsWorld* { return m_pPhysicsWorld.get(); }
 			auto GetSound() const -> Sound::SoundEngine&;
 

@@ -55,6 +55,8 @@ namespace Arg
 		void LoadWorld(const std::string& worldName);
 		void LoadWorld(const GUID& worldID);
 
+		void RequestWorld(const std::string& worldName);
+
 		auto IsWorldLoaded() const -> bool { return m_pLoadedWorld != nullptr; }
 		auto GetLoadedWorld() -> std::shared_ptr<Gameplay::GameWorld>& { return m_pLoadedWorld; }
 		void InitializeWorld(Gameplay::GameWorld* pWorld);
@@ -87,6 +89,9 @@ namespace Arg
 
 		WorldHandle m_WorldHandle;
 		std::shared_ptr<Gameplay::GameWorld> m_pLoadedWorld = nullptr;
+
+		bool m_bWorldRequested = false;
+		WorldHandle m_RequestedWorldHandle;
 
 		Gameplay::ComponentRegistry m_ComponentRegistry;
 	};

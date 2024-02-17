@@ -29,6 +29,7 @@ namespace Arg
 			auto GetComponentCount() const -> size_t;
 			auto GetComponentID(size_t index) const -> GUID;
 			auto GetComponentName(size_t index) const -> const std::string&;
+			auto GetComponentDisplayName(size_t index) const -> const std::string&;
 
 		private:
 			std::unordered_map<GUID, std::unique_ptr<ActorComponent>> m_ComponentRegistry;

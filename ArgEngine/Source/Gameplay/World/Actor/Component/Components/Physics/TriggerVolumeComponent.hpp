@@ -24,6 +24,7 @@ namespace Arg
 
 			auto VGetID() const -> GUID override { return COMPONENT_ID; }
 			auto VGetName() const -> const std::string& override { return COMPONENT_NAME; }
+			auto VGetDisplayName() const -> const std::string& override;
 
 			void VBeginPlay() override;
 			void VEndPlay() override;
@@ -38,6 +39,9 @@ namespace Arg
 		public:
 			Event<void(ActorHandle)> Ev_OnEnter;
 			Event<void(ActorHandle)> Ev_OnExit;
+
+		public:
+			void Clear() const;
 
 		public:
 			auto GetPhysicsShape() const -> Physics::TriggerVolumeShape;

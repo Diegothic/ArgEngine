@@ -239,7 +239,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 		ImGui::PushID(static_cast<int32_t>(i));
 
 		auto& component = actor->GetComponentByIndex(i);
-		const auto& componentName = component->VGetName();
+		const auto& componentName = component->VGetDisplayName();
 		const bool bComponentHeaderOpen = ImGui::CollapsingHeader(
 			componentName.c_str(),
 			ImGuiTreeNodeFlags_DefaultOpen
@@ -252,7 +252,7 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 			actorComponentSource[1] = component->VGetID();
 
 			ImGui::SetDragDropPayload("ActorComponent", &actorComponentSource, 2 * sizeof(GUID));
-			ImGui::Text(component->VGetName().c_str());
+			ImGui::Text(component->VGetDisplayName().c_str());
 			ImGui::EndDragDropSource();
 		}
 
@@ -348,10 +348,18 @@ void Arg::Editor::GUI::DetailsPanel::DrawActorDetails(
 
 		if (bIsHeaderOpen)
 		{
+			bool bScriptComponentsStarted = false;
 			for (size_t i = 0; i < pComponentsRegistry->GetComponentCount(); i++)
 			{
 				const GUID componentID = pComponentsRegistry->GetComponentID(i);
-				const char* componentName = pComponentsRegistry->GetComponentName(i).c_str();
+				const char* componentName = pComponentsRegistry->GetComponentDisplayName(i).c_str();
+
+				if (pComponentsRegistry->GetComponent(componentID)->VIsScriptable() && !bScriptComponentsStarted)
+				{
+					bScriptComponentsStarted = true;
+					ImGui::Separator();
+				}
+
 				if (actor->HasComponent(componentID))
 				{
 					ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImGui::GetStyle().Colors[ImGuiCol_Header]);

@@ -63,6 +63,12 @@ auto Arg::Physics::TriggerVolume::HasOverlappedLastWith(const int32_t& userIndex
 	return std::ranges::find(m_LastOverlaps, userIndex) != m_LastOverlaps.end();
 }
 
+void Arg::Physics::TriggerVolume::Clear()
+{
+	m_Overlaps.clear();
+	m_LastOverlaps.clear();
+}
+
 auto Arg::Physics::TriggerVolume::GetOverlappedLastCount() const -> size_t
 {
 	return m_LastOverlaps.size();
