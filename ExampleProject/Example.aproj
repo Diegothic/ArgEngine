@@ -1,0 +1,6 @@
+ArgProject:
+  General:
+    Name: Example
+  Maps:
+    EditorMap: Maps\LevelOne
+    GameMap: Maps\LevelOne

@@ -1,0 +1,5 @@
+Texture:
+  Data: skyBox_3.data
+  Width: 2048
+  Height: 2048
+  TextureFormat: 0

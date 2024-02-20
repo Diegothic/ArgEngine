@@ -1,0 +1,11 @@
+Material:
+  DiffuseMapID: 0x2ef67e684
+  DiffuseColor:
+    - 1
+    - 1
+    - 1
+    - 1
+  SpecularMapID: 0x7a6e18ffd
+  Specular: 0.5
+  Shininess: 0.155000001
+  Reflectivity: 0.0930000022

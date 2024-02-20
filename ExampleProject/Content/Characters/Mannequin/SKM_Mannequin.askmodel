@@ -1,0 +1,12 @@
+SkeletalModel:
+  MeshCount: 3
+  Meshes:
+    - MaterialIndex: 0
+      VertexCount: 986
+      IndexCount: 1344
+    - MaterialIndex: 1
+      VertexCount: 12856
+      IndexCount: 18258
+    - MaterialIndex: 2
+      VertexCount: 17634
+      IndexCount: 24396

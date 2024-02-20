@@ -1,0 +1,2969 @@
+World:
+  LastGeneratedID: 768827354
+  Sunlight:
+    Color:
+      - 1
+      - 1
+      - 1
+    Direction:
+      - -0.200000003
+      - 0.300000012
+      - -1
+    Intensity: 0.699999988
+    CastShadows: true
+  Background:
+    UsingSkybox: true
+    Color:
+      - 0.5
+      - 0.5
+      - 0.5
+    Textures:
+      - 0x69542a4c4
+      - 0x1f438d09
+      - 0x7ea7767ca
+      - 0x24ad999d7
+      - 0x5839a55c0
+      - 0x4eba630d5
+  Gameplay:
+    MainCamera: 0x128032a7
+  Physics:
+    Gravity:
+      - 0
+      - 0
+      - -19.8099995
+  Actors:
+    - ID: 0x7b870cc62
+      Name: World
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x7300bba18
+      Name: Player
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 1
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: true
+          IsDynamic: true
+          Mass: 100
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 2
+          ShapeModelID: 0x0
+          Size:
+            - 0.400000006
+            - 1
+            - 1.20000005
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: CharacterController
+          Fields:
+            - Name: aCharacterAnimator
+              Type: 20
+              Value: 0x7300bba18
+            - Name: fMovementSpeedMax
+              Type: 0
+              Value: 8
+            - Name: fAcceleration
+              Type: 0
+              Value: 50
+            - Name: fDeacceleration
+              Type: 0
+              Value: 35
+            - Name: fRotationSpeed
+              Type: 0
+              Value: 15
+            - Name: aWeaponTrigger
+              Type: 20
+              Value: 0x3095a1a25
+            - Name: SfxJump
+              Type: 106
+              Value: 0x45ca9bb03
+            - Name: SfxLand
+              Type: 106
+              Value: 0x14c01d7fc
+            - Name: SfxDodge
+              Type: 106
+              Value: 0x794ca44e1
+            - Name: SfxStep
+              Type: 106
+              Value: 0x60b28c3c2
+            - Name: SfxDamaged
+              Type: 106
+              Value: 0x69ed3136f
+            - Name: SfxDefeated
+              Type: 106
+              Value: 0x379822b9e
+            - Name: SfxSwordHit
+              Type: 106
+              Value: 0x556e27878
+            - Name: SfxSwordSwoosh
+              Type: 106
+              Value: 0x75d89f22d
+        - ID: CharacterAnimator
+          Fields:
+            - Name: aSkeletalModel
+              Type: 20
+              Value: 0x107e86f4d
+            - Name: IdleAnim
+              Type: 104
+              Value: 0x128032a7
+            - Name: WalkAnim
+              Type: 104
+              Value: 0x3095a1a25
+            - Name: JogAnim
+              Type: 104
+              Value: 0x62012c50
+            - Name: FallAnim
+              Type: 104
+              Value: 0x507782f8a
+            - Name: AttackAnim1
+              Type: 104
+              Value: 0x62f9936d6
+            - Name: AttackAnim2
+              Type: 104
+              Value: 0x7e207e621
+            - Name: AttackAnim3
+              Type: 104
+              Value: 0x6b85042b8
+            - Name: GotHitAnim
+              Type: 104
+              Value: 0x106a1a6af
+            - Name: DodgeAnim
+              Type: 104
+              Value: 0x4b591c402
+            - Name: DefeatedAnim
+              Type: 104
+              Value: 0x164b0e068
+            - Name: DefeatedIdleAnim
+              Type: 104
+              Value: 0x54200d55d
+        - ID: PlayerController
+        - ID: DamageResponse
+        - ID: CharacterStats
+          Fields:
+            - Name: fMaxHealth
+              Type: 0
+              Value: 10
+    - ID: 0x107e86f4d
+      Name: Model
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -1
+        Rotation:
+          - 0
+          - 0
+          - -90
+        Scale:
+          - 0.999964595
+          - 0.999964595
+          - 1
+      Components:
+        - ID: SkeletalModel
+          SkeletonID: 0x10de0c959
+          ModelID: 0x677f26bda
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x166e1c753
+            - ID: 0x751070136
+            - ID: 0x53ded6c0c
+          Attachments:
+            - ChildActorIndex: 0
+              BoneIndex: 28
+          AnimationID: 0x0
+          PlayOnStart: false
+          Looping: false
+    - ID: 0x244588e3e
+      Name: Light
+      Transform:
+        Position:
+          - -9.69016457
+          - -19.0330772
+          - 10.1050282
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.312741339
+            - 0.689539731
+            - 1
+          Range: 0.0480000004
+          Intensity: 1
+    - ID: 0x7f51e62bb
+      Name: SlotRHand
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x44bc79a54
+      Name: Weapon
+      Transform:
+        Position:
+          - -0.0199999996
+          - 0.0599999987
+          - 0.0900000036
+        Rotation:
+          - 90
+          - 0
+          - 90
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4401dfba
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x33677bcb9
+    - ID: 0x10de0c959
+      Name: SpotLight
+      Transform:
+        Position:
+          - -1.77624798
+          - -0.0170691852
+          - 14.6277323
+        Rotation:
+          - 86.0089111
+          - 62.9439354
+          - -25.2997513
+        Scale:
+          - 1.00000358
+          - 1.00001144
+          - 1.00000131
+      Components:
+        - ID: SpotLight
+          Color:
+            - 0.972972989
+            - 0.778816342
+            - 0.454554915
+          Range: 0.598899722
+          Intensity: 1
+          InnerConeAngle: 27.7940006
+          OuterConeAngle: 82.0589981
+    - ID: 0x677f26bda
+      Name: MainCameraHandle
+      Transform:
+        Position:
+          - -10
+          - 0
+          - 1.72278941
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 0.999999821
+          - 0.999999821
+          - 1
+      Components:
+        - ID: PlayerCamera
+          Fields:
+            - Name: aCameraTarget
+              Type: 20
+              Value: 0x751070136
+            - Name: aPlayer
+              Type: 20
+              Value: 0x7300bba18
+            - Name: v3TargetOffset
+              Type: 10
+              Value:
+                - 0
+                - 0
+                - 0
+            - Name: fTargetMaxDistance
+              Type: 0
+              Value: 4
+            - Name: fFollowSpeed
+              Type: 0
+              Value: 10
+            - Name: fPitchMin
+              Type: 0
+              Value: -40
+            - Name: fPitchMax
+              Type: 0
+              Value: 70
+    - ID: 0x128032a7
+      Name: MainCamera
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: Camera
+          Mode: 0
+          P_FOVAngle: 60
+          O_Size: 1
+    - ID: 0x3095a1a25
+      Name: DamageTrigger
+      Transform:
+        Position:
+          - -1.25542283e-06
+          - 0.596101165
+          - 1.65216625e-06
+        Rotation:
+          - 7.87265861e-08
+          - -0.00298162806
+          - -0.00302912109
+        Scale:
+          - 0.99999994
+          - 0.999947131
+          - 0.999894261
+      Components:
+        - ID: TriggerVolume
+          Shape: 0
+          Size:
+            - 0.200000003
+            - 1.20000005
+            - 0.100000001
+    - ID: 0x751070136
+      Name: CameraTarget
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0.5
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x2b9f6ccbf
+      Name: Blue Cube
+      Transform:
+        Position:
+          - 3.93805647
+          - -4.57763672e-05
+          - 0.249242663
+        Rotation:
+          - -9.07272749e-07
+          - -1.00000119
+          - 28.0000553
+        Scale:
+          - 0.999996424
+          - 0.999995947
+          - 0.999999762
+      Components:
+        - ID: StaticModel
+          ModelID: 0x2423a247c
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x66d2ff29
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: true
+          Mass: 50
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 1
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+        - ID: PointLight
+          Color:
+            - 0
+            - 0.339768171
+            - 1
+          Range: 0.00400000019
+          Intensity: 3
+        - ID: DamageResponse
+    - ID: 0x75d1f1588
+      Name: Enemy
+      Transform:
+        Position:
+          - -8.29586506
+          - -108.092064
+          - -0.804330707
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 0.99999994
+          - 0.99999994
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: true
+          IsDynamic: true
+          Mass: 100
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 2
+          ShapeModelID: 0x0
+          Size:
+            - 0.400000006
+            - 1
+            - 1.20000005
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: CharacterController
+          Fields:
+            - Name: aCharacterAnimator
+              Type: 20
+              Value: 0x75d1f1588
+            - Name: fMovementSpeedMax
+              Type: 0
+              Value: 8
+            - Name: fAcceleration
+              Type: 0
+              Value: 50
+            - Name: fDeacceleration
+              Type: 0
+              Value: 35
+            - Name: fRotationSpeed
+              Type: 0
+              Value: 15
+            - Name: aWeaponTrigger
+              Type: 20
+              Value: 0x69542a4c4
+            - Name: SfxJump
+              Type: 106
+              Value: 0x45ca9bb03
+            - Name: SfxLand
+              Type: 106
+              Value: 0x14c01d7fc
+            - Name: SfxDodge
+              Type: 106
+              Value: 0x794ca44e1
+            - Name: SfxStep
+              Type: 106
+              Value: 0x60b28c3c2
+            - Name: SfxDamaged
+              Type: 106
+              Value: 0x69ed3136f
+            - Name: SfxDefeated
+              Type: 106
+              Value: 0x379822b9e
+            - Name: SfxSwordHit
+              Type: 106
+              Value: 0x556e27878
+            - Name: SfxSwordSwoosh
+              Type: 106
+              Value: 0x75d89f22d
+        - ID: CharacterAnimator
+          Fields:
+            - Name: aSkeletalModel
+              Type: 20
+              Value: 0x7a6e18ffd
+            - Name: IdleAnim
+              Type: 104
+              Value: 0x128032a7
+            - Name: WalkAnim
+              Type: 104
+              Value: 0x3095a1a25
+            - Name: JogAnim
+              Type: 104
+              Value: 0x62012c50
+            - Name: FallAnim
+              Type: 104
+              Value: 0x507782f8a
+            - Name: AttackAnim1
+              Type: 104
+              Value: 0x62f9936d6
+            - Name: AttackAnim2
+              Type: 104
+              Value: 0x7e207e621
+            - Name: AttackAnim3
+              Type: 104
+              Value: 0x6b85042b8
+            - Name: GotHitAnim
+              Type: 104
+              Value: 0x106a1a6af
+            - Name: DodgeAnim
+              Type: 104
+              Value: 0x4b591c402
+            - Name: DefeatedAnim
+              Type: 104
+              Value: 0x164b0e068
+            - Name: DefeatedIdleAnim
+              Type: 104
+              Value: 0x54200d55d
+        - ID: DamageResponse
+        - ID: EnemyController
+          Fields:
+            - Name: fSightRange
+              Type: 0
+              Value: 10
+        - ID: CharacterStats
+          Fields:
+            - Name: fMaxHealth
+              Type: 0
+              Value: 3
+    - ID: 0x7a6e18ffd
+      Name: Model
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -1
+        Rotation:
+          - 0
+          - 0
+          - -90
+        Scale:
+          - 0.999964476
+          - 0.999964476
+          - 1
+      Components:
+        - ID: SkeletalModel
+          SkeletonID: 0x10de0c959
+          ModelID: 0x677f26bda
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x722d740f7
+            - ID: 0x239257b6a
+            - ID: 0x53ded6c0c
+          Attachments:
+            - ChildActorIndex: 0
+              BoneIndex: 28
+          AnimationID: 0x0
+          PlayOnStart: false
+          Looping: false
+    - ID: 0x4a4a5832e
+      Name: SlotRHand
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x49c53aeeb
+      Name: Weapon
+      Transform:
+        Position:
+          - -0.0199999996
+          - 0.0599999987
+          - 0.0900000036
+        Rotation:
+          - 90
+          - -0
+          - 90
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4401dfba
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x33677bcb9
+    - ID: 0x69542a4c4
+      Name: DamageTrigger
+      Transform:
+        Position:
+          - -1.25542283e-06
+          - 0.596101165
+          - 1.65216625e-06
+        Rotation:
+          - 7.87265861e-08
+          - -0.00298162806
+          - -0.00302912109
+        Scale:
+          - 0.99999994
+          - 0.999947131
+          - 0.999894261
+      Components:
+        - ID: TriggerVolume
+          Shape: 0
+          Size:
+            - 0.200000003
+            - 1.20000005
+            - 0.100000001
+    - ID: 0xfa4bf426
+      Name: WorldMesh
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x66090c5be
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x7b14da2a3
+            - ID: 0x212d73d81
+            - ID: 0xa46f4be2
+            - ID: 0xcb68431c
+            - ID: 0x2162c44cd
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 3
+          ShapeModelID: 0x753e4143b
+          Size:
+            - 1
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x74ee27983
+      Name: Puzzle_1
+      Transform:
+        Position:
+          - 0
+          - -48.4879456
+          - 0
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x2423a247c
+      Name: Platform_1
+      Transform:
+        Position:
+          - -3.80905771
+          - 20
+          - 3.68538618
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x0
+          CastShadows: true
+          ReceiveShadows: true
+          Materials: ~
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 4
+            - 0.5
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: MovingPlatform
+          Fields:
+            - Name: v3Offset
+              Type: 10
+              Value:
+                - 0
+                - -10
+                - 0
+            - Name: fSpeed
+              Type: 0
+              Value: 3
+    - ID: 0x4d8744761
+      Name: Platform_2
+      Transform:
+        Position:
+          - -3.80900002
+          - -5
+          - 3.68499994
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x0
+          CastShadows: true
+          ReceiveShadows: true
+          Materials: ~
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 4
+            - 0.5
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: MovingPlatform
+          Fields:
+            - Name: v3Offset
+              Type: 10
+              Value:
+                - 0
+                - 10
+                - 0
+            - Name: fSpeed
+              Type: 0
+              Value: 3
+    - ID: 0x2438a8442
+      Name: Platform_3
+      Transform:
+        Position:
+          - -7.5
+          - -9.72734451
+          - 4.57115364
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x0
+          CastShadows: true
+          ReceiveShadows: true
+          Materials: ~
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 4
+            - 0.5
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: MovingPlatform
+          Fields:
+            - Name: v3Offset
+              Type: 10
+              Value:
+                - 12
+                - 0
+                - 0
+            - Name: fSpeed
+              Type: 0
+              Value: 4
+    - ID: 0x1072cf9ef
+      Name: Platform_4
+      Transform:
+        Position:
+          - 5.5
+          - -15.9637451
+          - 5.28249884
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x0
+          CastShadows: true
+          ReceiveShadows: true
+          Materials: ~
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 4
+            - 0.5
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: MovingPlatform
+          Fields:
+            - Name: v3Offset
+              Type: 10
+              Value:
+                - -12
+                - 0
+                - 0
+            - Name: fSpeed
+              Type: 0
+              Value: 4
+    - ID: 0x9f03ccf8
+      Name: Puzzle_2
+      Transform:
+        Position:
+          - -0.77021122
+          - -85.443924
+          - -1.52099442
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0xa17b5cad
+      Name: Doors
+      Transform:
+        Position:
+          - -0.752142906
+          - -6.92314911
+          - 1.95299995
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 0
+          ShapeModelID: 0x0
+          Size:
+            - 5
+            - 0.400000006
+            - 5
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+        - ID: MovingDoors
+          Fields:
+            - Name: aTriggerVolumeActor
+              Type: 20
+              Value: 0x5eece341e
+            - Name: aTriggerActor
+              Type: 20
+              Value: 0x2b9f6ccbf
+            - Name: fHeight
+              Type: 0
+              Value: 3
+            - Name: fSpeed
+              Type: 0
+              Value: 2
+        - ID: SoundPlayer
+          SoundID: 0x4ce06f89b
+          PlayOnStart: false
+          Is3D: true
+          Volume: 1
+          VolumeVariance: 0
+          Pitch: 1
+          PitchVariance: 0
+          Looping: true
+          Distance: 10
+    - ID: 0x5eece341e
+      Name: Doors_Trigger
+      Transform:
+        Position:
+          - -6.01679993
+          - 0.38458252
+          - -0.2346977
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: TriggerVolume
+          Shape: 0
+          Size:
+            - 2
+            - 2
+            - 2
+    - ID: 0x40588871b
+      Name: Light
+      Transform:
+        Position:
+          - 5.57778835
+          - -0.000381469727
+          - 5.02923393
+        Rotation:
+          - 180
+          - 41.3965607
+          - 180
+        Scale:
+          - 0.999999464
+          - 1
+          - 0.999999464
+      Components:
+        - ID: SpotLight
+          Color:
+            - 0.216216207
+            - 0.518835366
+            - 1
+          Range: 0.515645683
+          Intensity: 3.79999995
+          InnerConeAngle: 0
+          OuterConeAngle: 25.1469994
+    - ID: 0x7d062cb34
+      Name: Light (Clone)
+      Transform:
+        Position:
+          - -10.0954571
+          - -72.8658905
+          - 13.844944
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.312741339
+            - 0.689539731
+            - 1
+          Range: 0.0260000005
+          Intensity: 1
+    - ID: 0x33677bcb9
+      Name: Light (Clone) (Clone)
+      Transform:
+        Position:
+          - 5.77080727
+          - -19.0330772
+          - 10.541543
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.312741339
+            - 0.689539731
+            - 1
+          Range: 0.0439999998
+          Intensity: 1
+    - ID: 0x4401dfba
+      Name: Light (Clone) (Clone)
+      Transform:
+        Position:
+          - 6.61934948
+          - -72.8658905
+          - 12.2274885
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.312741339
+            - 0.689539731
+            - 1
+          Range: 0.0260000005
+          Intensity: 1
+    - ID: 0x1ed414d07
+      Name: Light (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - -2.81114435
+          - -39.3711472
+          - 3.33293152
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.899613917
+            - 0.101305671
+            - 0.0625214204
+          Range: 0.0740000084
+          Intensity: 1
+    - ID: 0x363c85b30
+      Name: Light (Clone) (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - -2.81114435
+          - -57.630722
+          - 3.33293152
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.899613917
+            - 0.101305671
+            - 0.0625214204
+          Range: 0.0740000084
+          Intensity: 1
+    - ID: 0x4de607385
+      Name: Light
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0.34062326
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 1
+            - 1
+            - 1
+          Range: 0
+          Intensity: 2
+    - ID: 0x7903c2316
+      Name: Model
+      Transform:
+        Position:
+          - 0.0482599735
+          - 0
+          - -1.21915364
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 0.5
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x13056cb31
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x191909d2
+    - ID: 0x53e4c37b3
+      Name: Props_1
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0xe1e778ec
+      Name: Rock
+      Transform:
+        Position:
+          - -10.2261696
+          - -7.76620197
+          - 0.166449562
+        Rotation:
+          - 81.7000351
+          - -0
+          - 0
+        Scale:
+          - 2.33999991
+          - 2.34000039
+          - 2.34000039
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 2.5
+            - 2.33999991
+            - 2.33999991
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x385734d11
+      Name: Rock (Clone)
+      Transform:
+        Position:
+          - 7.19795942
+          - -3.96453023
+          - 0.937256753
+        Rotation:
+          - -62.3861771
+          - -19.4279175
+          - -93.0545425
+        Scale:
+          - 4.12624502
+          - 4.08695889
+          - 5.42881012
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 4.69999981
+            - 4.08699989
+            - 5.4289999
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x2675b5a32
+      Name: Rock (Clone) (Clone)
+      Transform:
+        Position:
+          - -2.89061999
+          - 7.85678196
+          - 0.503652096
+        Rotation:
+          - 59.4236984
+          - -27.8136482
+          - -161.302094
+        Scale:
+          - 5.42881823
+          - 5.42878199
+          - 5.4288168
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 5
+            - 5.4289999
+            - 5.4289999
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x53932f31f
+      Name: Rock (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - -10.3162022
+          - -17.6184597
+          - 4.48182821
+        Rotation:
+          - 81.0497589
+          - -0.630201817
+          - -86.0217209
+        Scale:
+          - 2.8563602
+          - 2.4217062
+          - 2.42459917
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 3
+            - 2.42199993
+            - 2.42499995
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x164b0e068
+      Name: Rock (Clone) (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - 7.63785696
+          - -15.905921
+          - 4.94073248
+        Rotation:
+          - 80.2161331
+          - -1.33378148
+          - -106.131516
+        Scale:
+          - 3.67688274
+          - 3.11578822
+          - 3.1239326
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 3.11599994
+            - 3.12400007
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x54200d55d
+      Name: New Child Actor
+      Transform:
+        Position:
+          - 0.58613801
+          - -0.0206776857
+          - -0.572871566
+        Rotation:
+          - 8.53773656e-07
+          - -1.28066051e-06
+          - 1.70754731e-06
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 3
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0xdd61a10e
+      Name: Rock (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - 6.04911709
+          - -48.2670517
+          - -2.91213441
+        Rotation:
+          - 177.167694
+          - -7.27090454
+          - -83.8013153
+        Scale:
+          - 3.69157887
+          - 3.69155955
+          - 3.69158268
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 5.4289999
+            - 5.4289999
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x4c7bfeb4b
+      Name: New Child Actor
+      Transform:
+        Position:
+          - 0.58613801
+          - -0.0206776857
+          - -0.572871566
+        Rotation:
+          - 8.53773656e-07
+          - -1.28066051e-06
+          - 1.70754731e-06
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 3
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x1b0f0da4
+      Name: Rock (Clone) (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - -9.81952286
+          - -28.3877487
+          - -0.700096667
+        Rotation:
+          - 59.4235687
+          - -27.8136902
+          - -146.51767
+        Scale:
+          - 3.69158125
+          - 3.69154835
+          - 3.69160032
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 5.4289999
+            - 5.4289999
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0xdbf85869
+      Name: New Child Actor
+      Transform:
+        Position:
+          - 0.58613801
+          - -0.0206776857
+          - -0.572871566
+        Rotation:
+          - 8.53773656e-07
+          - -1.28066051e-06
+          - 1.70754731e-06
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 3
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x51390d3aa
+      Name: Rock (Clone) (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - -6.90561056
+          - -66.4440994
+          - -2.57553768
+        Rotation:
+          - 177.167679
+          - -7.27090883
+          - -176.779617
+        Scale:
+          - 3.6915679
+          - 3.69155407
+          - 3.69157577
+      Components:
+        - ID: StaticModel
+          ModelID: 0x1e30a863f
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x4a95f9aae
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 4
+            - 5.4289999
+            - 5.4289999
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x4166a4c37
+      Name: New Child Actor
+      Transform:
+        Position:
+          - 0.58613801
+          - -0.0206776857
+          - -0.572871566
+        Rotation:
+          - 8.53773656e-07
+          - -1.28066051e-06
+          - 1.70754731e-06
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: false
+          IsDynamic: false
+          Mass: 1
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 1
+          ShapeModelID: 0x0
+          Size:
+            - 3
+            - 1
+            - 1
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: false
+            Y: false
+            Z: false
+    - ID: 0x476623ca0
+      Name: Enemy (Clone)
+      Transform:
+        Position:
+          - -3.07435989
+          - -21.6654835
+          - 5.17015839
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 0.99999994
+          - 0.99999994
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: true
+          IsDynamic: true
+          Mass: 100
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 2
+          ShapeModelID: 0x0
+          Size:
+            - 0.400000006
+            - 1
+            - 1.20000005
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: CharacterController
+          Fields:
+            - Name: aCharacterAnimator
+              Type: 20
+              Value: 0x476623ca0
+            - Name: fMovementSpeedMax
+              Type: 0
+              Value: 8
+            - Name: fAcceleration
+              Type: 0
+              Value: 50
+            - Name: fDeacceleration
+              Type: 0
+              Value: 35
+            - Name: fRotationSpeed
+              Type: 0
+              Value: 15
+            - Name: aWeaponTrigger
+              Type: 20
+              Value: 0x7dbc695c
+            - Name: SfxJump
+              Type: 106
+              Value: 0x45ca9bb03
+            - Name: SfxLand
+              Type: 106
+              Value: 0x14c01d7fc
+            - Name: SfxDodge
+              Type: 106
+              Value: 0x794ca44e1
+            - Name: SfxStep
+              Type: 106
+              Value: 0x60b28c3c2
+            - Name: SfxDamaged
+              Type: 106
+              Value: 0x69ed3136f
+            - Name: SfxDefeated
+              Type: 106
+              Value: 0x379822b9e
+            - Name: SfxSwordHit
+              Type: 106
+              Value: 0x556e27878
+            - Name: SfxSwordSwoosh
+              Type: 106
+              Value: 0x75d89f22d
+        - ID: CharacterAnimator
+          Fields:
+            - Name: aSkeletalModel
+              Type: 20
+              Value: 0x2e333e235
+            - Name: IdleAnim
+              Type: 104
+              Value: 0x128032a7
+            - Name: WalkAnim
+              Type: 104
+              Value: 0x3095a1a25
+            - Name: JogAnim
+              Type: 104
+              Value: 0x62012c50
+            - Name: FallAnim
+              Type: 104
+              Value: 0x507782f8a
+            - Name: AttackAnim1
+              Type: 104
+              Value: 0x62f9936d6
+            - Name: AttackAnim2
+              Type: 104
+              Value: 0x7e207e621
+            - Name: AttackAnim3
+              Type: 104
+              Value: 0x6b85042b8
+            - Name: GotHitAnim
+              Type: 104
+              Value: 0x106a1a6af
+            - Name: DodgeAnim
+              Type: 104
+              Value: 0x4b591c402
+            - Name: DefeatedAnim
+              Type: 104
+              Value: 0x164b0e068
+            - Name: DefeatedIdleAnim
+              Type: 104
+              Value: 0x54200d55d
+        - ID: DamageResponse
+        - ID: EnemyController
+          Fields:
+            - Name: fSightRange
+              Type: 0
+              Value: 7
+        - ID: CharacterStats
+          Fields:
+            - Name: fMaxHealth
+              Type: 0
+              Value: 2
+    - ID: 0x2e333e235
+      Name: Model
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -1
+        Rotation:
+          - 0
+          - 0
+          - -90
+        Scale:
+          - 0.999964476
+          - 0.999964476
+          - 1
+      Components:
+        - ID: SkeletalModel
+          SkeletonID: 0x10de0c959
+          ModelID: 0x677f26bda
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x722d740f7
+            - ID: 0x239257b6a
+            - ID: 0x53ded6c0c
+          Attachments:
+            - ChildActorIndex: 0
+              BoneIndex: 28
+          AnimationID: 0x0
+          PlayOnStart: false
+          Looping: false
+    - ID: 0x335468e06
+      Name: SlotRHand
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x54a8201e3
+      Name: Weapon
+      Transform:
+        Position:
+          - -0.0199999996
+          - 0.0599999987
+          - 0.0900000036
+        Rotation:
+          - 90
+          - -0
+          - 90
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4401dfba
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x33677bcb9
+    - ID: 0x7dbc695c
+      Name: DamageTrigger
+      Transform:
+        Position:
+          - -1.25542283e-06
+          - 0.596101165
+          - 1.65216625e-06
+        Rotation:
+          - 7.87265861e-08
+          - -0.00298162806
+          - -0.00302912109
+        Scale:
+          - 0.99999994
+          - 0.999947131
+          - 0.999894261
+      Components:
+        - ID: TriggerVolume
+          Shape: 0
+          Size:
+            - 0.200000003
+            - 1.20000005
+            - 0.100000001
+    - ID: 0x6b6aec9fe
+      Name: Enemy (Clone)
+      Transform:
+        Position:
+          - 5.82102251
+          - -108.092064
+          - -1.1188314
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 0.99999994
+          - 0.99999994
+          - 1
+      Components:
+        - ID: PhysicsBody
+          GeneratesCollisionEvents: true
+          IsDynamic: true
+          Mass: 100
+          Damping: 0.0500000007
+          AngularDamping: 0.0500000007
+          Bounciness: 0
+          Shape: 2
+          ShapeModelID: 0x0
+          Size:
+            - 0.400000006
+            - 1
+            - 1.20000005
+          LockMovement:
+            X: false
+            Y: false
+            Z: false
+          LockRotation:
+            X: true
+            Y: true
+            Z: true
+        - ID: CharacterController
+          Fields:
+            - Name: aCharacterAnimator
+              Type: 20
+              Value: 0x6b6aec9fe
+            - Name: fMovementSpeedMax
+              Type: 0
+              Value: 8
+            - Name: fAcceleration
+              Type: 0
+              Value: 50
+            - Name: fDeacceleration
+              Type: 0
+              Value: 35
+            - Name: fRotationSpeed
+              Type: 0
+              Value: 15
+            - Name: aWeaponTrigger
+              Type: 20
+              Value: 0x20fe3439a
+            - Name: SfxJump
+              Type: 106
+              Value: 0x45ca9bb03
+            - Name: SfxLand
+              Type: 106
+              Value: 0x14c01d7fc
+            - Name: SfxDodge
+              Type: 106
+              Value: 0x794ca44e1
+            - Name: SfxStep
+              Type: 106
+              Value: 0x60b28c3c2
+            - Name: SfxDamaged
+              Type: 106
+              Value: 0x69ed3136f
+            - Name: SfxDefeated
+              Type: 106
+              Value: 0x379822b9e
+            - Name: SfxSwordHit
+              Type: 106
+              Value: 0x556e27878
+            - Name: SfxSwordSwoosh
+              Type: 106
+              Value: 0x75d89f22d
+        - ID: CharacterAnimator
+          Fields:
+            - Name: aSkeletalModel
+              Type: 20
+              Value: 0x402bcdb7b
+            - Name: IdleAnim
+              Type: 104
+              Value: 0x128032a7
+            - Name: WalkAnim
+              Type: 104
+              Value: 0x3095a1a25
+            - Name: JogAnim
+              Type: 104
+              Value: 0x62012c50
+            - Name: FallAnim
+              Type: 104
+              Value: 0x507782f8a
+            - Name: AttackAnim1
+              Type: 104
+              Value: 0x62f9936d6
+            - Name: AttackAnim2
+              Type: 104
+              Value: 0x7e207e621
+            - Name: AttackAnim3
+              Type: 104
+              Value: 0x6b85042b8
+            - Name: GotHitAnim
+              Type: 104
+              Value: 0x106a1a6af
+            - Name: DodgeAnim
+              Type: 104
+              Value: 0x4b591c402
+            - Name: DefeatedAnim
+              Type: 104
+              Value: 0x164b0e068
+            - Name: DefeatedIdleAnim
+              Type: 104
+              Value: 0x54200d55d
+        - ID: DamageResponse
+        - ID: EnemyController
+          Fields:
+            - Name: fSightRange
+              Type: 0
+              Value: 10
+        - ID: CharacterStats
+          Fields:
+            - Name: fMaxHealth
+              Type: 0
+              Value: 3
+    - ID: 0x402bcdb7b
+      Name: Model
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -1
+        Rotation:
+          - 0
+          - 0
+          - -90
+        Scale:
+          - 0.999964476
+          - 0.999964476
+          - 1
+      Components:
+        - ID: SkeletalModel
+          SkeletonID: 0x10de0c959
+          ModelID: 0x677f26bda
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x722d740f7
+            - ID: 0x239257b6a
+            - ID: 0x53ded6c0c
+          Attachments:
+            - ChildActorIndex: 0
+              BoneIndex: 28
+          AnimationID: 0x0
+          PlayOnStart: false
+          Looping: false
+    - ID: 0x334ee6c14
+      Name: SlotRHand
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x1bf006019
+      Name: Weapon
+      Transform:
+        Position:
+          - -0.0199999996
+          - 0.0599999987
+          - 0.0900000036
+        Rotation:
+          - 90
+          - -0
+          - 90
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4401dfba
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x33677bcb9
+    - ID: 0x20fe3439a
+      Name: DamageTrigger
+      Transform:
+        Position:
+          - -1.90734863e-06
+          - 0.596101403
+          - 7.62939453e-06
+        Rotation:
+          - 7.87266288e-08
+          - -0.00298162806
+          - -0.00302912132
+        Scale:
+          - 0.99999994
+          - 0.999947131
+          - 0.999894261
+      Components:
+        - ID: TriggerVolume
+          Shape: 0
+          Size:
+            - 0.200000003
+            - 1.20000005
+            - 0.100000001
+    - ID: 0x657c79767
+      Name: Model
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -0.151698589
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x2ccfefa10
+      Name: New Child Actor
+      Transform:
+        Position:
+          - -0.138257265
+          - -1.62602043
+          - -2.86102295e-05
+        Rotation:
+          - 0
+          - 89.980217
+          - 0
+        Scale:
+          - 1.99991393
+          - 2.00000024
+          - 4.39939308
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x3ee8b7ce5
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138309479
+          - 1.58107567
+          - -1.43051147e-05
+        Rotation:
+          - 90
+          - 73.4236069
+          - 90
+        Scale:
+          - 1.99997234
+          - 2.00000024
+          - 4.39980125
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x18f9a34f6
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.135742188
+          - 0.785606384
+          - -2.93254852e-05
+        Rotation:
+          - 89.8403625
+          - 38.9417381
+          - -90.0003281
+        Scale:
+          - 1.99995387
+          - 1.99993801
+          - 4.39969778
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0xa9a6d813
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138278484
+          - -0.0254535675
+          - -2.45571136e-05
+        Rotation:
+          - -90.0000229
+          - -1.12288845
+          - -90.0001144
+        Scale:
+          - 1.99994016
+          - 1.99999881
+          - 4.39957714
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x1d03ff5cc
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.139082909
+          - -0.850553513
+          - -5.14984131e-05
+        Rotation:
+          - -90.0558777
+          - 22.1182194
+          - 90.0003357
+        Scale:
+          - 1.99989843
+          - 1.99992943
+          - 4.39945412
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x58e421c71
+      Name: Model (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -0.174807787
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x7d3dffa12
+      Name: New Child Actor
+      Transform:
+        Position:
+          - -0.138257265
+          - -1.62602043
+          - -2.86102295e-05
+        Rotation:
+          - 0
+          - 89.980217
+          - 0
+        Scale:
+          - 1.99991393
+          - 2.00000024
+          - 4.39939308
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x69cba497f
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138309479
+          - 1.58107567
+          - -1.43051147e-05
+        Rotation:
+          - 90
+          - 73.4236069
+          - 90
+        Scale:
+          - 1.99997234
+          - 2.00000024
+          - 4.39980125
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x5a4001b48
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.135742188
+          - 0.785606384
+          - -2.93254852e-05
+        Rotation:
+          - 89.8403625
+          - 38.9417381
+          - -90.0003281
+        Scale:
+          - 1.99995387
+          - 1.99993801
+          - 4.39969778
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x5d3bacabd
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138278484
+          - -0.0254535675
+          - -2.45571136e-05
+        Rotation:
+          - -90.0000229
+          - -1.12288845
+          - -90.0001144
+        Scale:
+          - 1.99994016
+          - 1.99999881
+          - 4.39957714
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x43cc4aeee
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.139082909
+          - -0.850553513
+          - -5.14984131e-05
+        Rotation:
+          - -90.0558777
+          - 22.1182194
+          - 90.0003357
+        Scale:
+          - 1.99989843
+          - 1.99992943
+          - 4.39945412
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x18f0257ab
+      Name: Model (Clone) (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -0.144310474
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0x2ef67e684
+      Name: New Child Actor
+      Transform:
+        Position:
+          - -0.138257265
+          - -1.62602043
+          - -2.86102295e-05
+        Rotation:
+          - 0
+          - 89.980217
+          - 0
+        Scale:
+          - 1.99991393
+          - 2.00000024
+          - 4.39939308
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x4658ad3c9
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138309479
+          - 1.58107567
+          - -1.43051147e-05
+        Rotation:
+          - 90
+          - 73.4236069
+          - 90
+        Scale:
+          - 1.99997234
+          - 2.00000024
+          - 4.39980125
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x507782f8a
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.135742188
+          - 0.785606384
+          - -2.93254852e-05
+        Rotation:
+          - 89.8403625
+          - 38.9417381
+          - -90.0003281
+        Scale:
+          - 1.99995387
+          - 1.99993801
+          - 4.39969778
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x5e78c2e97
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138278484
+          - -0.0254535675
+          - -2.45571136e-05
+        Rotation:
+          - -90.0000229
+          - -1.12288845
+          - -90.0001144
+        Scale:
+          - 1.99994016
+          - 1.99999881
+          - 4.39957714
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x186f59380
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.139082909
+          - -0.850553513
+          - -5.14984131e-05
+        Rotation:
+          - -90.0558777
+          - 22.1182194
+          - 90.0003357
+        Scale:
+          - 1.99989843
+          - 1.99992943
+          - 4.39945412
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x97924395
+      Name: Model (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - -0.192675591
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components: ~
+    - ID: 0xb92617e6
+      Name: New Child Actor
+      Transform:
+        Position:
+          - -0.138257265
+          - -1.62602043
+          - -2.86102295e-05
+        Rotation:
+          - 0
+          - 89.980217
+          - 0
+        Scale:
+          - 1.99991393
+          - 2.00000024
+          - 4.39939308
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x1e29dba43
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138309479
+          - 1.58107567
+          - -1.43051147e-05
+        Rotation:
+          - 90
+          - 73.4236069
+          - 90
+        Scale:
+          - 1.99997234
+          - 2.00000024
+          - 4.39980125
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x75db91e3c
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.135742188
+          - 0.785606384
+          - -2.93254852e-05
+        Rotation:
+          - 89.8403625
+          - 38.9417381
+          - -90.0003281
+        Scale:
+          - 1.99995387
+          - 1.99993801
+          - 4.39969778
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x7e207e621
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - -0.138278484
+          - -0.0254535675
+          - -2.45571136e-05
+        Rotation:
+          - -90.0000229
+          - -1.12288845
+          - -90.0001144
+        Scale:
+          - 1.99994016
+          - 1.99999881
+          - 4.39957714
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x4b591c402
+      Name: New Child Actor (Clone)
+      Transform:
+        Position:
+          - 0.139082909
+          - -0.850553513
+          - -5.14984131e-05
+        Rotation:
+          - -90.0558777
+          - 22.1182194
+          - 90.0003357
+        Scale:
+          - 1.99989843
+          - 1.99992943
+          - 4.39945412
+      Components:
+        - ID: StaticModel
+          ModelID: 0x4245e9140
+          CastShadows: true
+          ReceiveShadows: true
+          Materials:
+            - ID: 0x778e38357
+    - ID: 0x106a1a6af
+      Name: Light
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 3
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.98455596
+            - 0.784947157
+            - 0.376336068
+          Range: 0.00400000019
+          Intensity: 7
+    - ID: 0x6b85042b8
+      Name: Light (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 3
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.98455596
+            - 0.784947157
+            - 0.376336068
+          Range: 0.00400000019
+          Intensity: 7
+    - ID: 0x19f45476d
+      Name: Light (Clone) (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 3
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.98455596
+            - 0.784947157
+            - 0.376336068
+          Range: 0.00400000019
+          Intensity: 7
+    - ID: 0x29d724fde
+      Name: Light (Clone) (Clone) (Clone)
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 3
+        Rotation:
+          - 0
+          - -0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: PointLight
+          Color:
+            - 0.98455596
+            - 0.784947157
+            - 0.376336068
+          Range: 0.00400000019
+          Intensity: 7
+    - ID: 0x2dd35fdb
+      Name: Music_Background
+      Transform:
+        Position:
+          - 0
+          - 0
+          - 0
+        Rotation:
+          - 0
+          - 0
+          - 0
+        Scale:
+          - 1
+          - 1
+          - 1
+      Components:
+        - ID: SoundPlayer
+          SoundID: 0x3d173fba6
+          PlayOnStart: true
+          Is3D: false
+          Volume: 1
+          VolumeVariance: 0
+          Pitch: 1
+          PitchVariance: 0
+          Looping: true
+          Distance: 50
+  ActorRelations:
+    - ParentID: 0x0
+      ChildID: 0x7b870cc62
+    - ParentID: 0x0
+      ChildID: 0x7300bba18
+    - ParentID: 0x0
+      ChildID: 0x677f26bda
+    - ParentID: 0x0
+      ChildID: 0x75d1f1588
+    - ParentID: 0x0
+      ChildID: 0x476623ca0
+    - ParentID: 0x0
+      ChildID: 0x6b6aec9fe
+    - ParentID: 0x0
+      ChildID: 0x2dd35fdb
+    - ParentID: 0x7b870cc62
+      ChildID: 0x244588e3e
+    - ParentID: 0x7b870cc62
+      ChildID: 0x10de0c959
+    - ParentID: 0x7b870cc62
+      ChildID: 0xfa4bf426
+    - ParentID: 0x7b870cc62
+      ChildID: 0x74ee27983
+    - ParentID: 0x7b870cc62
+      ChildID: 0x9f03ccf8
+    - ParentID: 0x7b870cc62
+      ChildID: 0x7d062cb34
+    - ParentID: 0x7b870cc62
+      ChildID: 0x33677bcb9
+    - ParentID: 0x7b870cc62
+      ChildID: 0x4401dfba
+    - ParentID: 0x7b870cc62
+      ChildID: 0x1ed414d07
+    - ParentID: 0x7b870cc62
+      ChildID: 0x363c85b30
+    - ParentID: 0x7b870cc62
+      ChildID: 0x53e4c37b3
+    - ParentID: 0x7300bba18
+      ChildID: 0x107e86f4d
+    - ParentID: 0x7300bba18
+      ChildID: 0x751070136
+    - ParentID: 0x7300bba18
+      ChildID: 0x4de607385
+    - ParentID: 0x107e86f4d
+      ChildID: 0x7f51e62bb
+    - ParentID: 0x7f51e62bb
+      ChildID: 0x44bc79a54
+    - ParentID: 0x44bc79a54
+      ChildID: 0x3095a1a25
+    - ParentID: 0x677f26bda
+      ChildID: 0x128032a7
+    - ParentID: 0x75d1f1588
+      ChildID: 0x7a6e18ffd
+    - ParentID: 0x7a6e18ffd
+      ChildID: 0x4a4a5832e
+    - ParentID: 0x4a4a5832e
+      ChildID: 0x49c53aeeb
+    - ParentID: 0x49c53aeeb
+      ChildID: 0x69542a4c4
+    - ParentID: 0x74ee27983
+      ChildID: 0x2423a247c
+    - ParentID: 0x74ee27983
+      ChildID: 0x4d8744761
+    - ParentID: 0x74ee27983
+      ChildID: 0x2438a8442
+    - ParentID: 0x74ee27983
+      ChildID: 0x1072cf9ef
+    - ParentID: 0x2423a247c
+      ChildID: 0x657c79767
+    - ParentID: 0x2423a247c
+      ChildID: 0x106a1a6af
+    - ParentID: 0x4d8744761
+      ChildID: 0x58e421c71
+    - ParentID: 0x4d8744761
+      ChildID: 0x6b85042b8
+    - ParentID: 0x2438a8442
+      ChildID: 0x18f0257ab
+    - ParentID: 0x2438a8442
+      ChildID: 0x19f45476d
+    - ParentID: 0x1072cf9ef
+      ChildID: 0x97924395
+    - ParentID: 0x1072cf9ef
+      ChildID: 0x29d724fde
+    - ParentID: 0x9f03ccf8
+      ChildID: 0xa17b5cad
+    - ParentID: 0x9f03ccf8
+      ChildID: 0x5eece341e
+    - ParentID: 0x9f03ccf8
+      ChildID: 0x2b9f6ccbf
+    - ParentID: 0xa17b5cad
+      ChildID: 0x7903c2316
+    - ParentID: 0x5eece341e
+      ChildID: 0x40588871b
+    - ParentID: 0x53e4c37b3
+      ChildID: 0xe1e778ec
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x385734d11
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x2675b5a32
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x53932f31f
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x164b0e068
+    - ParentID: 0x53e4c37b3
+      ChildID: 0xdd61a10e
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x1b0f0da4
+    - ParentID: 0x53e4c37b3
+      ChildID: 0x51390d3aa
+    - ParentID: 0x2675b5a32
+      ChildID: 0x54200d55d
+    - ParentID: 0xdd61a10e
+      ChildID: 0x4c7bfeb4b
+    - ParentID: 0x1b0f0da4
+      ChildID: 0xdbf85869
+    - ParentID: 0x51390d3aa
+      ChildID: 0x4166a4c37
+    - ParentID: 0x476623ca0
+      ChildID: 0x2e333e235
+    - ParentID: 0x2e333e235
+      ChildID: 0x335468e06
+    - ParentID: 0x335468e06
+      ChildID: 0x54a8201e3
+    - ParentID: 0x54a8201e3
+      ChildID: 0x7dbc695c
+    - ParentID: 0x6b6aec9fe
+      ChildID: 0x402bcdb7b
+    - ParentID: 0x402bcdb7b
+      ChildID: 0x334ee6c14
+    - ParentID: 0x334ee6c14
+      ChildID: 0x1bf006019
+    - ParentID: 0x1bf006019
+      ChildID: 0x20fe3439a
+    - ParentID: 0x657c79767
+      ChildID: 0x2ccfefa10
+    - ParentID: 0x657c79767
+      ChildID: 0x3ee8b7ce5
+    - ParentID: 0x657c79767
+      ChildID: 0x18f9a34f6
+    - ParentID: 0x657c79767
+      ChildID: 0xa9a6d813
+    - ParentID: 0x657c79767
+      ChildID: 0x1d03ff5cc
+    - ParentID: 0x58e421c71
+      ChildID: 0x7d3dffa12
+    - ParentID: 0x58e421c71
+      ChildID: 0x69cba497f
+    - ParentID: 0x58e421c71
+      ChildID: 0x5a4001b48
+    - ParentID: 0x58e421c71
+      ChildID: 0x5d3bacabd
+    - ParentID: 0x58e421c71
+      ChildID: 0x43cc4aeee
+    - ParentID: 0x18f0257ab
+      ChildID: 0x2ef67e684
+    - ParentID: 0x18f0257ab
+      ChildID: 0x4658ad3c9
+    - ParentID: 0x18f0257ab
+      ChildID: 0x507782f8a
+    - ParentID: 0x18f0257ab
+      ChildID: 0x5e78c2e97
+    - ParentID: 0x18f0257ab
+      ChildID: 0x186f59380
+    - ParentID: 0x97924395
+      ChildID: 0xb92617e6
+    - ParentID: 0x97924395
+      ChildID: 0x1e29dba43
+    - ParentID: 0x97924395
+      ChildID: 0x75db91e3c
+    - ParentID: 0x97924395
+      ChildID: 0x7e207e621
+    - ParentID: 0x97924395
+      ChildID: 0x4b591c402

@@ -1,0 +1,6 @@
+StaticModel:
+  MeshCount: 1
+  Meshes:
+    - MaterialIndex: 0
+      VertexCount: 55584
+      IndexCount: 83232
